@@ -192,7 +192,7 @@ th{position:sticky;top:0;background:var(--panel);font-family:var(--f-body);font-
       <span class="row2"><label for="tmEvery">add a profile every</label><input id="tmEvery" type="number" step="any" min="0" value="10" style="width:5rem"><span class="keys" id="tmEveryU">s</span><button id="tmAddEvery" title="Adds profiles at regular times over the time range shown in the map">add over view</button></span>
       <button id="tmDelSel" disabled title="Remove the selected line (click a line on the map, then press Delete)">Delete selected</button>
       <button id="tmClear" title="Remove every line / profile">Reset lines</button>
-      <span class="row2"><label for="tmLab">labels</label><select id="tmLab" style="width:auto"><option value="time">time</option><option value="frame">frame</option><option value="time+frame">time + frame</option></select><span class="row2" style="gap:6px;margin-left:10px" title="Typed conditions added to the legends of both plots when ticked"><label><input id="isSccmOn" type="checkbox"> SCCM</label><input id="isSccm" type="number" step="any" placeholder="value" style="width:4.6rem"><label style="margin-left:6px"><input id="isTOn" type="checkbox"> T</label><input id="isT" type="number" step="any" placeholder="value" style="width:4.6rem"><span class="keys">°C</span></span></span>
+      <span class="row2"><label for="tmLab">labels</label><select id="tmLab" style="width:auto"><option value="time">time</option><option value="frame">frame</option><option value="time+frame">time + frame</option></select><span class="row2" style="gap:6px;margin-left:10px" title="Typed conditions added to the legends of both plots when ticked"><label><input id="isSccmOn" type="checkbox"> SCCM</label><input id="isSccm" type="number" step="any" placeholder="value" style="width:4.6rem"><input id="isGas" type="text" placeholder="gas" title="Gas name, written after SCCM (e.g. PH3)" style="width:5.5rem"><label style="margin-left:6px"><input id="isTOn" type="checkbox"> T</label><input id="isT" type="number" step="any" placeholder="value" style="width:4.6rem"><span class="keys">°C</span></span></span>
       <span class="spacer"></span><span class="status" id="tmStatus"></span>
     </div>
     <div class="keys"><kbd>click</kbd> the map to take the radial profile at that frame · <kbd>click</kbd> a line to select it, <kbd>Delete</kbd> removes it · <kbd>drag</kbd> pan · <kbd>wheel</kbd> zoom time · <kbd>shift</kbd>+<kbd>wheel</kbd> zoom radius · <kbd>double-click</kbd> reset view · drag a profile's line on the map to move it · the profiles are overlaid below and can be compared with CIF phases (tick or highlight a phase in the CIF list).</div>
@@ -994,7 +994,7 @@ function setDefaultRange(){const P=S.profile,mode=$("xmode").value;if(!P)return;
   $("xlo").value=+lo.toPrecision(4);$("xhi").value=+hi.toPrecision(4);}
 $("xmode").addEventListener("change",()=>{setDefaultRange();drawChart();});
 for(const id of ["xlo","xhi"]){$(id).addEventListener("focus",()=>{UNDO.pre=snap();});$(id).addEventListener("change",()=>{if(UNDO.pre)undoPush("zoomtxt",UNDO.pre);UNDO.pre=snap();drawChart();});}
-$("logy").addEventListener("change",drawChart);$("pkLines").addEventListener("change",drawChart);$("pkFull").addEventListener("change",drawChart);$("bgsub").addEventListener("change",()=>{drawChart();updSaveLabels();});
+$("logy").addEventListener("change",drawChart);$("pkLines").addEventListener("change",()=>drawChart());$("pkFull").addEventListener("change",drawChart);$("bgsub").addEventListener("change",()=>{drawChart();updSaveLabels();});
 function niceTicks(a,b,n){if(!(b>a))return[];const span=b-a,step0=span/n,mag=Math.pow(10,Math.floor(Math.log10(step0)));const f=step0/mag;const step=(f<1.5?1:f<3?2:f<7?5:10)*mag;
   const out=[];for(let v=Math.ceil(a/step)*step;v<=b+1e-9;v+=step)out.push(+v.toPrecision(10));return out;}
 let hoverX=null, chartGeom=null;
@@ -1011,6 +1011,8 @@ function expLegend(){const acq=S.acqStr||(S.real&&S.real.acq)||"",parts=[];
   if($("lgP").checked&&S.plog&&acq){const r=logAt(S.plog,acq);if(r&&!r.err)parts.push(S.plog.cols.map(c=>`${c.name} ${fmtP(c.v[r.i])}`).join(" ")+(S.plog.cols[0]&&S.plog.cols[0].unit?" "+S.plog.cols[0].unit:""));}
   return parts.length?`Experimental (${parts.join(" · ")})`:"Experimental";}
 for(const id of ["lgName","lgType","lgDate","lgTime","lgTs","lgT","lgP"])document.getElementById(id).addEventListener("change",()=>drawChart());
+/* compact y tick labels: 6000000 → 6e6, 2500000 → 2.5e6 (keeps them clear of the axis title) */
+function yTick(v){const a=Math.abs(v);if(a>=1e5||(a>0&&a<1e-3)){const e=Math.floor(Math.log10(a)),m=v/Math.pow(10,e);return `${+m.toFixed(2)}e${e}`;}return String(+v.toPrecision(4));}
 function drawChart(target,tdpr){
   const exp=target instanceof HTMLCanvasElement,cv=exp?target:cvC;/* target is an Event when used as an event handler */const ctx=cv.getContext("2d");if(!exp)sizeCanvas(cvC);const cw=cv.width,ch=cv.height,dpr=exp?tdpr:cw/Math.max(1,cvC.getBoundingClientRect().width);
   ctx.clearRect(0,0,cw,ch); const P=S.profile; if(!P)return;
@@ -1031,10 +1033,10 @@ function drawChart(target,tdpr){
   ctx.textAlign="center";ctx.textBaseline="top";
   for(const v of niceTicks(lo,hi,8)){const x=sx(v);ctx.beginPath();ctx.moveTo(x,T);ctx.lineTo(x,T+ph);ctx.stroke();ctx.fillText(String(+v.toPrecision(6)),x,T+ph+6*dpr);}
   ctx.textAlign="right";ctx.textBaseline="middle";
-  for(const v of niceTicks(ymin,ymax,5)){const y=T+ph-(v-ymin)/(ymax-ymin)*ph;ctx.beginPath();ctx.moveTo(L,y);ctx.lineTo(L+pw,y);ctx.stroke();ctx.fillText(logy?String(+Math.pow(10,v).toPrecision(2)):String(+v.toPrecision(4)),L-6*dpr,y);}
+  for(const v of niceTicks(ymin,ymax,5)){const y=T+ph-(v-ymin)/(ymax-ymin)*ph;ctx.beginPath();ctx.moveTo(L,y);ctx.lineTo(L+pw,y);ctx.stroke();ctx.fillText(logy?yTick(Math.pow(10,v)):yTick(v),L-6*dpr,y);}
   ctx.fillStyle=ink;ctx.textAlign="center";ctx.textBaseline="bottom";
   ctx.font=`${12*dpr}px "IBM Plex Sans",sans-serif`;ctx.fillText({d:"d (Å)",tt:"2θ (°)",q:"q (nm⁻¹)",r:"r (px)"}[mode],L+pw/2,ch-2*dpr);
-  ctx.save();ctx.translate(14*dpr,T+ph/2);ctx.rotate(-Math.PI/2);ctx.textBaseline="top";ctx.fillText(bgs?"I − background":"I (azimuthal mean)",0,0);ctx.restore();
+  ctx.save();ctx.translate(5*dpr,T+ph/2);ctx.rotate(-Math.PI/2);ctx.textBaseline="top";ctx.fillText("Intensity",0,0);ctx.restore();
   ctx.save();ctx.beginPath();ctx.rect(L,T,pw,ph);ctx.clip();
   ctx.strokeStyle=acc;ctx.lineWidth=1.3*dpr;ctx.beginPath();let first=true;
   for(let i=0;i<X.length;i++){if(X[i]<lo||X[i]>hi){first=true;continue;}const x=sx(X[i]),y=sy(Y[i]);if(first){ctx.moveTo(x,y);first=false;}else ctx.lineTo(x,y);}
@@ -2078,10 +2080,10 @@ function drawCmp(target,tdpr){const exp=target instanceof HTMLCanvasElement,cv=e
   const sx=v=>Lm+(v-lo)/(hi-lo)*pw,sy=v=>T+ph-(v-ymin)/(ymax-ymin)*ph;cmpGeom={L:Lm,pw,T,ph,lo,hi,mode,dpr};
   ctx.font=`${11*dpr}px "IBM Plex Mono",monospace`;ctx.fillStyle=muted;ctx.strokeStyle=line;ctx.lineWidth=1*dpr;ctx.textAlign="center";ctx.textBaseline="top";
   for(const v of niceTicks(lo,hi,8)){const x=sx(v);ctx.beginPath();ctx.moveTo(x,T);ctx.lineTo(x,T+ph);ctx.stroke();ctx.fillText(String(+v.toPrecision(6)),x,T+ph+6*dpr);}
-  ctx.textAlign="right";ctx.textBaseline="middle";if(!stacked)for(const v of niceTicks(ymin,ymax,5)){const y=sy(v);ctx.beginPath();ctx.moveTo(Lm,y);ctx.lineTo(Lm+pw,y);ctx.stroke();ctx.fillText(String(+v.toPrecision(4)),Lm-6*dpr,y);}
+  ctx.textAlign="right";ctx.textBaseline="middle";if(!stacked)for(const v of niceTicks(ymin,ymax,5)){const y=sy(v);ctx.beginPath();ctx.moveTo(Lm,y);ctx.lineTo(Lm+pw,y);ctx.stroke();ctx.fillText(yTick(v),Lm-6*dpr,y);}
   ctx.fillStyle=ink;ctx.textAlign="center";ctx.textBaseline="bottom";ctx.font=`${12*dpr}px "IBM Plex Sans",sans-serif`;ctx.fillText({d:"d (Å)",tt:"2θ (°)",q:"q (nm⁻¹)"}[mode],Lm+pw/2,ch-2*dpr);
-  ctx.save();ctx.translate(14*dpr,T+ph/2);ctx.rotate(-Math.PI/2);ctx.textBaseline="top";
-  ctx.fillText(($("cmpNorm").value!=="none"?"normalised ":"")+($("cmpBg").checked?"I − background":"I")+(stacked?" (offset)":""),0,0);ctx.restore();
+  ctx.save();ctx.translate(5*dpr,T+ph/2);ctx.rotate(-Math.PI/2);ctx.textBaseline="top";
+  ctx.fillText(($("cmpNorm").value!=="none"?"Normalised intensity":"Intensity")+(stacked?" (stacked)":""),0,0);ctx.restore();
   ctx.save();ctx.beginPath();ctx.rect(Lm,T,pw,ph);ctx.clip();
   if(/^r/.test($("cmpNorm").value)){const n1=+$("cmpNd").value,n2=+$("cmpNd2").value,tx=d=>mode==="d"?d:mode==="q"?10/d:2*Math.asin(Math.min(1,lambdaA(+$("kv").value||300)/(2*d)))*180/Math.PI;
     if(n1>0&&n2>0){const a=sx(tx(n1)),b=sx(tx(n2));ctx.fillStyle=css.getPropertyValue("--accent");ctx.globalAlpha=.08;ctx.fillRect(Math.min(a,b),T,Math.abs(b-a),ph);ctx.globalAlpha=1;}}
@@ -2115,7 +2117,7 @@ cvK.addEventListener("wheel",e=>{if(!cmpGeom)return;e.preventDefault();const g=c
 cvK.addEventListener("dblclick",()=>{$("cmpLo").value="";$("cmpHi").value="";drawCmp();});
 $("cmpReset").addEventListener("click",()=>{$("cmpLo").value="";$("cmpHi").value="";drawCmp();});
 $("cmpXm").addEventListener("change",()=>{$("cmpLo").value="";$("cmpHi").value="";drawCmp();});
-for(const id of ["cmpLo","cmpHi","cmpNd","cmpNd2","cmpOff"])$(id).addEventListener("change",drawCmp);
+for(const id of ["cmpLo","cmpHi","cmpNd","cmpNd2","cmpOff"])$(id).addEventListener("change",()=>drawCmp());
 $("cmpOff").addEventListener("input",drawCmp);
 for(const id of ["cmpBg","cmpSticks","cmpRev","cmpStFull"])$(id).addEventListener("change",()=>{$("cmpStWrap").hidden=!$("cmpSticks").checked;cmpRender();});
 $("cmpStH").addEventListener("input",()=>{$("cmpStHv").textContent=$("cmpStH").value+" %";drawCmp();});
@@ -2204,7 +2206,7 @@ function tmRecalc(){for(const e of S.cmp)e.prof=tmProfile(e.frame,e.win);cmpRend
 /* ---- overrides of the comparison code for time profiles */
 function cmpVis(){$("cmpPanel").hidden=!S.cmp.length;}
 function cmpOrder(){const L=S.cmp.slice();if($("cmpSort").value!=="custom")L.sort((a,b)=>a.frame-b.frame);if($("cmpRev").checked)L.reverse();return L;}
-function cmpLabel(e){return [cmpLabel0(e),...isCond()].join(" · ");}
+function cmpLabel(e){return cmpLabel0(e);}
 function cmpLabel0(e){const k=$("tmLab").value,t=`t = ${fmtTime(frameT(e.frame))}`,f=`frame ${e.frame}`+(e.win>0?` ±${e.win}`:"");return k==="frame"?f:k==="time+frame"?`${t} · ${f}`:t;}
 function cmpRender(){const tb=$("tmRows");tb.textContent="";const L=cmpOrder();
   if(!L.length){tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--muted)">click the map to add profiles</td></tr>';}
@@ -2295,13 +2297,20 @@ S.tmLine=null;S.tmLineProf=null;
 /* legend of the peaks plot in this app: stack name, time and frame of the selected line (the stack has no per-line acquisition date/time) */
 expLegend=function(){const e=S.tmLine,parts=[];if($("lgName").checked&&TM.name)parts.push(TM.name);
   if(e){if($("lgTime").checked)parts.push(`t = ${fmtTime(frameT(e.frame))}`);if($("lgFrame").checked)parts.push(`frame ${e.frame}`+(e.win>0?` ±${e.win}`:""));}
-  parts.push(...isCond());
   return parts.length?`Experimental (${parts.join(" · ")})`:"Experimental";};
 /* typed conditions: “13 SCCM”, “30 °C” */
-function isCond(){const o=[],f=$("isSccm").value.trim(),t=$("isT").value.trim();if($("isSccmOn").checked&&f!=="")o.push(`${f} SCCM`);if($("isTOn").checked&&t!=="")o.push(`${t} °C`);return o;}
-function isCondChanged(){try{cmpRender();}catch(e){}try{if(S.profile)drawChart();}catch(e){}}
+function isCond(){const o=[],f=$("isSccm").value.trim(),gn=$("isGas").value.trim(),t=$("isT").value.trim();if($("isSccmOn").checked&&(f!==""||gn))o.push(f!==""?`${f} SCCM${gn?" "+gn:""}`:gn);if($("isTOn").checked&&t!=="")o.push(`${t} °C`);return o;}
+/* the typed conditions are written once, at the top left inside each plot */
+function condDraw(cv,dpr){const t=isCond().join(" · ");if(!t)return;const ctx=cv.getContext("2d"),css=getComputedStyle(document.documentElement),fs=12*dpr,x=64*dpr+8*dpr,y=14*dpr+6*dpr;
+  ctx.save();ctx.font=`600 ${fs}px "IBM Plex Mono",monospace`;ctx.textAlign="left";ctx.textBaseline="top";const w=ctx.measureText(t).width;
+  ctx.fillStyle=css.getPropertyValue("--panel").trim()||"#fff";ctx.globalAlpha=.85;ctx.fillRect(x-5*dpr,y-4*dpr,w+10*dpr,fs+8*dpr);ctx.globalAlpha=1;ctx.fillStyle=css.getPropertyValue("--ink").trim()||"#000";ctx.fillText(t,x,y);ctx.restore();}
+{const _dc=drawCmp;drawCmp=function(target,tdpr){_dc(target,tdpr);const exp=target instanceof HTMLCanvasElement;if(!exp&&$("cmpPanel").hidden)return;if(!S.cmp.some(e=>e.show&&e.prof))return;
+  condDraw(exp?target:cvK,exp?tdpr:cvK.width/Math.max(1,cvK.getBoundingClientRect().width));};}
+{const _dh=drawChart;drawChart=function(target,tdpr){_dh(target,tdpr);if(!S.profile)return;const exp=target instanceof HTMLCanvasElement;
+  condDraw(exp?target:cvC,exp?tdpr:cvC.width/Math.max(1,cvC.getBoundingClientRect().width));};}
+function isCondChanged(){try{cmpRender();}catch(e){}try{drawCmp();}catch(e){}try{if(S.profile)drawChart();}catch(e){}}
 
-for(const id of ["isSccm","isT"])$(id).addEventListener("input",isCondChanged);for(const id of ["isSccmOn","isTOn"])$(id).addEventListener("change",isCondChanged);
+for(const id of ["isSccm","isGas","isT"])$(id).addEventListener("input",isCondChanged);for(const id of ["isSccmOn","isTOn"])$(id).addEventListener("change",isCondChanged);
 $("lgFrame").addEventListener("change",()=>drawChart());
 function tmSyncPeaks(force){const e=S.cmpActive&&S.cmp.includes(S.cmpActive)?S.cmpActive:(S.cmp.length===1?S.cmp[0]:null),pan=$("pkPanel");
   if(!e||!TM.data){pan.hidden=true;S.tmLine=null;S.tmLineProf=null;S.profile=null;S.peaks=[];return;}
