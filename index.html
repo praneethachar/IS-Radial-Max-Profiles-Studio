@@ -294,6 +294,7 @@ th{position:sticky;top:0;background:var(--panel);font-family:var(--f-body);font-
 
   <section class="panel" id="cmpPanel" hidden style="display:grid;gap:10px">
     <div class="chartbar">
+      <button id="cmpCollapse" title="Collapse / expand this section" aria-label="collapse" style="padding:2px 9px">▾</button>
       <h2>Radial profiles</h2><span class="keys" id="cmpCount"></span>
       <button class="primary" id="cmpRun" hidden title="Compute (or recompute) the profile of every image in the list">Compute all</button>
       <span class="row2"><label for="cmpLay">layout</label><select id="cmpLay" style="width:auto"><option value="overlay">overlay</option><option value="stack">stacked</option></select></span>
@@ -340,7 +341,7 @@ th{position:sticky;top:0;background:var(--panel);font-family:var(--f-body);font-
     </div>
     <div class="chartbar"><button id="pkAddBtn" aria-pressed="false" title="While on, clicking the plot adds a peak at that position (right-click also adds; right-click a peak removes it)">+ Add peaks</button><button id="pkDelSel" disabled title="Delete the selected peaks (click a peak, shift+click for more), or press Delete">Delete selected</button><button id="pkUndo" title="Forget all added and removed peaks">Undo peak edits</button><span class="spacer"></span><div class="row2"><label for="xmode">x axis</label>
         <select id="xmode" style="width:auto"><option value="d">d (Å)</option><option value="tt">2θ (°)</option><option value="q">q (nm⁻¹)</option><option value="r">r (px)</option></select></div><div class="row2"><label for="xlo">from</label><input id="xlo" type="number" step="any"><label for="xhi">to</label><input id="xhi" type="number" step="any"><button id="zreset" title="Back to the full range (or double-click the plot)">Reset zoom</button></div></div>
-    <div class="chartbar"><div class="row2"><label title="Vertical line at each detected peak; it turns green when a shown CIF line is within ±1 % in d"><input id="pkLines" type="checkbox"> peak lines</label><label title="On: the peak line runs down to the baseline. Off: it stops at the peak marker, so CIF sticks underneath stay clear"><input id="pkFull" type="checkbox" checked> full height</label>
+    <div class="chartbar"><div class="row2"><label title="Vertical line at each detected peak; it turns green when a shown CIF line is within ±1 % in d"><input id="pkLines" type="checkbox"> peak lines</label><label title="On: the peak line runs down to the baseline. Off: it stops at the peak marker, so CIF sticks underneath stay clear"><input id="pkFull" type="checkbox" checked> full height</label><span class="row2" style="gap:6px;margin-left:8px" title="CIF sticks on this plot"><label for="pkStH" title="Height of a 100 % CIF line, as a fraction of the plot height">stick height</label><input id="pkStH" type="range" min="5" max="100" step="1" value="42" style="width:7rem"><span class="keys" id="pkStHv">42 %</span><label title="Every CIF line runs the full plot height (intensity shown as opacity)"><input id="pkStFull" type="checkbox"> full-height lines</label></span>
         <label><input id="logy" type="checkbox"> log I</label><label><input id="bgsub" type="checkbox" checked> subtract background</label></div><div class="row2"><label for="sens">peak sensitivity</label><input id="sens" type="range" min="2" max="20" step="0.5" value="6" style="width:7rem"><label for="pkMin" title="Ignore detected peaks lower than this % of the strongest peak (peaks you add by hand are always kept)">min height</label><input id="pkMin" type="number" min="0" max="100" step="0.5" value="2" style="width:4.5rem"><span class="keys">%</span></div></div>
     <div class="chartbar"><span class="row2" style="gap:6px" title="What the legend shows for the experimental profile"><button id="lgEditBtn" title="Edit the legend texts of this plot" style="padding:2px 9px">✎ edit legend</button><span class="keys">legend:</span><label title="Name of the radial-profile stack"><input id="lgName" type="checkbox"> file name</label><label title="Time of the selected line (FPS and start from the map)"><input id="lgTime" type="checkbox" checked> time</label><label title="Frame number of the selected line (± averaging)"><input id="lgFrame" type="checkbox"> frame</label><label hidden><input id="lgType" type="checkbox"> type</label><label hidden><input id="lgDate" type="checkbox"> date</label><label hidden><input id="lgTs" type="checkbox"> T set</label><label hidden><input id="lgT" type="checkbox"> T meas</label><label hidden><input id="lgP" type="checkbox"> pressure</label></span></div>
     <div id="lgEdit" class="lgedit" hidden></div>
@@ -1062,8 +1063,8 @@ function drawChart(target,tdpr){
   if($("cSticks").checked&&S.phases.some(phVisible)){const shown=S.phases.filter(phVisible);const lab=$("cLab").checked||$("cLabD").checked,lfs=(+$("cLabSize").value||10)*dpr;
     const cifLabs=[];
     shown.forEach((phs,pi)=>{ctx.strokeStyle=phs.color;ctx.fillStyle=phs.color;const focus=phs.id===S.focus;
-      for(const ln of phaseLines(phs,false)){const r=phaseR(ln.d);if(!(r>0))continue;const xv=rToX(r,mode);if(xv<lo||xv>hi)continue;const x=sx(xv),hgt=ln.I/100*ph*0.42;
-        ctx.globalAlpha=0.85;ctx.lineWidth=(focus?2:1.4)*dpr;ctx.beginPath();ctx.moveTo(x,T+ph);ctx.lineTo(x,T+ph-hgt);ctx.stroke();
+      for(const ln of phaseLines(phs,false)){const r=phaseR(ln.d);if(!(r>0))continue;const xv=rToX(r,mode);if(xv<lo||xv>hi)continue;const x=sx(xv),stFull=$("pkStFull").checked,hgt=stFull?ph:ln.I/100*ph*(+$("pkStH").value||42)/100;
+        ctx.globalAlpha=stFull?0.25+0.65*Math.min(1,ln.I/60):0.85;ctx.lineWidth=(focus?2:1.4)*dpr;ctx.beginPath();ctx.moveTo(x,T+ph);ctx.lineTo(x,T+ph-hgt);ctx.stroke();
         if(lab)cifLabs.push({x,top:T+ph-hgt-3*dpr,txt:labTxt(ln),color:phs.color,font:`${focus?"600 ":""}${lfs}px "IBM Plex Mono",monospace`,I:ln.I+(focus?1000:0)});}});
     ctx.globalAlpha=1;cifLabs.sort((a,b)=>b.I-a.I);
     for(const c of cifLabs){ctx.font=c.font;const tw=ctx.measureText(c.txt).width,pos=placeLabel(c.x,c.top,tw+2*dpr,lfs*1.15,0.5*lfs);
@@ -1514,6 +1515,7 @@ const phaseRefresh=()=>{renderPhases();redrawAll();drawChart();};
 $("cs").addEventListener("input",()=>{$("csN").value=$("cs").value;phaseRefresh();});
 $("csN").addEventListener("change",()=>{$("cs").value=$("csN").value;phaseRefresh();});
 for(const id of ["cmin","cRings","cSticks","cLab","cLabD","cLabSize"])$(id).addEventListener("change",phaseRefresh);
+$("pkStH").addEventListener("input",()=>{$("pkStHv").textContent=$("pkStH").value+" %";drawChart();});$("pkStFull").addEventListener("change",()=>drawChart());
 
 
 /* ============================================================== synthetic example */
@@ -2120,6 +2122,7 @@ $("cmpXm").addEventListener("change",()=>{$("cmpLo").value="";$("cmpHi").value="
 for(const id of ["cmpLo","cmpHi","cmpNd","cmpNd2","cmpOff"])$(id).addEventListener("change",()=>drawCmp());
 $("cmpOff").addEventListener("input",drawCmp);
 for(const id of ["cmpBg","cmpSticks","cmpRev","cmpStFull"])$(id).addEventListener("change",()=>{$("cmpStWrap").hidden=!$("cmpSticks").checked;cmpRender();});
+$("cmpStWrap").hidden=!$("cmpSticks").checked;
 $("cmpStH").addEventListener("input",()=>{$("cmpStHv").textContent=$("cmpStH").value+" %";drawCmp();});
 for(const id of ["clName","clType","clDate","clTime","clTs","clT","clP"])$(id).addEventListener("change",()=>cmpRender());
 for(const id of ["cmpLay","cmpNorm","cmpCol","cmpSort"])$(id).addEventListener("change",()=>{$("cmpOffWrap").hidden=$("cmpLay").value!=="stack";$("cmpNdWrap").hidden=!/^r/.test($("cmpNorm").value);cmpRender();});
@@ -2177,6 +2180,11 @@ function tmDraw(){sizeCanvas(tmCv);const ctx=tmCv.getContext("2d"),g=tmGeom(),{W
     ctx.strokeStyle=col;ctx.lineWidth=(e===S.cmpActive?2.6:1.5)*dpr;ctx.beginPath();ctx.moveTo(x,T);ctx.lineTo(x,T+ph);ctx.stroke();
     ctx.fillStyle=col;ctx.font=`600 ${11*dpr}px "IBM Plex Mono",monospace`;{const t=cmpLabel0(e),tw=ctx.measureText(t).width;ctx.save();ctx.translate(x+3*dpr,T+6*dpr);ctx.rotate(-Math.PI/2);ctx.textAlign="right";ctx.textBaseline="top";
       ctx.fillStyle="rgba(0,0,0,.6)";ctx.fillRect(-tw-3*dpr,-1*dpr,tw+6*dpr,14*dpr);ctx.fillStyle=col;ctx.fillText(t,0,0);ctx.restore();}}
+  /* positions picked in the plots: horizontal lines at the same d */
+  for(const sl of (S.sels||[])){const y=yy(sl.r);if(y<T||y>T+ph)continue;const col=sl.color==="#ffffff"?"#ffffff":sl.color;
+    ctx.save();ctx.strokeStyle="rgba(0,0,0,.6)";ctx.lineWidth=4*dpr;ctx.beginPath();ctx.moveTo(L,y);ctx.lineTo(L+pw,y);ctx.stroke();ctx.strokeStyle=col;ctx.lineWidth=1.8*dpr;ctx.beginPath();ctx.moveTo(L,y);ctx.lineTo(L+pw,y);ctx.stroke();
+    const t=`d ${sl.d.toFixed(4)} Å`;ctx.font=`600 ${11*dpr}px "IBM Plex Mono",monospace`;ctx.textAlign="left";ctx.textBaseline="bottom";const tw=ctx.measureText(t).width;
+    ctx.fillStyle="rgba(0,0,0,.7)";ctx.fillRect(L+6*dpr,y-17*dpr,tw+8*dpr,15*dpr);ctx.fillStyle=col;ctx.fillText(t,L+10*dpr,y-4*dpr);ctx.restore();}
   if(TM.hover&&!TM.drag){ctx.strokeStyle="rgba(255,255,255,.5)";ctx.lineWidth=1*dpr;ctx.setLineDash([3*dpr,3*dpr]);ctx.beginPath();ctx.moveTo(TM.hover.x,T);ctx.lineTo(TM.hover.x,T+ph);ctx.stroke();ctx.setLineDash([]);}
   ctx.restore();
   /* axes */
@@ -2318,7 +2326,7 @@ function tmSyncPeaks(force){const e=S.cmpActive&&S.cmp.includes(S.cmpActive)?S.c
   const keepRange=e===S.tmLine;S.tmLine=e;S.tmLineProf=e.prof;const P0=e.prof,sc=+$("tmSc").value,lam=lambdaA(+$("tmKv").value||300);
   const n=P0.D.length,R=new Array(n);for(let i=0;i<n;i++)R[i]=i+1;
   S.profile={R,Q:Array.from(P0.Q),D:Array.from(P0.D),TT:Array.from(P0.TT),I:Array.from(P0.I),N:new Array(n).fill(1),bg:Array.from(P0.bg),cx:0,cy:0,sc,kv:+$("tmKv").value||300,lam,bin:1,mask:false};
-  e.pkAdd=e.pkAdd||[];e.pkDel=e.pkDel||[];S.pkAdd=e.pkAdd;S.pkDel=e.pkDel;S.sels=[];
+  e.pkAdd=e.pkAdd||[];e.pkDel=e.pkDel||[];S.pkAdd=e.pkAdd;S.pkDel=e.pkDel;S.sels=(S.sels||[]).map(x=>Object.assign(x,{peak:null}));   /* plain d positions stay marked when another line is chosen */
   S.name=`${TM.name.replace(/\.[^.]+$/,"")}_t${(frameT(e.frame)).toFixed(2)}s`;
   $("scale").value=sc>0?sc:"";   /* CIF sticks / matching in the peak plot use this calibration */
   {const wasHidden=pan.hidden;pan.hidden=false;if(wasHidden&&typeof pkApplyCollapse==="function")pkApplyCollapse();}$("pkWhich").textContent=e.win?`average ±${e.win} frames`:"";
@@ -2486,6 +2494,27 @@ async function v3gSave(){if(!V3G.canv.length)return;const st=$("v3gStatus"),T=V3
 $("v3gMake").addEventListener("click",v3gMake);$("v3gSave").addEventListener("click",v3gSave);
 for(const id of ["v3gAng","v3gN","v3gDt"])$(id).addEventListener("input",()=>{v3gSpeed();if(id==="v3gDt"&&V3G.canv.length)v3gPlay();});
 v3gSpeed();
+/* collapse the Radial profiles section (same button position as in d-Spacing Compare) */
+{const st=document.createElement("style");st.textContent="#cmpPanel.pcoll>:not(:first-child){display:none!important}#cmpPanel.pcoll>:first-child>:not(h2):not(#cmpCollapse):not(#cmpCount){display:none!important}";document.head.appendChild(st);
+ $("cmpCollapse").addEventListener("click",()=>{const on=!$("cmpPanel").classList.contains("pcoll");$("cmpPanel").classList.toggle("pcoll",on);$("cmpCollapse").textContent=on?"▸":"▾";if(!on)drawCmp();});}
+/* clicking a position in either plot marks it on the map (and in both plots); shift-click adds more, Esc clears */
+{let selKey="";const keyOf=()=>(S.sels||[]).map(x=>x.r.toFixed(2)+x.color).join("|");
+ const _dh=drawChart;drawChart=function(t,d){_dh(t,d);const k=keyOf();if(k!==selKey){selKey=k;tmDraw();if(!(t instanceof HTMLCanvasElement))drawCmp();}};
+ const _dc=drawCmp;drawCmp=function(target,tdpr){_dc(target,tdpr);const exp=target instanceof HTMLCanvasElement,cv=exp?target:cvK,g=cmpGeom;if(!g||!(S.sels||[]).length||(!exp&&$("cmpPanel").hidden))return;
+   const ctx=cv.getContext("2d"),dpr=exp?tdpr:g.dpr,sc=+$("tmSc").value,lam=lambdaA(+$("tmKv").value||300);if(exp&&tdpr!==g.dpr)return;
+   ctx.save();ctx.beginPath();ctx.rect(g.L,g.T,g.pw,g.ph);ctx.clip();
+   for(const sl of S.sels){const d=sl.d,xv=g.mode==="d"?d:g.mode==="q"?10/d:2*Math.asin(Math.min(1,lam/(2*d)))*180/Math.PI;if(xv<g.lo||xv>g.hi)continue;const x=g.L+(xv-g.lo)/(g.hi-g.lo)*g.pw;
+     ctx.strokeStyle=sl.color==="#ffffff"?getComputedStyle(document.documentElement).getPropertyValue("--muted"):sl.color;ctx.lineWidth=2*dpr;ctx.setLineDash([6*dpr,4*dpr]);ctx.beginPath();ctx.moveTo(x,g.T);ctx.lineTo(x,g.T+g.ph);ctx.stroke();}
+   ctx.restore();};
+ /* click (not drag) in the Radial profiles plot */
+ let down=null;cvK.addEventListener("pointerdown",e=>{down={x:e.offsetX,y:e.offsetY};});
+ cvK.addEventListener("click",e=>{if(!down||Math.hypot(e.offsetX-down.x,e.offsetY-down.y)>5)return;if($("cmpNdPick").getAttribute("aria-pressed")==="true")return;
+   const g=cmpGeom;if(!g||!S.profile)return;const k=cvK.width/cvK.getBoundingClientRect().width,px=e.offsetX*k;if(px<g.L||px>g.L+g.pw)return;
+   const xv=g.lo+(px-g.L)/g.pw*(g.hi-g.lo),lam=lambdaA(+$("tmKv").value||300),d=g.mode==="d"?xv:g.mode==="q"?10/xv:lam/(2*Math.sin(xv*Math.PI/360)),sc=+$("tmSc").value;
+   if(!(d>0)||!(sc>0))return;selectRing(10/d/sc,null,e.shiftKey||e.ctrlKey||e.metaKey);drawChart();drawCmp();tmDraw();});}
+/* Esc removes the picked d positions (map lines and plot markers) */
+document.addEventListener("keydown",e=>{if(e.key!=="Escape"||!(S.sels||[]).length||!$("brModal").hidden)return;const tag=(e.target.tagName||"").toLowerCase();
+  if(tag==="input"&&/text|number|search/.test(e.target.type)||tag==="textarea")return;selectRing(null);drawChart();drawCmp();tmDraw();},true);
 </script>
 
 </body></html>
