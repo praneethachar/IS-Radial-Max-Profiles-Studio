@@ -217,7 +217,7 @@ th{position:sticky;top:0;background:var(--panel);font-family:var(--f-body);font-
       <span class="row2"><label for="tmT0" title="Time of the first frame">start</label><input id="tmT0" type="number" step="any" value="0" style="width:5rem"><span class="keys">s</span></span>
       <span class="row2"><label for="tmUnit">time in</label><select id="tmUnit" style="width:auto"><option value="s">s</option><option value="min">min</option></select></span>
       <span class="row2"><label for="tmSc" title="Radial calibration (read from the file)">nm⁻¹ / px</label><input id="tmSc" type="number" step="any" style="width:8rem"></span>
-      <span class="row2"><label for="tmKv">kV</label><input id="tmKv" type="number" step="any" value="300" style="width:4.5rem"></span>
+      <span class="row2"><label for="tmKv">kV</label><input id="tmKv" type="number" step="any" value="300" style="width:4.5rem"><span class="keys" id="tmLam" title="Electron wavelength (relativistic) at this voltage"></span><button class="lockBtn" aria-pressed="false" title="Lock the calibration (nm⁻¹/px, kV) and the pattern controls so they cannot be changed by mistake" style="padding:2px 8px">🔓</button></span>
       <span class="row2"><label for="tmY">map axis</label><select id="tmY" style="width:auto"><option value="d">d (Å)</option><option value="q">q (nm⁻¹)</option></select></span>
       <span class="row2"><label for="tmCmap">colours</label><select id="tmCmap" style="width:auto"><option value="gray">grey</option><option value="inferno">inferno</option><option value="viridis">viridis</option></select></span>
       <label><input id="tmLog" type="checkbox" checked> log intensity</label>
@@ -256,7 +256,7 @@ th{position:sticky;top:0;background:var(--panel);font-family:var(--f-body);font-
     <div id="rsWrap" style="position:relative;height:clamp(300px,42vh,520px);min-height:200px;resize:vertical;overflow:hidden;border:1px solid var(--line);border-radius:var(--r)">
       <canvas id="rsCv" aria-label="Real-space image; drag to place the FFT region" style="display:block;width:100%;height:100%;cursor:crosshair;touch-action:none"></canvas></div>
     <div class="row2" style="justify-content:flex-end;gap:12px"><label title="Also draw the yellow FFT region square on the saved image"><input id="rsSaveRoi" type="checkbox"> with FFT region</label>
-      <button id="rsSave" title="Saves the real-space image (up to 2048 px) with scale bar, acquisition time and temperature">Save image (.png)</button><button class="cpBtn" data-cv="rsCv" data-src="rsSave" title="Copy this view (with its legend) to the clipboard as an image, to paste with Ctrl+V">📋 Copy</button></div>
+      <button id="rsSave" title="Saves the real-space image (up to 2048 px) with scale bar, acquisition time and temperature">Save image (TIFF / PNG)…</button><button class="cpBtn" data-cv="rsCv" data-src="rsSave" title="Copy this view (with its legend) to the clipboard as an image, to paste with Ctrl+V">📋 Copy</button></div>
     <div class="keys"><kbd>click</kbd> or <kbd>drag</kbd> on the image to place the square FFT region (yellow) · the FFT amplitude |F| is shown below as the pattern, centred at zero frequency, and everything else (centre, profile, peaks, CIF matching) works on it as on an SAED pattern · calibration = 1 / (FFT size × pixel size). <span id="rsStatus" style="color:var(--ink)"></span></div>
   </section>
 
@@ -272,7 +272,7 @@ th{position:sticky;top:0;background:var(--panel);font-family:var(--f-body);font-
       <div class="row2" style="justify-content:space-between">
         <label title="When locked, clicks and arrow keys no longer move the centre; a click measures the spot under the cursor instead"><input id="lock" type="checkbox"> Lock centre <span class="keys">(on after Compute; then click a spot to see its d)</span></label>
         <span class="row2" style="gap:8px"><button id="fullView" title="Show the whole pattern (h)">Full view</button>
-        <button id="svimg" disabled title="Saves the pattern as currently shown, with guide circles and selected rings">Save image with rings (.png)</button><button class="cpBtn" data-cv="main" data-src="svimg" disabled title="Copy this view (with its legend) to the clipboard as an image, to paste with Ctrl+V">📋 Copy</button></span>
+        <button id="svimg" disabled title="Saves the pattern as currently shown, with guide circles and selected rings">Save image with rings (TIFF / PNG)…</button><button class="cpBtn" data-cv="main" data-src="svimg" disabled title="Copy this view (with its legend) to the clipboard as an image, to paste with Ctrl+V">📋 Copy</button></span>
       </div>
     </div>
 
@@ -281,7 +281,7 @@ th{position:sticky;top:0;background:var(--panel);font-family:var(--f-body);font-
         <canvas id="polar" aria-label="Polar unwrap: radius across, azimuth up. Rings are straight vertical lines when the centre is right."></canvas>
         <div class="hud"><span>Polar unwrap · rings straight = centre right</span><span id="hudP"></span></div>
       </div>
-      <div style="display:flex;justify-content:flex-end"><button id="svpolar" disabled title="The polar view as shown, with CIF lines and labels">Save polar view (.png)</button><button class="cpBtn" data-cv="polar" data-src="svpolar" disabled title="Copy this view (with its legend) to the clipboard as an image, to paste with Ctrl+V">📋 Copy</button></div>
+      <div style="display:flex;justify-content:flex-end"><button id="svpolar" disabled title="The polar view as shown, with CIF lines and labels">Save polar view (TIFF / PNG)…</button><button class="cpBtn" data-cv="polar" data-src="svpolar" disabled title="Copy this view (with its legend) to the clipboard as an image, to paste with Ctrl+V">📋 Copy</button></div>
 
       <div class="panel ctrls">
         <fieldset>
@@ -347,7 +347,7 @@ th{position:sticky;top:0;background:var(--panel);font-family:var(--f-body);font-
     <div id="cmpLgEdit" class="lgedit" hidden></div>
     <div id="cmpWrap" style="position:relative;height:clamp(420px,60vh,820px);min-height:260px;resize:vertical;overflow:hidden;background:var(--panel);border:1px solid var(--line);border-radius:var(--r)"><button class="plotStar" data-k="cmp" hidden title="Star / unstar the highlighted CIF phase (also the s key while stepping through the CIF list with the arrow keys)">☆ star</button><canvas id="cmpChart" style="display:block;width:100%;height:100%;cursor:crosshair" aria-label="Profile comparison"></canvas></div>
     <div class="keys">zoom: <kbd>wheel</kbd> or <kbd>drag</kbd> across a range, <kbd>double-click</kbd> to reset · profiles taken from the map above; normalise or stack them and tick / highlight CIF phases to compare. <span id="cmpStatus" style="color:var(--ink)"></span></div>
-    <div class="saves"><h2 style="margin-right:6px">Save</h2><button id="cmpSvPng" disabled>Save plot (.png)</button><button class="cpBtn" data-cv="cmpChart" data-src="cmpSvPng" disabled title="Copy this view (with its legend) to the clipboard as an image, to paste with Ctrl+V">📋 Copy</button><button id="cmpSvTxt" disabled title="All shown profiles on one common grid (as plotted, without the stacking offset)">Save data (.txt)</button><span class="spacer" style="flex:1"></span><button id="cmpClear" title="Empty the comparison">Clear list</button></div>
+    <div class="saves"><h2 style="margin-right:6px">Save</h2><button id="cmpSvPng" disabled>Save plot (TIFF / PNG)…</button><button class="cpBtn" data-cv="cmpChart" data-src="cmpSvPng" disabled title="Copy this view (with its legend) to the clipboard as an image, to paste with Ctrl+V">📋 Copy</button><button id="cmpSvTxt" disabled title="All shown profiles on one common grid (as plotted, without the stacking offset)">Save data (.txt)</button><span class="spacer" style="flex:1"></span><button id="cmpClear" title="Empty the comparison">Clear list</button></div>
     <div class="tablebox" hidden style="max-height:300px"><table><thead><tr><th title="Drag a row to change the order">order</th><th>show</th><th></th><th style="text-align:left">image</th><th>acquired</th><th>T set / meas</th><th>pressure</th><th>type</th><th>centre</th><th></th></tr></thead><tbody id="cmpRows"></tbody></table></div>
   </section>
     <section class="panel" id="pkPanel" hidden style="display:grid;gap:10px">
@@ -386,7 +386,7 @@ th{position:sticky;top:0;background:var(--panel);font-family:var(--f-body);font-
       <button id="svfull" disabled>Full profile (.txt)</button>
       <button id="svpk" disabled>Peak list (.csv)</button>
       <button id="svset" disabled>Centre &amp; settings (.json)</button>
-      <button id="svplot" disabled title="The plot as shown: profile, peak markers, CIF sticks and legend, selected rings">Plot with overlays (.png)</button><button class="cpBtn" data-cv="chart" data-src="svplot" disabled title="Copy this view (with its legend) to the clipboard as an image, to paste with Ctrl+V">📋 Copy</button>
+      <button id="svplot" disabled title="The plot as shown: profile, peak markers, CIF sticks and legend, selected rings">Plot with overlays (TIFF / PNG)…</button><button class="cpBtn" data-cv="chart" data-src="svplot" disabled title="Copy this view (with its legend) to the clipboard as an image, to paste with Ctrl+V">📋 Copy</button>
       <span class="status" id="saveStatus">Files are only written when you press a Save button.</span>
     </div>
   </section>
@@ -434,7 +434,7 @@ th{position:sticky;top:0;background:var(--panel);font-family:var(--f-body);font-
       <h2>3D structure</h2>
       <label><input id="v3on" type="checkbox"> show the highlighted phase in 3D</label>
       <span class="row2" style="gap:4px"><span class="keys">view along</span><button id="v3va">a</button><button id="v3vb">b</button><button id="v3vc">c</button></span>
-      <span class="row2" style="gap:4px"><label title="number of unit cells along a, b, c">unit cells a b c</label><input id="v3na" type="number" min="1" max="10" value="1" style="width:3.4rem" aria-label="cells along a" title="number of unit cells along a (1–10)"><input id="v3nb" type="number" min="1" max="10" value="1" style="width:3.4rem" aria-label="cells along b" title="number of unit cells along b (1–10)"><input id="v3nc" type="number" min="1" max="10" value="1" style="width:3.4rem" aria-label="cells along c" title="number of unit cells along c (1–10)"></span><span class="row2" style="gap:4px"><label for="v3hkl" title="Planes to highlight, e.g. 1 1 0; 0 1 2; -1 0 4 (or 110, 012). Every plane of the family inside the shown cells is drawn.">hkl planes</label><input id="v3hkl" type="text" placeholder="e.g. 1 1 0; 0 1 2" style="width:11rem"><label title="Show the hkl planes"><input id="v3hklOn" type="checkbox" checked> show</label></span>
+      <span class="row2" style="gap:4px"><label title="number of unit cells along a, b, c">unit cells a b c</label><input id="v3na" type="number" min="1" max="10" value="1" style="width:3.4rem" aria-label="cells along a" title="number of unit cells along a (1–10)"><input id="v3nb" type="number" min="1" max="10" value="1" style="width:3.4rem" aria-label="cells along b" title="number of unit cells along b (1–10)"><input id="v3nc" type="number" min="1" max="10" value="1" style="width:3.4rem" aria-label="cells along c" title="number of unit cells along c (1–10)"></span><span class="row2" style="gap:4px"><label for="v3hkl" title="Planes to highlight, e.g. 1 1 0; 0 1 2; -1 0 4 (or 110, 012). Every plane of the family inside the shown cells is drawn.">hkl planes</label><input id="v3hkl" type="text" placeholder="e.g. 1 1 0; 0 1 2" style="width:11rem"><label title="Show the hkl planes"><input id="v3hklOn" type="checkbox" checked> show</label><label title="Animated line between two neighbouring planes of each hkl, perpendicular to them, labelled with (hkl) and the spacing d — stays on top while you rotate"><input id="v3dOn" type="checkbox" checked> d line</label></span>
       <span class="row2"><label for="v3size">atom size</label><input id="v3size" type="range" min="0.15" max="1.6" step="0.05" value="0.5" style="width:7rem"></span>
       <span class="row2"><label><input id="v3bond" type="checkbox" checked> bonds</label><label title="Also bond atoms of the same element (e.g. Cr–Cr, O–O)"><input id="v3same" type="checkbox"> same-element</label><label for="v3tol" title="Bond drawn when distance &lt; tolerance × (r_cov,1 + r_cov,2)">tol</label><input id="v3tol" type="number" min="0.8" max="1.6" step="0.05" value="1.15" style="width:4.2rem"></span>
       <span class="row2"><label><input id="v3cell" type="checkbox" checked> unit cell</label><label title="Also draw atoms on the far faces / edges / corners"><input id="v3edge" type="checkbox" checked> boundary atoms</label><label><input id="v3lab" type="checkbox"> element labels</label><span class="row2" style="gap:4px;margin-left:8px"><label for="v3KeyFs" title="Font size of the element key (top right of the 3D view, and in copies / GIFs)">key size</label><input id="v3KeyFs" type="number" min="6" max="40" step="1" value="13" style="width:4rem"></span><label><input id="v3persp" type="checkbox" checked> perspective</label><label hidden><input id="v3white" type="checkbox"> white background</label></span><span class="row2" style="gap:6px;margin-left:8px" title="Background of this plot — 📋 Copy copies the plot with it (none = transparent)"><label for="pb_v3">background</label><select id="pb_v3" style="width:auto"><option value="theme">as page</option><option value="white">white</option><option value="black">black</option><option value="transparent">none (transparent)</option><option value="custom">colour…</option></select><input id="pb_v3Col" type="color" value="#ffffff" hidden style="width:2.2rem;height:1.7rem;padding:0 2px"></span>
@@ -525,7 +525,7 @@ function txtFlush(){let n=0;while(TXT_DEFER.length&&n++<5000){try{TXT_DEFER.shif
 const MVB={depth:0,name:null,n:0,replay:false};
 /* every other text drawn on a plot becomes its own movable / editable block, named by its text (and its order when the same text repeats) */
 (function(){const P=CanvasRenderingContext2D.prototype,_ft=P.fillText,_st=P.strokeText;
-  const SKIP=/^d [\d.]+ Å|^No profiles yet|^Set the centre|^frame \d+ ·/;
+  const SKIP=/shown on the (image|map)|^d [\d.]+ Å|^No profiles yet|^Set the centre|^frame \d+ ·/;
   function fontOv(ctx,ov){const f=ctx.font,m=f.match(/^(.*?)([\d.]+)px\s+(.*)$/);if(!m)return;let pre=m[1].trim(),fam=m[3];
     if(ov.fam)fam=ov.fam;if(ov.bold!=null)pre=pre.replace(/\b(bold|[1-9]00)\b/g,"").trim()+(ov.bold?" 700":"");if(ov.it!=null)pre=pre.replace(/\bitalic\b/g,"").trim()+(ov.it?" italic":"");
     window.FONT_RAW=true;try{ctx.font=`${ov.it?"italic ":""}${pre.replace(/\bitalic\b/g,"").trim()} ${m[2]}px ${fam}`.trim();}finally{window.FONT_RAW=false;}}
@@ -983,7 +983,7 @@ $("autoC").addEventListener("click",()=>{if(!S.img||centreLocked())return;const 
   setCentre(c[0],c[1]);setStatus(`Centre found automatically: (${c[0].toFixed(2)}, ${c[1].toFixed(2)}) px. Auto-refine can polish it further.`);});
 $("geoC").addEventListener("click",()=>{if(!S.img||centreLocked())return;const x=S.isFFT?Math.floor(S.W/2):(S.W-1)/2,y=S.isFFT?Math.floor(S.H/2):(S.H-1)/2;
   setCentre(x,y);setStatus(`Centre moved to the image centre (${x.toFixed(2)}, ${y.toFixed(2)}) px.`);});
-$("lock").addEventListener("change",()=>{setStatus($("lock").checked?"Centre locked.":"Centre unlocked: click or use the arrow keys to move it.");drawMain();});
+$("lock").addEventListener("change",()=>{if(!$("lock").checked)setStatus("Centre unlocked: click or use the arrow keys to move it.");else if(/^Centre unlocked/.test(($("status")||{}).textContent||""))setStatus("");drawMain();});
 
 /* ============================================================== profile */
 function setStatus(t,err){const s=$("status");s.textContent=t;s.classList.toggle("err",!!err);}
@@ -1184,7 +1184,7 @@ function drawChart(target,tdpr){
       else{ctx.fillStyle=e.c;ctx.fillRect(L+pw-tw-22*dpr,y+PF*TSc()*0.35,12*dpr,4*dpr);}ctx.fillStyle=ink;ctx.fillText(e.t,L+pw-4*dpr,y);});});}}
   for(const sl of S.sels){const xv=rToX(sl.r,mode);if(xv>=lo&&xv<=hi){const col=sl.color==="#ffffff"?muted:sl.color;ctx.strokeStyle=col;ctx.lineWidth=2*dpr;ctx.setLineDash([6*dpr,4*dpr]);
     ctx.beginPath();ctx.moveTo(sx(xv),T);ctx.lineTo(sx(xv),T+ph);ctx.stroke();ctx.setLineDash([]);
-    if(sl.peak==null){const lab=sl.short.startsWith("spot")||!sl.short.includes("(")?(sl.spot?"spot ":"")+"d "+sl.d.toFixed(3)+" Å":sl.short;ctx.font=`600 ${11*dpr}px "IBM Plex Mono",monospace`;const tw=ctx.measureText(lab).width;
+    if(true){const lab=selLab(sl);ctx.font=`600 ${11*dpr}px "IBM Plex Mono",monospace`;const tw=ctx.measureText(lab).width;
       let x=sx(xv)+5*dpr;if(x+tw>L+pw)x=sx(xv)-5*dpr-tw;ctx.fillStyle=css.getPropertyValue("--panel").trim();ctx.fillRect(x-2*dpr,T+20*dpr,tw+4*dpr,15*dpr);
       ctx.fillStyle=col;ctx.textAlign="left";ctx.textBaseline="top";ctx.fillText(lab,x,T+21*dpr);}}}
   // peaks
@@ -1286,7 +1286,7 @@ const bgTag=()=>$("bgsub").checked?"_bgsub":"";
 function updSaveLabels(){const b=$("bgsub").checked;$("sv2t").textContent=b?"2θ vs I − background (.txt)":"2θ vs I (.txt)";$("svd").textContent=b?"d vs I − background (.txt)":"d vs I (.txt)";}
 updSaveLabels();
 $("svplot").addEventListener("click",async()=>{if(!S.profile)return;
-  const r=cvC.getBoundingClientRect(),k=Math.max(2,2400/Math.max(1,r.width)),c=document.createElement("canvas");c.width=Math.round(r.width*k);c.height=Math.round(r.height*k);
+  const r=cvC.getBoundingClientRect(),k=window.EXPORT?Math.max(1,window.EXPORT.dpi/96):Math.max(2,2400/Math.max(1,r.width)),c=document.createElement("canvas");c.width=Math.round(r.width*k);c.height=Math.round(r.height*k);
   drawChart(c,k);const blob=await new Promise(res=>c.toBlob(res,"image/png"));
   saveFile(base()+"_profile_"+$("xmode").value+(S.phases.some(p=>p.show)&&$("cSticks").checked?"_phases":"")+".png",blob);});
 $("sv2t").addEventListener("click",()=>{const P=S.profile;let t="";for(let i=0;i<P.TT.length;i++)t+=fmt(P.TT[i],6)+"\t"+fmt(Iout(i),5)+"\n";saveFile(base()+"_2theta_I"+bgTag()+".txt",t);});
@@ -1801,6 +1801,7 @@ function v3Draw(target,O){O=O||{};const cv=target||cv3;if(!target){if(!$("v3on")
         const sp=u.map(f=>P(toC(f))),cx=sp.reduce((s,q)=>s+q[0],0)/sp.length,cy=sp.reduce((s,q)=>s+q[1],0)/sp.length;sp.sort((A,B)=>Math.atan2(A[1]-cy,A[0]-cx)-Math.atan2(B[1]-cy,B[0]-cx));
         ctx.beginPath();sp.forEach((q,i)=>i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1]));ctx.closePath();ctx.fillStyle=col;ctx.globalAlpha=.28;ctx.fill();ctx.globalAlpha=.95;ctx.strokeStyle=col;ctx.stroke();}});
     ctx.restore();ctx.globalAlpha=1;}
+  try{if($("v3hklOn").checked&&$("v3dOn").checked&&V3.cell)v3DLines(ctx,P,dpr,O);}catch(e){}
   if(O.key){const els=[...new Set(A.map(a=>a.el))];const fs=(+$("v3KeyFs").value||13)*dpr;ctx.font=`600 ${fs}px "IBM Plex Mono",monospace`;ctx.textAlign="left";ctx.textBaseline="middle";
     els.forEach((el,k)=>{const y=12*dpr+fs*0.7+k*fs*1.5,x=W-12*dpr-ctx.measureText(el).width-fs*1.4;ctx.fillStyle=elInfo(el).c;ctx.beginPath();ctx.arc(x+fs*0.45,y,fs*0.45,0,2*Math.PI);ctx.fill();ctx.strokeStyle="#0006";ctx.lineWidth=1;ctx.stroke();ctx.fillStyle=ink;ctx.fillText(el,x+fs*1.2,y);});
     if($("v3hklOn").checked)v3HklList().forEach((q,j)=>{const t="("+q.join(" ")+")",k=els.length+j,y=12*dpr+fs*0.7+k*fs*1.5,x=W-12*dpr-ctx.measureText(t).width-fs*1.4;ctx.fillStyle=V3_PCOL[j%V3_PCOL.length];ctx.globalAlpha=.6;ctx.fillRect(x,y-fs*0.4,fs*0.9,fs*0.8);ctx.globalAlpha=1;ctx.fillStyle=ink;ctx.fillText(t,x+fs*1.2,y);});}
@@ -2266,9 +2267,13 @@ function drawCmp(target,tdpr){const exp=target instanceof HTMLCanvasElement,cv=e
     for(const phs of S.phases.filter(phVisible))for(const ln of phs.lines){if(ln.I<cmV)continue;const d=ln.d*sV,xv=mode==="d"?d:mode==="q"?10/d:2*Math.asin(Math.min(1,lambdaA(+$("kv").value||300)/(2*d)))*180/Math.PI;if(xv<lo||xv>hi)continue;
       C.push({key:phs.id+"|"+ln.d,x:xs(xv),txt:labTxt(ln),c:phs.color,I:ln.I+(phs.id===S.focus?1000:0)});}
     C.sort((a,b)=>b.I-a.I);const rows=[],MAXR=4;
+    /* labels you moved by hand are always kept (they never compete for a row); the others: strongest first, overlapping ones are left out */
+    const clOff=k=>{const o=typeof TXT!=="undefined"&&TXT.cmp&&TXT.cmp.off&&TXT.cmp.off["cl:"+k];return !!(o&&(o[0]||o[1]));};
     for(const L of C){if(!L.txt)continue;const w=ctx.measureText(L.txt).width,cx=Math.max(LMc+w/2,Math.min(LMc+pw0-w/2,L.x));let r=0;
+      const CR=typeof TXT!=="undefined"&&TXT.cmp?(TXT.cmp.clr||(TXT.cmp.clr={})):{};
+      if(clOff(L.key)){LABP.push(Object.assign(L,{cx,w,row:Math.min(MAXR-1,CR[L.key]||0)}));continue;}   /* same row as when it was moved, so it does not jump */
       for(;r<MAXR;r++){const Rw=rows[r]||(rows[r]=[]);if(!Rw.some(q=>cx+w/2+12*dpr>q[0]&&cx-w/2-12*dpr<q[1])){Rw.push([cx-w/2,cx+w/2]);break;}}
-      if(r<MAXR)LABP.push(Object.assign(L,{cx,w,row:r}));}
+      if(r<MAXR){LABP.push(Object.assign(L,{cx,w,row:r}));CR[L.key]=r;}}
     const nr=LABP.length?Math.max(...LABP.map(l=>l.row))+1:0;labBand=nr?nr*lfs*TSc()*1.5+8*dpr:0;}
   const labW=cmpLabWidth(),Lm=LMc,Rm=14*dpr+labW,T=14*dpr+labBand,B=plotB(dpr),pw=cw-Lm-Rm,ph=ch-T-B;
   const sx=v=>Lm+(v-lo)/(hi-lo)*pw,sy=v=>T+ph-(v-ymin)/(ymax-ymin)*ph;cmpGeom={L:Lm,pw,T,ph,lo,hi,mode,dpr};
@@ -2332,7 +2337,7 @@ for(const id of ["cmpLay","cmpNorm","cmpCol","cmpSort"])$(id).addEventListener("
 $("cmpRun").addEventListener("click",()=>cmpRunAll(false));
 $("cmpClear").addEventListener("click",()=>{S.cmp=[];S.cmpActive=null;for(const i of BR.items)i.tick=false;cmpVis();cmpRender();});
 new ResizeObserver(()=>drawCmp()).observe($("cmpWrap"));
-$("cmpSvPng").addEventListener("click",async()=>{const w=cvK.width,h=cvK.height,k=Math.max(1,2000/w),c=document.createElement("canvas");c.width=Math.round(w*k);c.height=Math.round(h*k);
+$("cmpSvPng").addEventListener("click",async()=>{const w=cvK.width,h=cvK.height,k=window.EXPORT?Math.max(0.25,(window.EXPORT.dpi/96)/(cvK.width/Math.max(1,cvK.getBoundingClientRect().width))):Math.max(1,2000/w),c=document.createElement("canvas");c.width=Math.round(w*k);c.height=Math.round(h*k);
   drawCmp(c,(cvK.width/cvK.getBoundingClientRect().width)*k);const blob=await new Promise(r=>c.toBlob(r,"image/png"));saveFile("profile_comparison.png",blob);});
 $("cmpSvTxt").addEventListener("click",()=>{const {mode,lo,hi,out}=cmpSeries();if(!out.length)return;
   /* common grid, linear in q (the profiles are linear in radius), over the range shown */
@@ -2492,7 +2497,7 @@ $("tmFile").addEventListener("change",e=>{tmOpen(e.target.files[0]);e.target.val
   for(let j=0;j<N;j++){const q=q1-(q1-q0)*j/(N-1),dd=10/q,tt=2*Math.asin(Math.min(1,lam/(2*dd)))*180/Math.PI;rows.push([dd.toFixed(5),tt.toFixed(5),q.toFixed(5)].concat(out.map(s=>{const v=interp(s,q);return isFinite(v)?v.toPrecision(6):"NaN";})).join("\t"));}
   saveFile(TM.name.replace(/\.[^.]+$/,"")+"_profiles.txt",head.concat(rows).join("\n")+"\n");});}
 {const old=$("cmpSvPng"),nb=old.cloneNode(true);old.replaceWith(nb);
- nb.addEventListener("click",async()=>{const w=cvK.width,h=cvK.height,k=Math.max(1,2000/w),c=document.createElement("canvas");c.width=Math.round(w*k);c.height=Math.round(h*k);
+ nb.addEventListener("click",async()=>{const w=cvK.width,h=cvK.height,k=window.EXPORT?Math.max(0.25,(window.EXPORT.dpi/96)/(cvK.width/Math.max(1,cvK.getBoundingClientRect().width))):Math.max(1,2000/w),c=document.createElement("canvas");c.width=Math.round(w*k);c.height=Math.round(h*k);
   drawCmp(c,(cvK.width/cvK.getBoundingClientRect().width)*k);const blob=await new Promise(r=>c.toBlob(r,"image/png"));saveFile(TM.name.replace(/\.[^.]+$/,"")+"_profiles.png",blob);});}
 /* save the map */
 
@@ -2787,7 +2792,7 @@ const ISN={h:null,ok:false,busy:false,last:"",t:0};
 const isnKey=()=>"isnotes:"+(TM.name||"");
 const isnName=()=>(TM.name||"radial").replace(/\.[^.]+$/,"")+"_notes.txt";
 function isnStars(){const o=[];try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith("saed-star:")&&localStorage.getItem(k)==="1")o.push(k.slice(10));}}catch(e){}return o.sort();}
-function isnText(){const o=[`# IS Radial Max Profiles Studio notes · ${TM.name||""}`,`# blocks: “## 📝 notes”, “## lines”, “## d markers”, “## conditions”, “## ★ starred CIF phases”`,""];
+function isnText(){const o=[`# IS Radial Max Profiles Studio notes · ${TM.name||""}`,`# this file: ${(ISN.h&&ISN.h.name)||isnName()} · notes of the radial-profile stack ${TM.name||""}`,`# blocks: “## 📝 notes”, “## lines”, “## d markers”, “## conditions”, “## ★ starred CIF phases”`,""];
   o.push("## 📝 notes",($("snText").value||"").replace(/\s+$/,""),"");
   o.push("## lines");for(const e of S.cmp)o.push(`frame ${e.frame} · ±${e.win} · t = ${fmtTime(frameT(e.frame))}`);o.push("");
   o.push("## d markers");for(const sl of (S.sels||[]))o.push(`${sl.d.toFixed(4)} Å`);o.push("");
@@ -2922,11 +2927,11 @@ function ulDraw(k,t,d){const L=TXT[k].ul;if(!L||!L.length)return;const exp=t ins
   const ctx=cv.getContext("2d"),css=getComputedStyle(document.documentElement),ink=k==="tm"?"#ffffff":(css.getPropertyValue("--ink").trim()||"#000");
   ctx.save();ctx.textAlign="left";ctx.textBaseline="top";ctx.font=`600 ${13*dpr}px "IBM Plex Sans",sans-serif`;
   const fs=13*dpr*TSc();let y=G.T+10*dpr;
-  for(const u of L){const tx=(u.t||"").trim();if(!tx){continue;}const x=G.L+G.pw*0.4,w=ctx.measureText(tx).width;
-    mvB(ctx,dpr,ulName(u),[x,y,x+w,y+fs*1.15],()=>{ctx.fillStyle=u.col||ink;ctx.fillText(tx,x,y);});y+=fs*1.5;}
+  for(const u of L){const tx=(u.t||"").trim();if(!tx){continue;}const x=G.L+G.pw*0.4,w=ctx.measureText(tx).width,yy=y;   /* yy: fixed for this label (a moved label is drawn later) */
+    mvB(ctx,dpr,ulName(u),[x,yy,x+w,yy+fs*1.15],()=>{ctx.fillStyle=u.col||ink;ctx.fillText(tx,x,yy);});y+=fs*1.5;}
   ctx.restore();}
 {const _a=drawChart;drawChart=function(t,d){const r=_a(t,d);try{if(S.profile)ulDraw("pk",t,d);}catch(e){}return r;};}
-{const _b=drawCmp;drawCmp=function(t,d){const r=_b(t,d);try{const exp=t instanceof HTMLCanvasElement;if((exp||!$("cmpPanel").hidden)&&S.cmp.some(e=>e.show&&e.prof))ulDraw("cmp",t,d);}catch(e){}return r;};}
+{const _b=drawCmp;drawCmp=function(t,d){const r=_b(t,d);try{const exp=t instanceof HTMLCanvasElement;if((exp||!$("cmpPanel").hidden)&&S.cmp.some(e=>e.show&&e.prof))ulDraw("cmp",t,d);}catch(e){}try{if(S.cmp.some(e=>e.show&&e.prof))selsCmpDraw(t,d,false);}catch(e){}return r;};}
 function ulUI(k){const box=document.querySelector(`.ulList[data-k="${k}"]`);if(!box)return;box.textContent="";
   for(const u of TXT[k].ul){const w=document.createElement("span");w.className="row2";w.style.gap="3px";
     const inp=document.createElement("input");inp.type="text";inp.value=u.t||"";inp.placeholder="your text";inp.style.width="11rem";inp.className="ulTxt";
@@ -3333,6 +3338,216 @@ const NB_KEY="notesbox-"+SETK;
 const nbEnc=v=>String(v||"").replace(/\s+$/,"").replace(/^## /gm,"​## "),nbDec=v=>String(v||"").replace(/^​## /gm,"## ");
 {const _x=isnText;isnText=function(){const v=nbEnc($("nbText").value);return _x().replace("\n## ⚙ plot layout","\n## 🗒 notes box\n"+v+"\n\n## ⚙ plot layout");};}
 {const _a=isnApply;isnApply=function(g){if(g&&g["🗒 notes box"]!=null)NB_SET(nbDec(g["🗒 notes box"]));return _a(g);};}
+
+/* ===== image saves as TIFF (or PNG) at a chosen DPI (default 300): plot with overlays, compare plot, image with rings, polar view, real-space image ===== */
+window.EXPORT=null;let EXP_GO=false;
+const CRC_T=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0;}return t;})();
+function crc32(b){let c=0xFFFFFFFF;for(let i=0;i<b.length;i++)c=CRC_T[(c^b[i])&255]^(c>>>8);return (c^0xFFFFFFFF)>>>0;}
+async function pngDpi(blob,dpi){const a=new Uint8Array(await blob.arrayBuffer());if(a.length<33)return blob;const ppm=Math.round(dpi/0.0254),ch=new Uint8Array(21),dv=new DataView(ch.buffer);
+  dv.setUint32(0,9);ch.set([112,72,89,115],4);dv.setUint32(8,ppm);dv.setUint32(12,ppm);ch[16]=1;dv.setUint32(17,crc32(ch.subarray(4,17)));
+  return new Blob([a.subarray(0,33),ch,a.subarray(33)],{type:"image/png"});}
+async function tiffEncode(cv,dpi){const W=cv.width,H=cv.height,d=cv.getContext("2d").getImageData(0,0,W,H).data;let alpha=false;for(let i=3;i<d.length;i+=4)if(d[i]!==255){alpha=true;break;}
+  const spp=alpha?4:3,raw=new Uint8Array(W*H*spp);if(alpha)raw.set(d);else for(let i=0,j=0;i<d.length;i+=4){raw[j++]=d[i];raw[j++]=d[i+1];raw[j++]=d[i+2];}
+  let data=raw,comp=1;try{const buf=await new Response(new Blob([raw]).stream().pipeThrough(new CompressionStream("deflate"))).arrayBuffer();data=new Uint8Array(buf);comp=8;}catch(e){}
+  const tags=[[256,4,1,W],[257,4,1,H],[258,3,spp,null],[259,3,1,comp],[262,3,1,2],[273,4,1,null],[277,3,1,spp],[278,4,1,H],[279,4,1,data.length],[282,5,1,null],[283,5,1,null],[284,3,1,1],[296,3,1,2]];if(alpha)tags.push([338,3,1,2]);
+  const dataOff=8,bpsOff=dataOff+data.length+(data.length&1),xOff=bpsOff+spp*2,yOff=xOff+8,ifdOff=yOff+8,total=ifdOff+2+tags.length*12+4,buf=new ArrayBuffer(total),u8=new Uint8Array(buf),v=new DataView(buf);
+  u8[0]=73;u8[1]=73;v.setUint16(2,42,true);v.setUint32(4,ifdOff,true);u8.set(data,dataOff);for(let i=0;i<spp;i++)v.setUint16(bpsOff+2*i,8,true);
+  const num=Math.round(dpi*100);v.setUint32(xOff,num,true);v.setUint32(xOff+4,100,true);v.setUint32(yOff,num,true);v.setUint32(yOff+4,100,true);
+  v.setUint16(ifdOff,tags.length,true);tags.forEach(([tag,type,cnt,val],i)=>{const o=ifdOff+2+i*12;v.setUint16(o,tag,true);v.setUint16(o+2,type,true);v.setUint32(o+4,cnt,true);
+    const vv=tag===258?bpsOff:tag===273?dataOff:tag===282?xOff:tag===283?yOff:val;if(type===3&&!(tag===258))v.setUint16(o+8,vv,true);else v.setUint32(o+8,vv,true);});
+  v.setUint32(ifdOff+2+tags.length*12,0,true);return new Blob([buf],{type:"image/tiff"});}
+{const _tb=HTMLCanvasElement.prototype.toBlob;HTMLCanvasElement.prototype.toBlob=function(cb,type,q){const E=window.EXPORT;
+  if(E&&(!type||type==="image/png")){if(E.fmt==="tiff"){tiffEncode(this,E.dpi).then(cb,()=>_tb.call(this,cb,type,q));return;}return _tb.call(this,b=>{if(!b){cb(b);return;}pngDpi(b,E.dpi).then(cb,()=>cb(b));},type,q);}
+  return _tb.call(this,cb,type,q);};}
+{const _sf=saveFile;saveFile=async function(name,data,...r){const E=window.EXPORT;if(E){window.EXPORT=null;if(E.fmt==="tiff")name=String(name).replace(/\.png$/i,"")+".tif";}return _sf.call(this,name,data,...r);};}
+function expAsk(btn){let p=$("expPop");if(!p){p=document.createElement("div");p.id="expPop";p.style.cssText="position:fixed;z-index:60;background:var(--panel);color:var(--ink);border:1px solid var(--accent);border-radius:8px;padding:10px 12px;box-shadow:0 6px 24px rgba(0,0,0,.25);display:grid;gap:8px;font-size:13px";document.body.appendChild(p);
+    document.addEventListener("pointerdown",e=>{if(!p.hidden&&!p.contains(e.target))p.hidden=true;});p.addEventListener("keydown",e=>{e.stopPropagation();if(e.key==="Escape")p.hidden=true;if(e.key==="Enter")p.querySelector(".ex_go").click();});}
+  let fmt="tiff",dpi=300;try{fmt=localStorage.getItem("exp-fmt")||"tiff";dpi=+localStorage.getItem("exp-dpi")||300;}catch(e){}
+  p.innerHTML=`<b style="font-size:12px;color:var(--muted)">${btn.textContent.replace(/\s*\(.*$/,"").trim()}</b><span class="row2" style="gap:6px">format<select class="ex_f" style="width:auto"><option value="tiff">TIFF</option><option value="png">PNG</option></select>resolution<input class="ex_d" type="number" min="72" max="1200" step="1" style="width:5rem"><span class="keys">DPI</span></span>
+    <span class="keys ex_n"></span><span class="row2" style="gap:6px;justify-content:flex-end"><button class="ex_c">Cancel</button><button class="ex_go primary">Save</button></span>`;
+  const q=c=>p.querySelector(c);q(".ex_f").value=fmt;q(".ex_d").value=dpi;
+  const note=()=>{const plot=btn.id==="svplot"||btn.id==="cmpSvPng";q(".ex_n").textContent=plot?"plots are drawn at this resolution (same size as on screen)":"the image keeps its pixels; the DPI sets its print size";};note();
+  q(".ex_c").addEventListener("click",()=>{p.hidden=true;});
+  q(".ex_go").addEventListener("click",()=>{const f=q(".ex_f").value,d=Math.max(72,Math.min(1200,+q(".ex_d").value||300));try{localStorage.setItem("exp-fmt",f);localStorage.setItem("exp-dpi",String(d));}catch(e){}
+    p.hidden=true;window.EXPORT={fmt:f,dpi:d};EXP_GO=true;btn.click();setTimeout(()=>{window.EXPORT=null;},30000);});
+  p.hidden=false;const r=btn.getBoundingClientRect();p.style.left=Math.max(8,Math.min(window.innerWidth-p.offsetWidth-8,r.left))+"px";p.style.top=Math.max(8,r.top-p.offsetHeight-8)+"px";q(".ex_d").focus();q(".ex_d").select();}
+for(const id of ["svplot","cmpSvPng","svimg","svpolar","rsSave"]){const b=$(id);if(!b)continue;b.addEventListener("click",e=>{if(EXP_GO){EXP_GO=false;return;}e.stopImmediatePropagation();expAsk(b);},true);}
+/* ===== per-box “↺ defaults”: puts only that box's settings back (notes, your labels and lines are kept) ===== */
+const BOX_SKIP=e=>!e.id||SET_EX.has(e.id)||["file","hidden","text","search"].includes(e.type)||e.tagName==="TEXTAREA"||e.closest(".lgedit,.ulList,.vlList,#phaseGroups,#cmpRows,#tmRows,#peaks,#v3gBar .keys")||["tmFps","isSccmOn","isTOn","isnAutoOn","hdNotesAuto","brNotesAuto","v3on"].includes(e.id);
+function boxDefaults(box,k){const ch=[];for(const e of box.querySelectorAll("input,select")){if(BOX_SKIP(e))continue;
+    if(e.type==="checkbox"||e.type==="radio"){if(e.checked!==e.defaultChecked){e.checked=e.defaultChecked;ch.push(e);}}
+    else if(e.tagName==="SELECT"){const o=[...e.options].find(o=>o.defaultSelected)||e.options[0];if(o&&e.value!==o.value){e.value=o.value;ch.push(e);}}
+    else if(e.defaultValue!==""&&e.value!==e.defaultValue){e.value=e.defaultValue;ch.push(e);}}
+  for(const e of ch){e.dispatchEvent(new Event("input",{bubbles:true}));e.dispatchEvent(new Event("change",{bubbles:true}));}
+  if(k&&TXT[k]){Object.assign(TXT[k],{fam:"",scale:1,off:{},sz:{},ov:{}});txtSave();document.querySelectorAll(`.txtFam[data-k="${k}"]`).forEach(x=>x.value="");document.querySelectorAll(`.txtSc[data-k="${k}"]`).forEach(x=>x.value=100);
+    if(k==="pk"&&typeof PKC!=="undefined"){PKC.prof=PKC.peak="";try{localStorage.setItem("pkcol-"+SETK,JSON.stringify(PKC));pkcUI();}catch(e){}}txtRedraw(k);}
+  if(box.id==="v3Panel"&&typeof V3_ELC!=="undefined"){V3_ELC={};V3_PCOL.splice(0,V3_PCOL.length,...PCOL_DEF);try{v3ApplyColors();v3ColSave();v3LegendUI();v3Draw();}catch(e){}}
+  if(box.id==="rsPanel"&&typeof RSI!=="undefined"){RSI.fx=RSI.fy=null;RSI.sc=1;try{rsiSave();if(S.real)rsDraw();}catch(e){}}
+  return ch.length;}
+for(const [sel,k,where] of [["#pkPanel","pk"],["#cmpPanel","cmp"],["#tmPanel","tm"],["#rsPanel",null],["#gifPanel",null],["#phasePanel",null],["#v3Panel",null],[".logBox",null,".logTtl"],[".panel.ctrls",null,"self"]]){
+  const box=document.querySelector(sel);if(!box)continue;const b=document.createElement("button");b.className="boxDef";b.textContent="↺ defaults";b.title="Default settings for this box only (your notes, labels and lines are kept)";b.style.padding="2px 8px";
+  b.addEventListener("click",e=>{e.stopPropagation();if(!confirm("Put the settings of this box back to their defaults?"))return;boxDefaults(box,k&&TXT[k]?k:null);});
+  if(where===".logTtl"){const t=box.querySelector(".logTtl");b.style.marginLeft="10px";t.appendChild(b);}
+  else if(where==="self"){box.style.position="relative";b.style.cssText+=";position:absolute;right:8px;top:6px;z-index:2";box.appendChild(b);}
+  else{const head=box.querySelector(".chartbar");if(!head)continue;const sp=head.querySelector(".spacer");if(sp)sp.after(b);else head.appendChild(b);}}
+/* ===== polar view (and the controls) start level with the pattern, below its image menu ===== */
+function alignPolar(){const s1=document.querySelector(".work>.side"),s2=s1&&s1.nextElementSibling,m=$("mainWrap");if(!s2||!m)return;s2.style.paddingTop="";
+  const a=s1.getBoundingClientRect(),b=s2.getBoundingClientRect(),mm=m.getBoundingClientRect();if(a.width&&Math.abs(a.top-b.top)<3&&b.left>a.right-5)s2.style.paddingTop=Math.max(0,mm.top-a.top)+"px";}
+window.addEventListener("resize",()=>requestAnimationFrame(alignPolar));setTimeout(alignPolar,200);{const w=document.querySelector(".work");if(w)new ResizeObserver(()=>requestAnimationFrame(alignPolar)).observe(w);}
+
+/* ===== marked positions: label = d + what the mark does ===== */
+const SEL_NOTE="line shown on the map";
+function selLab(sl){const base=sl.short&&sl.short.includes("(")?sl.short:((sl.peak!=null?`peak ${sl.peak+1} · `:sl.spot?"spot · ":"")+`d ${sl.d.toFixed(3)} Å`);return base+" · "+SEL_NOTE;}
+function selsCmpDraw(t,d,lines){const g=cmpGeom;if(!g||!(S.sels||[]).length)return;const exp=t instanceof HTMLCanvasElement,cv=exp?t:cvK,dpr=exp?d:cv.width/Math.max(1,cv.getBoundingClientRect().width),ctx=cv.getContext("2d"),css=getComputedStyle(document.documentElement);
+  const lam=lambdaA(+((typeof tmKv!=="undefined"||$("tmKv"))&&$("tmKv")?$("tmKv").value:$("kv").value)||300);ctx.save();ctx.beginPath();ctx.rect(g.L,g.T,g.pw,g.ph);ctx.clip();
+  for(const sl of S.sels){const dd=sl.d,xv=g.mode==="d"?dd:g.mode==="q"?10/dd:2*Math.asin(Math.min(1,lam/(2*dd)))*180/Math.PI;if(!(xv>=g.lo&&xv<=g.hi))continue;const x=g.L+(xv-g.lo)/(g.hi-g.lo)*g.pw,col=sl.color==="#ffffff"?css.getPropertyValue("--muted"):sl.color;
+    if(lines){ctx.strokeStyle=col;ctx.lineWidth=2*dpr;ctx.setLineDash([6*dpr,4*dpr]);ctx.beginPath();ctx.moveTo(x,g.T);ctx.lineTo(x,g.T+g.ph);ctx.stroke();ctx.setLineDash([]);}
+    const lab=selLab(sl);ctx.font=`600 ${11*dpr}px "IBM Plex Mono",monospace`;const tw=ctx.measureText(lab).width;let lx=x+5*dpr;if(lx+tw>g.L+g.pw)lx=x-5*dpr-tw;
+    ctx.fillStyle=css.getPropertyValue("--panel").trim()||"#fff";ctx.globalAlpha=.85;ctx.fillRect(lx-2*dpr,g.T+20*dpr,tw+4*dpr,15*dpr);ctx.globalAlpha=1;ctx.fillStyle=col;ctx.textAlign="left";ctx.textBaseline="top";ctx.fillText(lab,lx,g.T+21*dpr);}
+  ctx.restore();}
+/* ===== lock: DM3 / DM4 real-space images (their FFT) and the IS stacks lock the calibration and pattern controls by default ===== */
+const LOCKC={on:false,file:null};
+function ctrlLockApply(){const box=document.querySelector(".panel.ctrls");if(box){for(const e of box.querySelectorAll("input,select,button")){if(e.classList.contains("lockBtn"))continue;e.disabled=LOCKC.on;}}
+  for(const id of ["rsPix","tmSc","tmKv","scale","kv","bin"]){const e=$(id);if(e)e.disabled=LOCKC.on;}
+  for(const b of document.querySelectorAll(".lockBtn")){b.textContent=LOCKC.on?"🔒 locked":"🔓 unlocked";b.setAttribute("aria-pressed",String(LOCKC.on));b.title=LOCKC.on?"Locked: centre, guide circles, display and calibration cannot be changed (click to unlock)":"Click to lock the centre, guide circles, display and calibration so they cannot be changed by mistake";}
+  if(LOCKC.on&&$("lock")&&!$("lock").checked&&typeof S!=="undefined"&&S.img){$("lock").checked=true;$("lock").dispatchEvent(new Event("change",{bubbles:true}));}}
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest(".lockBtn");if(!b)return;e.preventDefault();LOCKC.on=!LOCKC.on;LOCKC.user=true;ctrlLockApply();},true);
+window.addEventListener("keydown",e=>{if(!LOCKC.on)return;const t=(e.target.tagName||"").toLowerCase();if(t==="input"||t==="textarea"||t==="select")return;
+  if(["n","m",",",".","k","l","b","+","=","-","_"].includes(e.key)&&!(e.target.closest&&e.target.closest("#v3Panel,#phaseBox"))){e.stopImmediatePropagation();}},true);
+{const box=document.querySelector(".panel.ctrls");if(box){const b=document.createElement("button");b.className="lockBtn";b.style.cssText="position:absolute;right:110px;top:6px;z-index:2;padding:2px 8px";box.style.position="relative";box.appendChild(b);}}
+{const _s=setImage;setImage=function(W,H,data,meta){const r=_s.apply(this,arguments);try{const f=S.lastFile,nm=(f&&f.name)||(meta&&meta.name)||"";
+    if(f!==LOCKC.file||!f){LOCKC.file=f;LOCKC.user=false;}if(!LOCKC.user)LOCKC.on=/\.dm[34]$/i.test(nm)&&!!S.isFFT;setTimeout(ctrlLockApply,0);}catch(e){}return r;};}
+ctrlLockApply();
+
+{const lam=()=>{const v=+$("tmKv").value;$("tmLam").textContent=v>0?`λ ${lambdaA(v).toFixed(6)} Å`:"";};lam();$("tmKv").addEventListener("input",lam);$("tmKv").addEventListener("change",lam);}
+if(typeof tmOpen==="function"){const _t=tmOpen;tmOpen=async function(f){const r=await _t(f);if(TM&&TM.img){LOCKC.on=true;ctrlLockApply();}const lam=$("tmLam");if(lam){const v=+$("tmKv").value;lam.textContent=v>0?`λ ${lambdaA(v).toFixed(6)} Å`:"";}return r;};}
+
+/* ===== ✥ move text switches itself off when its plot scrolls out of view (you have moved on to another box) ===== */
+{const pairs=[];for(const b of document.querySelectorAll(".txtMv")){const cv=typeof TXTCV!=="undefined"?TXTCV[b.dataset.k]:null;if(cv)pairs.push([b,cv]);}
+  const gb=document.getElementById("gifMove"),gc=document.getElementById("gifCv");if(gb&&gc)pairs.push([gb,gc]);
+  if("IntersectionObserver" in window){const io=new IntersectionObserver(es=>{for(const e of es){const p=pairs.find(q=>q[1]===e.target);if(!p)continue;const [b]=p;
+      if(b.getAttribute("aria-pressed")==="true"&&(!e.isIntersecting||e.intersectionRatio<0.3))b.click();}},{threshold:[0,0.3]});
+    for(const [,cv] of pairs)io.observe(cv);}}
+
+/* ===== moved peak / CIF labels keep their place relative to the peaks when you zoom: the sideways shift is stored with the x range it was
+   made at and scales with the zoom (zoom in → spreads out, zoom out → closes up); the up / down shift stays as it is ===== */
+{const RX=/^(cl:|pk:)/;
+  const geomOf=k=>k==="pk"?(typeof chartGeom!=="undefined"?chartGeom:null):k==="cmp"?(typeof cmpGeom!=="undefined"?cmpGeom:null):null;
+  const span=k=>{const g=geomOf(k);return g&&isFinite(g.hi-g.lo)&&g.hi>g.lo?{s:g.hi-g.lo,m:g.mode||""}:null;};
+  const mk=(k,raw)=>new Proxy(raw||{},{
+    get(t,n){const v=t[n];if(typeof n!=="string"||!Array.isArray(v)||!RX.test(n)||!(v[2]>0))return v;const c=span(k);
+      const a=[c&&c.m===(v[3]||"")?v[0]*v[2]/c.s:v[0],v[1]];a.toJSON=()=>v.slice();return a;},
+    set(t,n,val){if(typeof n==="string"&&RX.test(n)&&Array.isArray(val)){const c=span(k);t[n]=c?[val[0],val[1],c.s,c.m]:[val[0],val[1]];}else t[n]=val;return true;}});
+  for(const k of ["pk","cmp"]){if(!TXT[k])continue;let P=mk(k,TXT[k].off);Object.defineProperty(TXT[k],"off",{get(){return P;},set(v){P=mk(k,v&&typeof v==="object"?v:{});},enumerable:true,configurable:true});}}
+
+/* ===== 3D view: for every hkl, an animated line between two neighbouring planes (along the plane normal) with “(hkl) d = … Å” ===== */
+function v3DLines(ctx,P,dpr,O){const {toC,n}=V3.cell,PL=v3HklList();if(!PL.length)return;
+  const o=toC([0,0,0]),va=toC([1,0,0]).map((v,i)=>v-o[i]),vb=toC([0,1,0]).map((v,i)=>v-o[i]),vc=toC([0,0,1]).map((v,i)=>v-o[i]);
+  const cr=(u,v)=>[u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]],dt=(u,v)=>u[0]*v[0]+u[1]*v[1]+u[2]*v[2],V=dt(va,cr(vb,vc));if(!V)return;
+  const as=cr(vb,vc).map(x=>x/V),bs=cr(vc,va).map(x=>x/V),cs=cr(va,vb).map(x=>x/V);
+  const ph=O.still?0.35:((performance.now()/1600)%1),fc=n.map(x=>x/2),Cc=toC(fc),placed=[];
+  PL.forEach(([h,k,l],pi)=>{const G=[0,1,2].map(i=>h*as[i]+k*bs[i]+l*cs[i]),gl=Math.hypot(...G);if(!gl)return;const d=1/gl,nh=G.map(x=>x/gl);
+    const hf=h*fc[0]+k*fc[1]+l*fc[2],m0=Math.floor(hf+1e-9),back=(hf-m0)*d;
+    const p0=Cc.map((v,i)=>v-back*nh[i]),p1=p0.map((v,i)=>v+d*nh[i]);
+    /* toC gives cartesian from fractional; P takes cartesian */
+    const s0=P(p0),s1=P(p1),col=(typeof V3_PCOL!=="undefined"?V3_PCOL[pi%V3_PCOL.length]:"#ffd84a");
+    const dx=s1[0]-s0[0],dy=s1[1]-s0[1],L=Math.hypot(dx,dy),ux=L?dx/L:1,uy=L?dy/L:0,px=-uy,py=ux,tk=7*dpr;ctx.save();ctx.lineCap="round";
+    /* outline + colour so it reads on atoms and planes, in light and dark */
+    const seg=(w,c,dash,off)=>{ctx.strokeStyle=c;ctx.lineWidth=w;ctx.setLineDash(dash||[]);ctx.lineDashOffset=off||0;ctx.beginPath();ctx.moveTo(s0[0],s0[1]);ctx.lineTo(s1[0],s1[1]);ctx.stroke();};
+    seg(6*dpr,"rgba(0,0,0,.65)");seg(3*dpr,"#fff");seg(3*dpr,col,[6*dpr,5*dpr],-ph*22*dpr);ctx.setLineDash([]);
+    for(const s of [s0,s1]){ctx.strokeStyle="rgba(0,0,0,.65)";ctx.lineWidth=5*dpr;ctx.beginPath();ctx.moveTo(s[0]-px*tk,s[1]-py*tk);ctx.lineTo(s[0]+px*tk,s[1]+py*tk);ctx.stroke();
+      ctx.strokeStyle=col;ctx.lineWidth=2.5*dpr;ctx.beginPath();ctx.moveTo(s[0]-px*tk,s[1]-py*tk);ctx.lineTo(s[0]+px*tk,s[1]+py*tk);ctx.stroke();}
+    /* arrow heads, and a dot travelling from one plane to the next */
+    if(L>14*dpr)for(const [s,sg] of [[s0,1],[s1,-1]]){const a=6*dpr;ctx.fillStyle=col;ctx.strokeStyle="rgba(0,0,0,.65)";ctx.lineWidth=1.2*dpr;ctx.beginPath();ctx.moveTo(s[0],s[1]);
+      ctx.lineTo(s[0]+sg*ux*a*1.6+px*a*0.8,s[1]+sg*uy*a*1.6+py*a*0.8);ctx.lineTo(s[0]+sg*ux*a*1.6-px*a*0.8,s[1]+sg*uy*a*1.6-py*a*0.8);ctx.closePath();ctx.fill();ctx.stroke();}
+    const tt=0.5-0.5*Math.cos(2*Math.PI*ph),bx=s0[0]+dx*tt,by=s0[1]+dy*tt;ctx.fillStyle="#fff";ctx.strokeStyle=col;ctx.lineWidth=2*dpr;ctx.beginPath();ctx.arc(bx,by,4*dpr,0,7);ctx.fill();ctx.stroke();
+    /* label beside the middle of the line, always upright */
+    const fs=12*dpr,t=`(${h} ${k} ${l})  d = ${d.toFixed(3)} Å`+(L<10*dpr?"  · seen along the normal":"");ctx.font=`600 ${fs}px "IBM Plex Mono",monospace`;const tw=ctx.measureText(t).width;
+    const mx=(s0[0]+s1[0])/2+px*16*dpr,my=(s0[1]+s1[1])/2+py*16*dpr,lx=Math.max(4*dpr,Math.min(ctx.canvas.width-tw-12*dpr,mx-(px<0?tw+8*dpr:0))),bw=tw+12*dpr,bh=fs+8*dpr;let ly=Math.max(4*dpr,Math.min(ctx.canvas.height-fs-10*dpr,my-fs/2-4*dpr));
+    for(let g=0;g<12&&placed.some(r=>lx<r[0]+r[2]&&lx+bw>r[0]&&ly<r[1]+r[3]+2*dpr&&ly+bh+2*dpr>r[1]);g++)ly+=bh+3*dpr;placed.push([lx,ly,bw,bh]);
+    ctx.fillStyle="rgba(0,0,0,.72)";ctx.fillRect(lx,ly,tw+12*dpr,fs+8*dpr);ctx.fillStyle=col;ctx.fillRect(lx,ly,3*dpr,fs+8*dpr);ctx.fillStyle="#fff";ctx.textAlign="left";ctx.textBaseline="top";ctx.fillText(t,lx+7*dpr,ly+4*dpr);
+    ctx.restore();});}
+$("v3dOn").addEventListener("change",()=>v3Draw());
+/* keep the line moving while it is shown (about 25 frames / s, only when the 3D view is on screen) */
+{let last=0,vis=true;const cvv=typeof cv3!=="undefined"?cv3:null;if(cvv&&"IntersectionObserver" in window)new IntersectionObserver(es=>{vis=es[0].isIntersecting;}).observe(cvv);
+  const tick=t=>{requestAnimationFrame(tick);if(t-last<40||!vis||document.hidden)return;last=t;
+    try{if($("v3on").checked&&$("v3hklOn").checked&&$("v3dOn").checked&&V3.ph&&v3HklList().length&&!(typeof V3!=="undefined"&&V3.drag))v3Draw();}catch(e){}};requestAnimationFrame(tick);}
+
+/* ===== theme controls at the top right of the page (on the line of the welcome note); more preset themes ===== */
+{const tb=document.querySelector(".themeBox"),w=$("welcome");if(tb){const row=document.createElement("div");row.id="topRow";row.style.cssText="display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-height:2rem";
+  (w||document.querySelector("header.top")).before(row);if(w)row.appendChild(w);tb.style.marginLeft="auto";row.appendChild(tb);}}
+TH_PRESETS.push(
+  ["Ocean",{mode:"light",acc:"#1565c0",bg:"#eaf2fb",panel:"#ffffff",ink:"#13263b"}],
+  ["Forest",{mode:"light",acc:"#2f7d4f",bg:"#eef3ee",panel:"#ffffff",ink:"#1d2b22"}],
+  ["Lavender",{mode:"light",acc:"#7b4fd6",bg:"#f4f1fb",panel:"#ffffff",ink:"#241c38"}],
+  ["Rose",{mode:"light",acc:"#c2185b",bg:"#fbf3f5",panel:"#ffffff",ink:"#2d1a21"}],
+  ["Sand",{mode:"light",acc:"#a0670f",bg:"#f5efe3",panel:"#fffaf1",ink:"#33281a"}],
+  ["Slate",{mode:"light",acc:"#475569",bg:"#f1f5f9",panel:"#ffffff",ink:"#0f172a"}],
+  ["Print (black on white)",{mode:"light",acc:"#000000",bg:"#ffffff",panel:"#ffffff",ink:"#000000"}],
+  ["Solar dark",{mode:"dark",acc:"#2aa198",bg:"#002b36",panel:"#073642",ink:"#c5d1d3"}],
+  ["Dracula",{mode:"dark",acc:"#bd93f9",bg:"#282a36",panel:"#343746",ink:"#f8f8f2"}],
+  ["Deep ocean",{mode:"dark",acc:"#4fc3f7",bg:"#0b1b2b",panel:"#12263a",ink:"#e3eef7"}],
+  ["Forest night",{mode:"dark",acc:"#6fcf97",bg:"#111a14",panel:"#19241d",ink:"#e4ece6"}],
+  ["Mono dark",{mode:"dark",acc:"#e0e0e0",bg:"#121212",panel:"#1e1e1e",ink:"#eeeeee"}]);
+thPresetUI($("thPreset").value);
+
+/* ===== per-box “save as default”: ↺ defaults then goes back to YOUR saved settings of that box (Shift + click ↺ = the app's own defaults);
+   the saved box defaults are also written into the notes file (with the plot layout). The centre / circles / display / calibration box has no defaults button. ===== */
+{const cb=document.querySelector(".panel.ctrls > .boxDef");if(cb)cb.remove();}
+const BOXDEF=(()=>{try{return JSON.parse(localStorage.getItem("boxdef-"+SETK)||"{}")||{};}catch(e){return {};}})();
+const BOXSEL=["#pkPanel","#cmpPanel","#tmPanel","#rsPanel","#gifPanel","#phasePanel","#v3Panel",".logBox"];
+function boxdefSave(){try{localStorage.setItem("boxdef-"+SETK,JSON.stringify(BOXDEF));}catch(e){}}
+function boxKey(box){return BOXSEL.find(s=>box.matches(s))||box.id||"";}
+function boxGet(box){const o={};for(const e of box.querySelectorAll("input,select")){if(BOX_SKIP(e)||!e.id)continue;o[e.id]=e.type==="checkbox"||e.type==="radio"?!!e.checked:e.value;}return o;}
+function boxPut(box,o){const ch=[];for(const e of box.querySelectorAll("input,select")){if(BOX_SKIP(e)||!e.id||!(e.id in o))continue;const v=o[e.id];
+    if(e.type==="checkbox"||e.type==="radio"){if(e.checked!==!!v){e.checked=!!v;ch.push(e);}}else if(e.value!==String(v)){e.value=String(v);if(e.value===String(v))ch.push(e);}}
+  for(const e of ch){e.dispatchEvent(new Event("input",{bubbles:true}));e.dispatchEvent(new Event("change",{bubbles:true}));}return ch.length;}
+let BOXFACT=false;
+{const _d=boxDefaults;boxDefaults=function(box,k){const key=boxKey(box);if(!BOXFACT&&BOXDEF[key])return boxPut(box,BOXDEF[key]);return _d.apply(this,arguments);};}
+for(const b of document.querySelectorAll(".boxDef")){const box=BOXSEL.map(s=>b.closest(s)).find(Boolean);if(!box)continue;const key=boxKey(box);
+  b.title="Back to your saved default settings of this box (💾 set as default); Shift + click = the app's own defaults. Your notes, labels and lines are kept";
+  b.addEventListener("click",e=>{BOXFACT=!!e.shiftKey;setTimeout(()=>{BOXFACT=false;},0);},true);
+  const s=document.createElement("button");s.className="boxDefSave";s.textContent="💾 set as default";s.style.padding="2px 8px";
+  const ui=()=>{s.classList.toggle("primary",!!BOXDEF[key]);s.title=(BOXDEF[key]?"Your default for this box is saved — click to replace it with the current settings; Shift + click forgets it":"Save the current settings of this box as its default (used by ↺ defaults and kept in the notes file)");};ui();
+  s.addEventListener("click",e=>{e.stopPropagation();if(e.shiftKey){delete BOXDEF[key];boxdefSave();ui();cpToast("Saved default of this box forgotten — ↺ defaults uses the app's defaults");}
+    else{BOXDEF[key]=boxGet(box);boxdefSave();ui();cpToast(`Saved as the default of this box (${Object.keys(BOXDEF[key]).length} settings)`);}
+    if(typeof notesAuto==="function")try{notesAuto();}catch(err){}if(typeof isnAuto==="function")try{isnAuto();}catch(err){}});
+  b.after(s);s.ui=ui;}
+/* into / from the notes file, with the plot layout */
+{const _g=layoutGet;layoutGet=function(){const o=_g.apply(this,arguments)||{};if(Object.keys(BOXDEF).length)o.boxdef=BOXDEF;return o;};}
+{const _s=layoutSet;layoutSet=function(o){if(o&&o.boxdef&&typeof o.boxdef==="object"){for(const k in o.boxdef)BOXDEF[k]=o.boxdef[k];boxdefSave();document.querySelectorAll(".boxDefSave").forEach(b=>b.ui&&b.ui());}return _s.apply(this,arguments);};}
+
+/* ===== app name on the left of the top line (with the theme controls on the right) ===== */
+{const row=$("topRow"),br=document.querySelector("header.top .brand");if(row&&br){row.insertBefore(br,row.firstChild);br.style.flexWrap="wrap";br.style.rowGap="2px";
+  const h=br.querySelector("h1");if(h){h.style.fontSize="clamp(1.15rem,1.6vw,1.5rem)";h.style.margin="0";h.style.whiteSpace="nowrap";}
+  const hd=document.querySelector("header.top");if(hd&&![...hd.children].some(c=>!c.hidden&&getComputedStyle(c).display!=="none"))hd.style.display="none";}}
+
+/* ===== top line: app name left · “Welcome Back Praneeth” centre (blinking until a file is opened) · theme right ===== */
+{const row=$("topRow"),w=$("welcome"),br=row&&row.querySelector(".brand"),tb=row&&row.querySelector(".themeBox");
+  if(row){row.style.display="grid";row.style.gridTemplateColumns="1fr auto 1fr";row.style.alignItems="center";row.style.columnGap="16px";
+    if(br){br.style.gridColumn="1";br.style.justifySelf="start";}if(w){w.style.gridColumn="2";w.style.justifySelf="center";w.style.gridRow="1";}if(tb){tb.style.gridColumn="3";tb.style.justifySelf="end";tb.style.marginLeft="0";}
+    if(br)br.style.gridRow="1";if(tb)tb.style.gridRow="1";}
+  const st=document.createElement("style");st.textContent="@keyframes wcBlink{0%,100%{opacity:1;box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 0%,transparent)}50%{opacity:.45;box-shadow:0 0 0 6px color-mix(in srgb,var(--accent) 25%,transparent)}}#welcome:not([hidden]){animation:wcBlink 1.4s ease-in-out infinite}@media (max-width:1100px){#topRow{grid-template-columns:1fr auto!important}#topRow .themeBox{grid-column:1 / -1!important;grid-row:2!important;justify-self:end}}";document.head.appendChild(st);
+  /* any file you open (images, logs, CIFs, notes…) stops it */
+  document.addEventListener("change",e=>{const t=e.target;if(t&&t.type==="file"&&t.files&&t.files.length)welcomeHide();},true);}
+
+/* ===== ↺ defaults + 💾 set as default: always at the top right of their box, the same in every box and in both apps ===== */
+{const st=document.createElement("style");st.textContent=".boxDefGrp{position:absolute;top:8px;right:10px;z-index:3;display:flex;gap:6px;align-items:center}.boxDefGrp button{padding:2px 8px!important;font-size:.78rem}";document.head.appendChild(st);
+  const GR=[];
+  for(const b of [...document.querySelectorAll(".boxDef")]){const box=BOXSEL.map(s=>b.closest(s)).find(Boolean);if(!box||box.querySelector(":scope > .boxDefGrp"))continue;
+    const s=b.nextElementSibling&&b.nextElementSibling.classList.contains("boxDefSave")?b.nextElementSibling:null;const g=document.createElement("span");g.className="boxDefGrp";
+    b.style.marginLeft="";g.append(b);if(s)g.append(s);if(getComputedStyle(box).position==="static")box.style.position="relative";box.appendChild(g);GR.push([box,g]);}
+  /* keep the box's first row clear of the buttons */
+  const pad=()=>{for(const [box,g] of GR){const first=box.matches(".logBox")?box.querySelector(".logTtl"):box.querySelector(".chartbar");if(!first)continue;first.style.paddingRight=(g.offsetWidth?g.offsetWidth+14:0)+"px";}};
+  pad();window.addEventListener("resize",()=>{clearTimeout(pad.t);pad.t=setTimeout(pad,100);});setTimeout(pad,300);}
+
+/* the box's first row always keeps room for ↺ defaults / 💾 set as default (re-measured when a box opens, closes or resizes) */
+{const fit=g=>{const box=g.parentElement,first=box.matches(".logBox")?box.querySelector(".logTtl"):box.querySelector(".chartbar");if(first&&g.offsetWidth)first.style.paddingRight=(g.offsetWidth+14)+"px";};
+  if("ResizeObserver" in window){const ro=new ResizeObserver(es=>{for(const e of es){const g=e.target.classList.contains("boxDefGrp")?e.target:e.target.querySelector(":scope > .boxDefGrp");if(g)fit(g);}});
+    document.querySelectorAll(".boxDefGrp").forEach(g=>{ro.observe(g);ro.observe(g.parentElement);});}
+  document.querySelectorAll(".boxDefGrp").forEach(fit);}
+/* top line: app name, then “Welcome Back Praneeth” right next to it, theme at the right */
+{const row=$("topRow");if(row){row.style.gridTemplateColumns="auto auto 1fr";const w=$("welcome");if(w){w.style.justifySelf="start";w.style.marginLeft="6px";}}}
 </script>
 
 </body></html>
