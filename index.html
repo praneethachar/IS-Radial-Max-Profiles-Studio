@@ -437,7 +437,7 @@ th{position:sticky;top:0;background:var(--panel);font-family:var(--f-body);font-
       <span class="row2" style="gap:4px"><label title="number of unit cells along a, b, c">unit cells a b c</label><input id="v3na" type="number" min="1" max="10" value="1" style="width:3.4rem" aria-label="cells along a" title="number of unit cells along a (1–10)"><input id="v3nb" type="number" min="1" max="10" value="1" style="width:3.4rem" aria-label="cells along b" title="number of unit cells along b (1–10)"><input id="v3nc" type="number" min="1" max="10" value="1" style="width:3.4rem" aria-label="cells along c" title="number of unit cells along c (1–10)"></span><span class="row2" style="gap:4px"><label for="v3hkl" title="Planes to highlight, e.g. 1 1 0; 0 1 2; -1 0 4 (or 110, 012). Every plane of the family inside the shown cells is drawn.">hkl planes</label><input id="v3hkl" type="text" placeholder="e.g. 1 1 0; 0 1 2" style="width:11rem"><label title="Show the hkl planes"><input id="v3hklOn" type="checkbox" checked> show</label><label title="Animated line between two neighbouring planes of each hkl, perpendicular to them, labelled with (hkl) and the spacing d — stays on top while you rotate"><input id="v3dOn" type="checkbox" checked> d line</label></span>
       <span class="row2"><label for="v3size">atom size</label><input id="v3size" type="range" min="0.15" max="1.6" step="0.05" value="0.5" style="width:7rem"></span>
       <span class="row2"><label><input id="v3bond" type="checkbox" checked> bonds</label><label title="Also bond atoms of the same element (e.g. Cr–Cr, O–O)"><input id="v3same" type="checkbox"> same-element</label><label for="v3tol" title="Bond drawn when distance &lt; tolerance × (r_cov,1 + r_cov,2)">tol</label><input id="v3tol" type="number" min="0.8" max="1.6" step="0.05" value="1.15" style="width:4.2rem"></span>
-      <span class="row2"><label><input id="v3cell" type="checkbox" checked> unit cell</label><label title="Also draw atoms on the far faces / edges / corners"><input id="v3edge" type="checkbox" checked> boundary atoms</label><label><input id="v3lab" type="checkbox"> element labels</label><span class="row2" style="gap:4px;margin-left:8px"><label for="v3KeyFs" title="Font size of the element key (top right of the 3D view, and in copies / GIFs)">key size</label><input id="v3KeyFs" type="number" min="6" max="40" step="1" value="13" style="width:4rem"></span><label><input id="v3persp" type="checkbox" checked> perspective</label><label hidden><input id="v3white" type="checkbox"> white background</label></span><span class="row2" style="gap:6px;margin-left:8px" title="Background of this plot — 📋 Copy copies the plot with it (none = transparent)"><label for="pb_v3">background</label><select id="pb_v3" style="width:auto"><option value="theme">as page</option><option value="white">white</option><option value="black">black</option><option value="transparent">none (transparent)</option><option value="custom">colour…</option></select><input id="pb_v3Col" type="color" value="#ffffff" hidden style="width:2.2rem;height:1.7rem;padding:0 2px"></span>
+      <span class="row2"><label><input id="v3cell" type="checkbox" checked> unit cell</label><label title="Also draw atoms on the far faces / edges / corners"><input id="v3edge" type="checkbox" checked> boundary atoms</label><label><input id="v3lab" type="checkbox"> element labels</label><span class="row2" style="gap:4px;margin-left:8px"><label for="v3KeyFs" title="Font size of the element key (top right of the 3D view, and in copies / GIFs)">key size</label><input id="v3KeyFs" type="number" min="6" max="40" step="1" value="13" style="width:4rem"></span><label hidden><input id="v3persp" type="checkbox"> perspective</label><label hidden><input id="v3white" type="checkbox"> white background</label></span><span class="row2" style="gap:6px;margin-left:8px" title="Background of this plot — 📋 Copy copies the plot with it (none = transparent)"><label for="pb_v3">background</label><select id="pb_v3" style="width:auto"><option value="theme">as page</option><option value="white">white</option><option value="black">black</option><option value="transparent">none (transparent)</option><option value="custom">colour…</option></select><input id="pb_v3Col" type="color" value="#ffffff" hidden style="width:2.2rem;height:1.7rem;padding:0 2px"></span>
       <span class="spacer"></span>
       <button id="v3save">Save view (.png)</button><button class="cpBtn" data-cv="v3d" data-src="v3save" title="Copy this view (with its legend) to the clipboard as an image, to paste with Ctrl+V">📋 Copy</button>
     </div>
@@ -509,8 +509,11 @@ function txtWith(k,fn,exp){const prev=TXT_CUR;TXT_CUR=Object.assign({key:k,exp:!
 function plotLm(ctx,dpr,ticks){ctx.save();ctx.font=`${11*dpr}px "IBM Plex Mono",monospace`;let w=0;for(const t of ticks)w=Math.max(w,ctx.measureText(t).width);ctx.restore();
   return Math.max(30*dpr,6*dpr+12*dpr*TSc()*1.2+(ticks.length?8*dpr+w+6*dpr:6*dpr));}
 const plotB=dpr=>8*dpr+(11+12)*dpr*TSc()*1.2+8*dpr;
-function mvB(ctx,dpr,name,box,fn){const c=TXT_CUR,o=(c&&c.off&&c.off[name])||[0,0],dx=o[0]*dpr,dy=o[1]*dpr,f=(c&&c.sz&&c.sz[name])||1;
+function mvB(ctx,dpr,name,box,fn){const c=TXT_CUR,o=(c&&c.off&&c.off[name])||[0,0],f=(c&&c.sz&&c.sz[name])||1;let dx=o[0]*dpr,dy=o[1]*dpr;
   let ax=0,ay=0;if(box){if(name==="xt"||name==="yt"||name==="xtk"||name==="ytk"){ax=(box[0]+box[2])/2;ay=(box[1]+box[3])/2;}else if(name==="lg"){ax=box[2];ay=box[1];}else{ax=box[0];ay=box[1];}}
+  /* a moved text never leaves the canvas (e.g. on a smaller screen or another monitor): it is pushed back to the nearest edge */
+  if(box&&(dx||dy)&&ctx&&ctx.canvas){const Wc=ctx.canvas.width,Hc=ctx.canvas.height,m=2*dpr,x0=ax+(box[0]-ax)*f+dx,x1=ax+(box[2]-ax)*f+dx,y0=ay+(box[1]-ay)*f+dy,y1=ay+(box[3]-ay)*f+dy;
+    if(x1-x0<Wc-2*m){if(x0<m)dx+=m-x0;else if(x1>Wc-m)dx-=x1-(Wc-m);}if(y1-y0<Hc-2*m){if(y0<m)dy+=m-y0;else if(y1>Hc-m)dy-=y1-(Hc-m);}}
   const hit=(c&&!c.exp&&box&&HITS[c.key])?{name,n:0,txt:"",x0:ax+(box[0]-ax)*f+dx,y0:ay+(box[1]-ay)*f+dy,x1:ax+(box[2]-ax)*f+dx,y1:ay+(box[3]-ay)*f+dy}:null;if(hit)HITS[c.key].push(hit);
   const run=()=>{ctx.save();ctx.translate(dx,dy);if(f!==1){ctx.translate(ax,ay);ctx.scale(f,f);ctx.translate(-ax,-ay);}
     const pN=MVB.name,pC=MVB.n,pF=MVB.first;MVB.depth++;MVB.name=name;MVB.n=0;MVB.first="";try{fn();}finally{ctx.restore();MVB.depth--;if(hit){hit.n=MVB.n;hit.txt=MVB.first;}MVB.name=pN;MVB.n=pC;MVB.first=pF;}};
@@ -2316,7 +2319,7 @@ function drawCmp(target,tdpr){const exp=target instanceof HTMLCanvasElement,cv=e
   if(stacked){ctx.textAlign="left";ctx.textBaseline="middle";out.forEach((s,k)=>{let y=null;for(let i=s.X.length-1;i>=0;i--){if(s.X[i]>=lo&&s.X[i]<=hi&&isFinite(s.Y[i])){y=sy(s.Y[i]+k*step);break;}}
       if(y==null)return;ctx.fillStyle=cmpColor(s.e);const t=cmpLabel(s.e);let tt=t;while(ctx.measureText(tt).width>labW-12*dpr&&tt.length>4)tt=tt.slice(0,-2);if(tt!==t)tt+="…";ctx.fillText(tt,Lm+pw+8*dpr,Math.max(T+6*dpr,Math.min(T+ph-6*dpr,y)));});}
   const cifL=typeof phVisible==="function"?S.phases.filter(phVisible):[];
-  {/* CIF legend: top left inside the plot */const CF=(+$("cmpCifFs").value||11)*dpr;ctx.font=`${CF}px "IBM Plex Sans",sans-serif`;ctx.textAlign="left";ctx.textBaseline="top";const cOff=(typeof isCond==="function"&&isCond().length?13*dpr*TSc()*1.6:0),cmw=cifL.length?Math.max(...cifL.map(phs=>ctx.measureText(phLeg(phs).trim()+(phs.show?"":"  (preview)")).width)):0;mvB(ctx,dpr,"cif",cifL.length?[Lm+4*dpr,T+6*dpr+cOff,Lm+30*dpr+cmw,T+8*dpr+cOff+cifL.length*CF*TSc()*1.45]:null,()=>cifL.forEach((phs,k)=>{const y=T+8*dpr+(typeof isCond==="function"&&isCond().length?13*TSc()*dpr*1.6:0)+k*CF*TSc()*1.45,t=phLeg(phs).trim()+(phs.show?"":"  (preview)"),tw=ctx.measureText(t).width;
+  {/* CIF legend: top left inside the plot */const CF=(+$("cmpCifFs").value||11)*dpr;ctx.font=`${CF}px "IBM Plex Sans",sans-serif`;ctx.textAlign="left";ctx.textBaseline="top";const cOff=(typeof isCond==="function"&&isCond("cmp").length?13*dpr*TSc()*1.6:0),cmw=cifL.length?Math.max(...cifL.map(phs=>ctx.measureText(phLeg(phs).trim()+(phs.show?"":"  (preview)")).width)):0;mvB(ctx,dpr,"cif",cifL.length?[Lm+4*dpr,T+6*dpr+cOff,Lm+30*dpr+cmw,T+8*dpr+cOff+cifL.length*CF*TSc()*1.45]:null,()=>cifL.forEach((phs,k)=>{const y=T+8*dpr+(typeof isCond==="function"&&isCond().length?13*TSc()*dpr*1.6:0)+k*CF*TSc()*1.45,t=phLeg(phs).trim()+(phs.show?"":"  (preview)"),tw=ctx.measureText(t).width;
       ctx.fillStyle=panel;ctx.globalAlpha=.85;ctx.fillRect(Lm+4*dpr,y-2*dpr,tw+26*dpr,CF*TSc()*1.35);ctx.globalAlpha=1;ctx.fillStyle=phs.color;ctx.fillRect(Lm+8*dpr,y+1*dpr,4*dpr,CF*TSc()*0.9);ctx.fillStyle=ink;ctx.fillText(t,Lm+20*dpr,y);}));}
   if(!stacked){ctx.font=`${LF}px "IBM Plex Sans",sans-serif`;ctx.textAlign="right";ctx.textBaseline="top";const omw=Math.max(...out.map(s=>ctx.measureText(cmpLabel(s.e)).width));mvB(ctx,dpr,"lg",[Lm+pw-omw-28*dpr,T+6*dpr,Lm+pw,T+8*dpr+out.length*LF*TSc()*1.45],()=>out.forEach((s,k)=>{const y=T+8*dpr+k*LF*TSc()*1.45,t=cmpLabel(s.e),tw=ctx.measureText(t).width;ctx.fillStyle=panel;ctx.globalAlpha=.85;ctx.fillRect(Lm+pw-tw-28*dpr,y-2*dpr,tw+26*dpr,LF*TSc()*1.35);ctx.globalAlpha=1;
       ctx.strokeStyle=cmpColor(s.e);ctx.lineWidth=2*dpr;ctx.beginPath();ctx.moveTo(Lm+pw-tw-24*dpr,y+LF*TSc()*0.5);ctx.lineTo(Lm+pw-tw-10*dpr,y+LF*TSc()*0.5);ctx.stroke();ctx.fillStyle=ink;ctx.fillText(t,Lm+pw-4*dpr,y);}));}}
@@ -2451,7 +2454,7 @@ tmCv.addEventListener("pointermove",e=>{if(!TM.img)return;const p=tmPt(e);TM.hov
   tmDraw();});
 tmCv.addEventListener("pointerup",e=>{const d=TM.drag;TM.drag=null;if(!d)return;const p=tmPt(e);
   if(d.e&&d.moved){d.e.prof=tmProfile(d.e.frame,d.e.win);cmpRender();return;}
-  if(!d.moved){if(d.e){S.cmpActive=d.e;cmpRender();$("tmStatus").textContent=`Selected t = ${fmtTime(frameT(d.e.frame))}: press Delete to remove it.`;}else{const en=tmAdd(Math.floor(p.f));$("tmStatus").textContent=`Profile added at frame ${en.frame} (t = ${fmtTime(frameT(en.frame))}).`;}}});
+  if(!d.moved){if(d.e){S.cmpActive=d.e;cmpRender();$("tmStatus").textContent=`Selected t = ${fmtTime(frameT(d.e.frame))}: press Delete to remove it.`;}else if(MARK.on){tmMarkAt(p,e);}else{const en=tmAdd(Math.floor(p.f));$("tmStatus").textContent=`Profile added at frame ${en.frame} (t = ${fmtTime(frameT(en.frame))}).`;}}});
 tmCv.addEventListener("pointerleave",()=>{TM.hover=null;tmDraw();});
 function tmSetView(f0,f1,y0,y1){const W=TM.W,H=TM.H;let fw=Math.min(W,Math.max(4,f1-f0)),yh=Math.min(H,Math.max(4,y1-y0));f0=Math.max(0,Math.min(W-fw,f0));y0=Math.max(0,Math.min(H-yh,y0));TM.view={f0,f1:f0+fw,y0,y1:y0+yh};}
 tmCv.addEventListener("wheel",e=>{if(!TM.img)return;e.preventDefault();const p=tmPt(e),v=TM.view,k=e.deltaY<0?0.8:1.25;
@@ -2467,7 +2470,7 @@ for(const id of ["tmSc","tmKv"])$(id).addEventListener("change",()=>{$("kv").val
 $("tmY").addEventListener("change",tmDraw);$("tmCif").addEventListener("change",tmDraw);
 $("tmAddEvery").addEventListener("click",()=>{if(!TM.img)return;const dt=(+$("tmEvery").value||0)*tmU();if(!(dt>0))return;const v=TM.view,df=dt*tmFps();let n=0;
   if((v.f1-v.f0)/df>200){$("tmStatus").textContent="That would add more than 200 profiles: use a longer interval.";return;}
-  for(let f=Math.ceil(v.f0/df)*df;f<v.f1;f+=df){tmAdd(f);n++;}$("tmStatus").textContent=`${n} profiles added.`;});
+  const ids=[];for(let f=Math.ceil(v.f0/df)*df;f<v.f1;f+=df){const en=tmAdd(f);if(en)ids.push(en.id);n++;}TM.every={f0:v.f0,f1:v.f1,ids,name:TM.name};$("tmStatus").textContent=`${n} profiles added (change the interval to re-space them).`;});
 $("tmClear").addEventListener("click",()=>{const n=S.cmp.length;S.cmp=[];S.cmpActive=null;cmpVis();cmpRender();$("tmStatus").textContent=n?`All ${n} lines removed.`:"";});
 function tmDelSel(){const e=S.cmpActive;if(!e||!S.cmp.includes(e))return false;S.cmp=S.cmp.filter(x=>x!==e);S.cmpActive=null;cmpVis();cmpRender();$("tmStatus").textContent=`Line at t = ${fmtTime(frameT(e.frame))} removed.`;return true;}
 $("tmDelSel").addEventListener("click",tmDelSel);
@@ -2520,9 +2523,9 @@ expLegend=function(){const e=S.tmLine,parts=[];if($("lgName").checked&&TM.name)p
   if(e){if($("lgTime").checked)parts.push(`t = ${fmtTime(frameT(e.frame))}`);if($("lgFrame").checked)parts.push(`frame ${e.frame}`+(e.win>0?` ±${e.win}`:""));}
   return parts.length?`Experimental (${parts.join(" · ")})`:"Experimental";};
 /* typed conditions: “13 SCCM”, “30 °C” */
-function isCond(){const o=[],f=$("isSccm").value.trim(),gn=$("isGas").value.trim(),t=$("isT").value.trim();if($("isSccmOn").checked&&(f!==""||gn))o.push(f!==""?`${f} SCCM${gn?" "+gn:""}`:gn);if($("isTOn").checked&&t!=="")o.push(`${t} °C`);return o;}
+function isCond(which){const o=[],f=$("isSccm").value.trim(),gn=$("isGas").value.trim(),t=$("isT").value.trim(),k=which==="cmp"?"cmp":"pk",on=id=>{const e=$(k+id);return e?e.checked:$("is"+id).checked;};if(on("SccmOn")&&(f!==""||gn))o.push(f!==""?`${f} SCCM${gn?" "+gn:""}`:gn);if(on("TOn")&&t!=="")o.push(`${t} °C`);return o;}
 /* the typed conditions are written once, at the top left inside each plot */
-function condDraw(cv,dpr,which){const t=isCond().join(" · ");if(!t)return;const exp=cv!==cvK&&cv!==cvC,G=which==="cmp"?cmpGeom:(exp?window.chartGeomExp:chartGeom);   // geometry of the plot just drawn (screen or copy)
+function condDraw(cv,dpr,which){const t=isCond(which).join(" · ");if(!t)return;const exp=cv!==cvK&&cv!==cvC,G=which==="cmp"?cmpGeom:(exp?window.chartGeomExp:chartGeom);   // geometry of the plot just drawn (screen or copy)
   const ctx=cv.getContext("2d"),css=getComputedStyle(document.documentElement),fs=12*dpr,x=(G?G.L:LMX(dpr))+8*dpr,y=(which==="cmp"&&G?G.T:14*dpr)+6*dpr;
   ctx.save();ctx.font=`600 ${fs}px "IBM Plex Mono",monospace`;ctx.textAlign="left";ctx.textBaseline="top";const w=ctx.measureText(t).width,fh=fs*TSc();
   mvB(ctx,dpr,"cond",[x-5*dpr,y-4*dpr,x+w+5*dpr,y+fh+4*dpr],()=>{
@@ -3448,7 +3451,7 @@ function v3DLines(ctx,P,dpr,O){const {toC,n}=V3.cell,PL=v3HklList();if(!PL.lengt
   const o=toC([0,0,0]),va=toC([1,0,0]).map((v,i)=>v-o[i]),vb=toC([0,1,0]).map((v,i)=>v-o[i]),vc=toC([0,0,1]).map((v,i)=>v-o[i]);
   const cr=(u,v)=>[u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]],dt=(u,v)=>u[0]*v[0]+u[1]*v[1]+u[2]*v[2],V=dt(va,cr(vb,vc));if(!V)return;
   const as=cr(vb,vc).map(x=>x/V),bs=cr(vc,va).map(x=>x/V),cs=cr(va,vb).map(x=>x/V);
-  const ph=O.still?0.35:((performance.now()/1600)%1),fc=n.map(x=>x/2),Cc=toC(fc),placed=[];
+  const ph=O.dph!=null?O.dph:(O.still?0.35:((performance.now()/1600)%1)),fc=n.map(x=>x/2),Cc=toC(fc),placed=[];
   PL.forEach(([h,k,l],pi)=>{const G=[0,1,2].map(i=>h*as[i]+k*bs[i]+l*cs[i]),gl=Math.hypot(...G);if(!gl)return;const d=1/gl,nh=G.map(x=>x/gl);
     const hf=h*fc[0]+k*fc[1]+l*fc[2],m0=Math.floor(hf+1e-9),back=(hf-m0)*d;
     const p0=Cc.map((v,i)=>v-back*nh[i]),p1=p0.map((v,i)=>v+d*nh[i]);
@@ -3551,6 +3554,179 @@ for(const b of document.querySelectorAll(".boxDef")){const box=BOXSEL.map(s=>b.c
   document.querySelectorAll(".boxDefGrp").forEach(fit);}
 /* top line: app name, then “Welcome Back Praneeth” right next to it, theme at the right */
 {const row=$("topRow");if(row){row.style.gridTemplateColumns="auto auto 1fr";const w=$("welcome");if(w){w.style.justifySelf="start";w.style.marginLeft="6px";}}}
+
+/* ===== another monitor / screen scaling: redraw every plot at the new pixel ratio ===== */
+{let cur=window.devicePixelRatio;const watch=()=>{const mq=matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`);const h=()=>{mq.removeEventListener("change",h);
+    if(window.devicePixelRatio!==cur){cur=window.devicePixelRatio;try{window.dispatchEvent(new Event("resize"));}catch(e){}try{redrawAll();}catch(e){}try{if(typeof drawCmp==="function")drawCmp();}catch(e){}try{if(typeof tmDraw==="function"&&typeof TM!=="undefined"&&TM.img)tmDraw();}catch(e){}try{if(typeof v3Draw==="function")v3Draw();}catch(e){}try{if(typeof lpDraw==="function")lpDraw();}catch(e){}}watch();};
+    mq.addEventListener("change",h);};watch();
+  window.addEventListener("resize",()=>{clearTimeout(watch.t);watch.t=setTimeout(()=>{try{redrawAll();}catch(e){}try{if(typeof drawCmp==="function")drawCmp();}catch(e){}},150);});}
+
+/* ===== ◎ show d on image: clicking a plot (or the image) marks a d only while this is on ===== */
+const MARK={on:false,ev:false,warned:false};
+function markUI(){for(const b of document.querySelectorAll(".markBtn")){b.setAttribute("aria-pressed",MARK.on);b.classList.toggle("primary",MARK.on);}}
+function markBtn(){const b=document.createElement("button");b.className="markBtn";b.textContent="◎ show d on image";b.setAttribute("aria-pressed","false");
+  b.title="When on: clicking a plot marks that d (ring on the pattern / line on the map and in the plots), and clicking the image shows its d in the plots. When off, clicks do not mark anything (shift-click adds more marks while on)";
+  b.addEventListener("click",e=>{e.stopPropagation();MARK.on=!MARK.on;markUI();});return b;}
+{const st=document.createElement("style");st.textContent=".markBtn{padding:2px 9px}.markBtn[aria-pressed=true]{background:var(--accent);color:#fff}";document.head.appendChild(st);}
+{const gate=cv=>{if(!cv)return;cv.addEventListener("click",()=>{MARK.ev=true;setTimeout(()=>{MARK.ev=false;},0);},true);};
+  gate(typeof cvC!=="undefined"?cvC:null);gate(typeof cvK!=="undefined"?cvK:null);gate(typeof cvM!=="undefined"?cvM:null);gate(typeof cvP!=="undefined"?cvP:null);}
+{const _s=selectRing;selectRing=function(r){if(MARK.ev&&!MARK.on&&r!=null&&r>0){if(!MARK.warned){MARK.warned=true;try{cpToast("Clicks do not mark a d now — turn on ◎ show d on image to mark it on the image and plots");}catch(e){}}return;}return _s.apply(this,arguments);};}
+
+/* ===== arrows on the plots: + arrow, then press on the plot at the tail and drag to the head ===== */
+let AWPICK=null;
+function awList(k){const T=TXT[k];if(!T.aw)T.aw=[];return T.aw;}
+function awGeom(k,t){const exp=t instanceof HTMLCanvasElement;if(k==="tm")return typeof TM!=="undefined"?TM.g:null;return k==="cmp"?cmpGeom:(exp?window.chartGeomExp:chartGeom);}
+function awToXY(k,G,a,end){if(k==="tm"){const v=TM.view,f=end?a.f1:a.f0,r=end?a.r1:a.r0;return [G.L+(f-v.f0)/(v.f1-v.f0)*G.pw,G.T+(r+0.5-v.y0)/(v.y1-v.y0)*G.ph];}
+  const d=end?a.d1:a.d0,yf=end?a.y1:a.y0,xv=vlX(k,d);if(!isFinite(xv))return null;return [G.L+(xv-G.lo)/(G.hi-G.lo)*G.pw,G.T+yf*G.ph];}
+function awFromEv(k,ev){const cv=TXTCV[k],s=cv.width/cv.getBoundingClientRect().width,x=ev.offsetX*s,y=ev.offsetY*s;
+  if(k==="tm"){const p=tmPt(ev);return {f:p.f,r:p.yy-0.5};}const G=k==="cmp"?cmpGeom:chartGeom;if(!G)return null;const d=vlDAt(k,ev);if(!(d>0))return null;return {d,y:(y-G.T)/G.ph};}
+function awPaint(ctx,p0,p1,col,w,dpr){const dx=p1[0]-p0[0],dy=p1[1]-p0[1],L=Math.hypot(dx,dy);if(L<2)return;const ux=dx/L,uy=dy/L,h=Math.min(L*0.6,(8+2.2*w)*dpr),hw=h*0.45;
+  ctx.save();ctx.lineCap="round";ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=w*dpr;ctx.beginPath();ctx.moveTo(p0[0],p0[1]);ctx.lineTo(p1[0]-ux*h*0.8,p1[1]-uy*h*0.8);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(p1[0],p1[1]);ctx.lineTo(p1[0]-ux*h-uy*hw,p1[1]-uy*h+ux*hw);ctx.lineTo(p1[0]-ux*h+uy*hw,p1[1]-uy*h-ux*hw);ctx.closePath();ctx.fill();ctx.restore();}
+function awDraw(k,t,d){const L=awList(k).filter(a=>a.done!==false||AWPICK&&AWPICK.a===a);if(!L.length)return;const exp=t instanceof HTMLCanvasElement&&k!=="tm",cv=k==="tm"?TXTCV.tm:(exp?t:TXTCV[k]),G=awGeom(k,exp?t:null);if(!G)return;
+  const dpr=exp?d:cv.width/Math.max(1,cv.getBoundingClientRect().width),ctx=cv.getContext("2d");
+  for(const a of L){if(a.d1==null&&a.f1==null)continue;const p0=awToXY(k,G,a,false),p1=awToXY(k,G,a,true);if(!p0||!p1)continue;awPaint(ctx,p0,p1,a.col||"#e4572e",+a.w||2,dpr);}}
+function awUI(k){const box=document.querySelector(`.awList[data-k="${k}"]`);if(!box)return;box.textContent="";
+  awList(k).forEach((a,i)=>{if(a.done===false)return;const w=document.createElement("span");w.className="row2";w.style.cssText="gap:3px;border:1px solid var(--line);border-radius:6px;padding:2px 4px";
+    const mk=(tag,props,css)=>{const e=document.createElement(tag);Object.assign(e,props);if(css)e.style.cssText=css;e.addEventListener("keydown",ev=>ev.stopPropagation());e.addEventListener("click",ev=>ev.stopPropagation());return e;};
+    const lab=document.createElement("span");lab.className="keys";lab.textContent="➚"+(i+1);
+    const col=mk("input",{type:"color",value:a.col||"#e4572e",title:"Arrow colour"},"width:2rem;height:1.7rem;padding:0 2px");
+    const wd=mk("select",{title:"Line width"},"width:auto");for(const v of [1,1.5,2,3,4]){const o=document.createElement("option");o.value=v;o.textContent=v+" px";wd.appendChild(o);}wd.value=String(a.w||2);
+    const re=mk("button",{textContent:"📍",title:"Draw this arrow again: press at the tail and drag to the head"},"padding:2px 6px");
+    const x=mk("button",{textContent:"×",title:"Delete this arrow"},"padding:2px 8px");
+    col.addEventListener("input",()=>{a.col=col.value;txtSave();awRedraw(k);});wd.addEventListener("change",()=>{a.w=+wd.value;txtSave();awRedraw(k);});
+    re.addEventListener("click",()=>awPickStart(k,a));x.addEventListener("click",()=>{TXT[k].aw=awList(k).filter(z=>z!==a);txtSave();awUI(k);awRedraw(k);});
+    w.append(lab,col,wd,re,x);box.appendChild(w);});}
+function awRedraw(k){try{if(k==="tm"){tmDraw();}else txtRedraw(k);}catch(e){}}
+function awPickStart(k,a){AWPICK={k,a,down:false};const cv=TXTCV[k];cv.classList.add("vlPickOn");const h=document.querySelector(`.awBox[data-k="${k}"] .awHint`);if(h)h.hidden=false;}
+function awPickEnd(){if(!AWPICK)return;const cv=TXTCV[AWPICK.k];cv.classList.remove("vlPickOn");const h=document.querySelector(`.awBox[data-k="${AWPICK.k}"] .awHint`);if(h)h.hidden=true;AWPICK=null;}
+function awBox(k){const s=document.createElement("span");s.className="row2 awBox";s.dataset.k=k;s.style.cssText="gap:6px;border-left:2px solid var(--line);padding-left:10px";
+  s.title="Arrows of your own on this plot: press + arrow, then press on the plot at the tail and drag to the head; 📍 draws it again, the colour box and width change it";
+  const b=document.createElement("button");b.className="awAdd";b.dataset.k=k;b.textContent="+ arrow";const h=document.createElement("span");h.className="keys awHint";h.hidden=true;h.style.cssText="color:var(--accent);font-weight:600";h.textContent="press at the tail, drag to the head (Esc cancels)";
+  const l=document.createElement("span");l.className="awList row2";l.dataset.k=k;l.style.gap="6px";s.append(b,h,l);
+  b.addEventListener("click",e=>{e.stopPropagation();const a={id:1+Math.max(0,...awList(k).map(z=>z.id||0)),col:"#e4572e",w:2,done:false};awList(k).push(a);awPickStart(k,a);});return s;}
+for(const k in TXTCV){const cv=TXTCV[k];
+  window.addEventListener("pointerdown",ev=>{if(!AWPICK||AWPICK.k!==k||ev.button!==0||ev.target!==cv)return;ev.stopImmediatePropagation();ev.preventDefault();const p=awFromEv(k,ev);if(!p)return;
+    const a=AWPICK.a;if(k==="tm"){a.f0=a.f1=p.f;a.r0=a.r1=p.r;}else{a.d0=a.d1=p.d;a.y0=a.y1=p.y;}AWPICK.down=true;cv.setPointerCapture(ev.pointerId);},true);
+  window.addEventListener("pointermove",ev=>{if(!AWPICK||AWPICK.k!==k||!AWPICK.down)return;ev.stopImmediatePropagation();const p=awFromEv(k,ev);if(!p)return;const a=AWPICK.a;
+    if(k==="tm"){a.f1=p.f;a.r1=p.r;}else{a.d1=p.d;a.y1=p.y;}awRedraw(k);},true);
+  window.addEventListener("pointerup",ev=>{if(!AWPICK||AWPICK.k!==k||!AWPICK.down)return;ev.stopImmediatePropagation();const a=AWPICK.a;a.done=true;txtSave();awPickEnd();awUI(k);awRedraw(k);
+    cv.addEventListener("click",e2=>e2.stopImmediatePropagation(),{capture:true,once:true});},true);}
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&AWPICK){const {k,a}=AWPICK;if(a.done===false)TXT[k].aw=awList(k).filter(z=>z!==a);awPickEnd();awUI(k);awRedraw(k);}},true);
+{const _a=drawChart;drawChart=function(t,d){const r=_a(t,d);try{if(S.profile)awDraw("pk",t,d);}catch(e){}return r;};}
+{const _b=drawCmp;drawCmp=function(t,d){const r=_b(t,d);try{const exp=t instanceof HTMLCanvasElement;if((exp||!$("cmpPanel").hidden)&&S.cmp.some(e=>e.show&&e.prof))awDraw("cmp",t,d);}catch(e){}return r;};}
+/* the arrow buttons sit next to “+ vertical line” in the labels row of each plot */
+for(const k of ["pk","cmp"]){const vb=document.querySelector(`.vlBox[data-k="${k}"]`);if(vb&&TXTCV[k])vb.after(awBox(k));awUI(k);}
+
+/* ◎ buttons: peaks plot, compare plot and the map */
+{const put=(sel,first)=>{const el=document.querySelector(sel);if(!el)return;const b=markBtn();if(first)el.prepend(b);else el.appendChild(b);};
+  put("#pkPanel .tbrow .tbc",true);put("#cmpPanel .tbrow .tbc",true);const bars=document.querySelectorAll("#tmPanel > .chartbar");if(bars[1])bars[1].appendChild(markBtn());else if(bars[0])bars[0].appendChild(markBtn());markUI();}
+function tmMarkAt(p,e){if(!S.profile){$("tmStatus").textContent="Pick a profile line first (turn ◎ off and click the map), then marks show in its plots.";return;}
+  const r=Math.max(0.5,p.yy-0.5),add=!!(e&&(e.shiftKey||e.ctrlKey||e.metaKey));selectRing(r,null,add);try{drawChart();}catch(err){}try{drawCmp();}catch(err){}tmDraw();
+  const sc=+$("tmSc").value;$("tmStatus").textContent=sc>0?`Marked d ${(10/(r*sc)).toFixed(4)} Å on the map and in the plots (shift-click adds more).`:"Marked.";}
+/* arrows on the map too */
+{const ub=document.querySelector('.ulAdd[data-k="tm"]');if(ub&&TXTCV.tm){ub.after(awBox("tm"));awUI("tm");}
+  const _d=tmDraw;tmDraw=function(){const r=_d.apply(this,arguments);try{if(TM.img)awDraw("tm",tmCv,null);}catch(e){}return r;};}
+/* SCCM and T in the labels row of each plot: own tick boxes, shared values (typing in one box fills all) */
+{const mk=k=>{const s=document.createElement("span");s.className="row2 condBox";s.style.cssText="gap:5px;border-left:2px solid var(--line);padding-left:10px";s.title="Show the gas flow and the temperature in this plot's label (the values are the same in both plots)";
+    s.innerHTML=`<label><input id="${k}SccmOn" type="checkbox"> SCCM</label><input class="cSccm" type="text" placeholder="value" style="width:4.2rem"><input class="cGas" type="text" placeholder="gas" style="width:4.2rem"><label><input id="${k}TOn" type="checkbox"> T</label><input class="cT" type="text" placeholder="value" style="width:4.2rem"><span class="keys">°C</span>`;return s;};
+  for(const k of ["pk","cmp"]){const row=[...document.querySelectorAll(`#${k}Panel .tbrow`)].find(r=>/labels/.test((r.querySelector(".tbl")||{}).textContent||""));const tbc=row&&row.querySelector(".tbc");if(!tbc)continue;
+    const b=mk(k);const ul=tbc.querySelector(`.ulAdd[data-k="${k}"]`);if(ul)ul.before(b);else tbc.appendChild(b);}
+  const pairs=[["cSccm","isSccm"],["cGas","isGas"],["cT","isT"]];
+  const sync=(from)=>{for(const [c,id] of pairs){const v=from&&from.classList&&from.classList.contains(c)?from.value:from&&from.id===id?from.value:$(id).value;$(id).value=v;document.querySelectorAll("."+c).forEach(x=>{if(x!==from)x.value=v;});}};
+  for(const [c,id] of pairs){document.querySelectorAll("."+c).forEach(x=>{x.addEventListener("keydown",e=>e.stopPropagation());x.addEventListener("input",()=>{sync(x);$(id).dispatchEvent(new Event("input",{bubbles:true}));});});
+    $(id).addEventListener("input",()=>sync($(id)));}
+  sync(null);
+  for(const k of ["pk","cmp"])for(const w of ["SccmOn","TOn"]){const el=$(k+w);if(!el)continue;el.checked=$("is"+w).checked;el.addEventListener("change",()=>{isCondChanged();try{isnAuto();}catch(e){}});}
+  for(const w of ["SccmOn","TOn"])$("is"+w).addEventListener("change",()=>{for(const k of ["pk","cmp"]){const el=$(k+w);if(el)el.checked=$("is"+w).checked;}isCondChanged();});}
+/* the open stack's file name at the top centre */
+{const row=$("topRow");if(row){row.style.position="relative";const t=document.createElement("div");t.id="topFile";t.style.cssText="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:600 1.05rem var(--f-body);color:var(--ink);max-width:40vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;pointer-events:none";row.appendChild(t);
+  const upd=()=>{const n=(typeof TM!=="undefined"&&TM.data&&TM.name)||"";t.textContent=n?"📄 "+n:"";t.title=n;t.hidden=!n||(($("welcome")&&!$("welcome").hidden));};upd();
+  const _o=tmOpen;tmOpen=async function(){const r=await _o.apply(this,arguments);upd();return r;};setInterval(upd,1500);}}
+
+/* ===== “add over view”: changing the interval afterwards re-spaces those profiles (the others stay) ===== */
+{let t=0;const respace=()=>{const E=TM.every;if(!E||!TM.img||E.name!==TM.name)return;const dt=(+$("tmEvery").value||0)*tmU();if(!(dt>0))return;const df=dt*tmFps();
+    if((E.f1-E.f0)/df>200){$("tmStatus").textContent="That would add more than 200 profiles: use a longer interval.";return;}
+    const old=new Set(E.ids);S.cmp=S.cmp.filter(e=>!old.has(e.id));if(S.cmpActive&&old.has(S.cmpActive.id))S.cmpActive=null;
+    const ids=[];for(let f=Math.ceil(E.f0/df)*df;f<E.f1;f+=df){const en=tmAdd(f);if(en)ids.push(en.id);}E.ids=ids;
+    try{cmpRender();}catch(e){}try{tmDraw();}catch(e){}$("tmStatus").textContent=`${ids.length} profiles every ${$("tmEvery").value} ${$("tmUnit").value} over the same range.`;};
+  $("tmEvery").addEventListener("input",()=>{clearTimeout(t);t=setTimeout(respace,350);});$("tmEvery").addEventListener("change",respace);
+  $("tmEvery").addEventListener("keydown",e=>e.stopPropagation());
+  {const _o=tmOpen;tmOpen=async function(){TM.every=null;return _o.apply(this,arguments);};}}
+
+$("tmClear").addEventListener("click",()=>{TM.every=null;},true);
+
+/* ===== layout: “Remove all” next to “Add CIF files…”; save buttons in the same order everywhere (data → plot / image → 📋 Copy last) ===== */
+{const ci=$("cifIn"),cc=$("cClear");const lab=ci&&ci.closest("label");if(lab&&cc)lab.after(cc);}
+{const t=$("cmpSvTxt"),p=$("cmpSvPng");if(t&&p)p.before(t);}
+
+/* IS: no SAED pattern here, so no “rings on SAED” box */
+{const l=$("cRings")&&$("cRings").closest("label");if(l)l.hidden=true;}
+/* IS: 📋 Copy at the end of the map tool row */
+{const b=document.querySelector('#tmPanel .cpBtn[data-cv="tmCv"]');if(b&&b.parentElement){const bar=b.closest(".chartbar")||b.parentElement;bar.appendChild(b);}}
+/* IS: add a profile at the last frame of the map */
+{const a=$("tmAddEvery");if(a){const b=document.createElement("button");b.id="tmAddLast";b.textContent="add last frame";b.title="Add a profile at the last frame (end) of the map";
+  b.addEventListener("click",()=>{if(!TM.img)return;const en=tmAdd(TM.W-1);try{cmpRender();tmDraw();}catch(e){}$("tmStatus").textContent=`Profile added at the last frame ${en.frame} (t = ${fmtTime(frameT(en.frame))}).`;});a.after(b);}}
+
+/* ===== 3D: GIF of the hkl d-line animation (structure only: no information box, no key); the dot travels the line twice ===== */
+{const bar=$("v3gBar");if(bar){const row=document.createElement("div");row.className="chartbar";row.id="v3dgBar";
+  row.innerHTML=`<span class="keys" title="Animated GIF of the d lines (+ hkl planes) of this view: only the structure, the moving dot goes along each line twice">d-line GIF:</span><label class="row2">frames <input id="v3dgN" type="number" min="8" max="240" step="1" value="48" style="width:4.5rem"></label><label class="row2">size <select id="v3dgSize" style="width:auto"><option value="384">384 px</option><option value="512" selected>512 px</option><option value="768">768 px</option><option value="1024">1024 px</option></select></label><button id="v3dgGo" title="Make and save the GIF of the d-line animation (the current view, zoom and colours)">🎞 save d-line GIF</button><span class="keys" id="v3dgSt"></span>`;
+  bar.after(row);
+  $("v3dgN").addEventListener("keydown",e=>e.stopPropagation());
+  $("v3dgGo").addEventListener("click",async()=>{const st=$("v3dgSt");if(!V3.ph||!V3.atoms.length){st.textContent="Show a phase in 3D first.";return;}
+    if(!$("v3hklOn").checked||!$("v3dOn").checked||!v3HklList().length){st.textContent="Type an hkl (e.g. 1 1 0) and tick “show” and “d line” first.";return;}
+    const N=Math.max(8,Math.min(240,Math.round(+$("v3dgN").value||48))),T=+$("v3dgSize").value||512,dpr=Math.max(1,T/400),fr=[];$("v3dgGo").disabled=true;
+    try{for(let k=0;k<N;k++){if(k%6===0){st.textContent=`Drawing frame ${k+1} / ${N}…`;await new Promise(r=>setTimeout(r,0));}
+        const c=document.createElement("canvas");c.width=T;c.height=T;v3Draw(c,{transparent:true,info:false,key:false,dpr,dph:(2*k/N)%1});fr.push(c.getContext("2d").getImageData(0,0,T,T).data);}
+      st.textContent="Encoding GIF…";await new Promise(r=>setTimeout(r,0));
+      const {pal,frames}=v3Quantise(fr),dt=Math.max(0.02,3.2/N),bytes=v3GifEncode(frames,T,T,pal,Math.round(dt*100)),blob=new Blob([bytes],{type:"image/gif"});
+      const nm=((V3.ph.formula||"structure").replace(/\s+/g,"")+(V3.ph.code?"_"+V3.ph.code:""))+`_dline_${v3HklList().map(q=>q.join("")).join("-")}_${N}f.gif`;
+      await saveFile(nm,blob);st.textContent=`GIF saved: ${nm} (${N} frames, ${T} × ${T} px, ${(blob.size/1e6).toFixed(2)} MB).`;}
+    catch(err){st.textContent="Could not make the GIF: "+err.message;}finally{$("v3dgGo").disabled=false;}});}}
+
+/* ===== Phases from CIF: auto-load the last CIF folder / files when the app opens (remembered in the browser and in the notes file) ===== */
+{const cc=$("cClear");if(cc){const l=document.createElement("label");l.className="row2";l.title="When the app opens, load the CIF folder (or files) you loaded last. If the browser needs your permission again, the first click anywhere on the page loads them";
+  l.innerHTML='<input id="cifAuto" type="checkbox"> auto-load last CIFs';cc.after(l);
+  let on=false;try{on=localStorage.getItem("cif-auto")==="1";}catch(e){}$("cifAuto").checked=on;
+  $("cifAuto").addEventListener("change",()=>{try{localStorage.setItem("cif-auto",$("cifAuto").checked?"1":"0");}catch(e){}try{if(typeof notesAuto==="function")notesAuto();}catch(e){}try{if(typeof isnAuto==="function")isnAuto();}catch(e){}});
+  const go=async()=>{if(!$("cifAuto").checked||!FSA||(S.phases&&S.phases.length))return;const L=await cifRecentGet();const e=L&&L[0];if(!e)return;const hs=e.kind==="dir"?[e.h]:e.hs;
+    let ok=true;for(const h of hs){try{if((await h.queryPermission({mode:"read"}))!=="granted")ok=false;}catch(err){ok=false;}}
+    if(ok){cifRecentOpen(e);return;}
+    $("cifStatus").textContent=`Auto-load: click anywhere on the page to load the CIFs of “${cifRName(e)}” (the browser asks for permission once).`;
+    const once=async()=>{window.removeEventListener("pointerdown",once,true);if(S.phases&&S.phases.length)return;cifRecentOpen(e);};window.addEventListener("pointerdown",once,true);};
+  setTimeout(()=>{if(window.CIF_AUTO_ALL)window.CIF_AUTO_ALL();else go();},600);
+  const _g=layoutGet;layoutGet=function(){const o=_g.apply(this,arguments)||{};o.cifAuto=$("cifAuto").checked;return o;};
+  const _s=layoutSet;layoutSet=function(o){if(o&&typeof o.cifAuto==="boolean"){$("cifAuto").checked=o.cifAuto;try{localStorage.setItem("cif-auto",o.cifAuto?"1":"0");}catch(e){}}return _s.apply(this,arguments);};}}
+
+/* d-line GIF row: at the end of the 3D structure box */
+{const r=$("v3dgBar"),p=$("v3Panel");if(r&&p)p.appendChild(r);}
+/* auto-load: every remembered CIF folder / file set (all the ↻ buttons), not only the last one */
+{const loadAll=async()=>{if(!$("cifAuto")||!$("cifAuto").checked||!FSA)return;const L=await cifRecentGet();if(!L||!L.length)return;let need=false;
+    for(const e of L){for(const h of (e.kind==="dir"?[e.h]:e.hs)){try{if((await h.queryPermission({mode:"read"}))!=="granted")need=true;}catch(err){need=true;}}}
+    const run=async()=>{for(const e of L){try{await cifRecentOpen(e);}catch(err){}}};
+    if(!need){if(!(S.phases&&S.phases.length))run();return;}
+    $("cifStatus").textContent=`Auto-load: click anywhere on the page to load the ${L.length} remembered CIF set${L.length>1?"s":""} (${L.map(cifRName).join(", ")}).`;
+    const once=async()=>{window.removeEventListener("pointerdown",once,true);if(S.phases&&S.phases.length)return;run();};window.addEventListener("pointerdown",once,true);};
+  window.CIF_AUTO_ALL=loadAll;}
+/* ✥ move text: switches off when you click outside its box */
+window.addEventListener("pointerdown",e=>{for(const b of document.querySelectorAll(".txtMv[aria-pressed=true],#gifMove[aria-pressed=true]")){const box=b.closest("section.panel,.panel")||b.parentElement;
+  if(box&&!box.contains(e.target))b.click();}},true);
+/* arrows move with ✥ move text: drag the line to move it, or an end to move that end */
+{const scrToData=(k,x,y)=>{if(k==="tm"){const g=TM.g,v=TM.view;return {f:v.f0+(x-g.L)/g.pw*(v.f1-v.f0),r:v.y0+(y-g.T)/g.ph*(v.y1-v.y0)-0.5};}
+    const G=k==="cmp"?cmpGeom:chartGeom;const val=G.lo+(x-G.L)/G.pw*(G.hi-G.lo),m=k==="cmp"?$("cmpXm").value:(G.mode||$("xmode").value);let d=NaN;
+    if(val>0){if(m==="d")d=val;else if(m==="q")d=10/val;else if(m==="r")d=S.profile?10/(val*S.profile.sc):NaN;else{const lam=k==="cmp"?lambdaA(+$("kv").value||300):(S.profile?S.profile.lam:lambdaA(+$("kv").value||300));d=lam/(2*Math.sin(val*Math.PI/360));}}
+    return {d,y:(y-G.T)/G.ph};};
+  const segD=(p,a,b)=>{const dx=b[0]-a[0],dy=b[1]-a[1],L2=dx*dx+dy*dy||1;let t=((p[0]-a[0])*dx+(p[1]-a[1])*dy)/L2;t=Math.max(0,Math.min(1,t));return Math.hypot(p[0]-a[0]-t*dx,p[1]-a[1]-t*dy);};
+  let AD=null;
+  for(const k in TXTCV){const cv=TXTCV[k];
+    window.addEventListener("pointerdown",ev=>{if(ev.target!==cv||ev.button!==0||AWPICK||!txtMoving(k))return;const L=awList(k).filter(a=>a.done!==false);if(!L.length)return;const G=awGeom(k,null);if(!G)return;
+      const s=cv.width/cv.getBoundingClientRect().width,p=[ev.offsetX*s,ev.offsetY*s],tol=8*s;let best=null,bd=tol;
+      for(const a of L){const p0=awToXY(k,G,a,false),p1=awToXY(k,G,a,true);if(!p0||!p1)continue;const d=segD(p,p0,p1);if(d<bd){bd=d;best={a,p0,p1,part:Math.hypot(p[0]-p1[0],p[1]-p1[1])<tol*1.4?"head":Math.hypot(p[0]-p0[0],p[1]-p0[1])<tol*1.4?"tail":"all"};}}
+      if(!best)return;ev.stopImmediatePropagation();ev.preventDefault();AD={k,...best,s0:p,s};cv.setPointerCapture(ev.pointerId);cv.style.cursor="grabbing";},true);
+    window.addEventListener("pointermove",ev=>{if(!AD||AD.k!==k)return;ev.stopImmediatePropagation();const s=AD.s,p=[ev.offsetX*s,ev.offsetY*s],dx=p[0]-AD.s0[0],dy=p[1]-AD.s0[1],a=AD.a;
+      const set=(end,xy)=>{const D=scrToData(k,xy[0],xy[1]);if(k==="tm"){if(end){a.f1=D.f;a.r1=D.r;}else{a.f0=D.f;a.r0=D.r;}}else if(D.d>0){if(end){a.d1=D.d;a.y1=D.y;}else{a.d0=D.d;a.y0=D.y;}}};
+      if(AD.part!=="head")set(false,[AD.p0[0]+dx,AD.p0[1]+dy]);if(AD.part!=="tail")set(true,[AD.p1[0]+dx,AD.p1[1]+dy]);awRedraw(k);},true);
+    window.addEventListener("pointerup",ev=>{if(!AD||AD.k!==k)return;ev.stopImmediatePropagation();AD=null;cv.style.cursor="move";txtSave();cv.addEventListener("click",e2=>e2.stopImmediatePropagation(),{capture:true,once:true});},true);}}
 </script>
 
 </body></html>
