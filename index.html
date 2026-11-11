@@ -306,7 +306,7 @@ th{position:sticky;top:0;background:var(--panel);font-family:var(--f-body);font-
 
         <fieldset>
           <legend>Guide circles</legend>
-          <div class="row"><label for="nc">number</label><input id="nc" type="range" min="0" max="40" step="1" value="1"><input id="ncN" type="number" min="0" max="40" step="1" value="1"></div>
+          <div class="row"><label for="nc">number</label><input id="nc" type="range" min="0" max="40" step="1" value="0"><input id="ncN" type="number" min="0" max="40" step="1" value="0"></div>
           <div class="row"><label for="r0">first r (px)</label><input id="r0" type="range" min="2" max="3000" step="0.5" value="200"><input id="r0N" type="number" step="0.5" value="200"></div>
           <div class="row"><label for="dr">spacing (px)</label><input id="dr" type="range" min="1" max="1500" step="0.5" value="150"><input id="drN" type="number" step="0.5" value="150"></div>
           <div class="keys">Tip: one circle on a strong ring is the most sensitive check.</div>
@@ -1235,14 +1235,14 @@ function drawChart(target,tdpr){
   }
   { /* legend: the experimental curve, then every shown phase */
     const vis=$("cSticks").checked?blinkLeg(S.phases.filter(phVisible)):[];
-    const ent=vis.filter(p=>!shw(p)).map(phs=>({c:phs.color,t:phLeg(phs).trim()+"  (preview)",pre:true})).concat([{c:acc,t:expLegend(),curve:true}]).concat(vis.filter(p=>shw(p)).map(phs=>({c:phs.color,t:phLeg(phs),ph:phs})));if(!exp)window.LGROWS=[];{const sp=(typeof STK!=="undefined"&&STK.ln)?STK.ph:null;if(sp)ent.forEach((e,i)=>{if(!e.curve&&e.c===sp.color&&(e.t===phLeg(sp)||e.t===phLeg(sp).trim()+"  (preview)"))e.sel=true;});}
+    const ent=vis.filter(p=>!shw(p)).map(phs=>({c:phs.color,t:phLeg(phs).trim()+"  (preview)",pre:true,pv:phs})).concat([{c:acc,t:expLegend(),curve:true}]).concat(vis.filter(p=>shw(p)).map(phs=>({c:phs.color,t:phLeg(phs),ph:phs})));if(!exp)window.LGROWS=[];{const sp=(typeof STK!=="undefined"&&STK.ln)?STK.ph:null;if(sp)ent.forEach((e,i)=>{if(!e.curve&&e.c===sp.color&&(e.t===phLeg(sp)||e.t===phLeg(sp).trim()+"  (preview)"))e.sel=true;});}
     const PF=(+$("pkLgFs").value||11)*dpr;ctx.globalAlpha=1;ctx.textAlign="right";ctx.textBaseline="top";
     const FN=e=>e.pre?`700 ${PF*1.3}px "IBM Plex Sans",sans-serif`:e.sel?`700 ${PF}px "IBM Plex Sans",sans-serif`:`${PF}px "IBM Plex Sans",sans-serif`,FH=e=>(e.pre?1.3:1)*PF*TSc(),RH=e=>FH(e)*1.45+(e.pre?4*dpr:0);
     {const mw=Math.max(...ent.map(e=>{ctx.font=FN(e);return ctx.measureText(e.t).width;})),H=ent.reduce((a,e)=>a+RH(e),0);mvB(ctx,dpr,"lg",[L+pw-mw-26*dpr,T+38*dpr,L+pw,T+40*dpr+H],()=>{let y=T+40*dpr;ent.forEach(e=>{ctx.font=FN(e);const tw=ctx.measureText(e.t).width,fh=FH(e);
       ctx.fillStyle=css.getPropertyValue("--panel").trim();ctx.globalAlpha=e.pre?1:.85;ctx.fillRect(L+pw-tw-26*dpr,y-2*dpr,tw+24*dpr,fh*1.35);ctx.globalAlpha=1;
       if(e.sel){ctx.fillStyle=e.c;ctx.fillRect(L+pw-tw-26*dpr,y-2*dpr,tw+24*dpr,fh*1.35);}if(e.pre||e.sel){ctx.strokeStyle=e.c;ctx.lineWidth=2*dpr;ctx.strokeRect(L+pw-tw-26*dpr,y-2*dpr,tw+24*dpr,fh*1.35);}const selTx=e.sel?(()=>{const hx=String(e.c||"").replace("#",""),q=hx.length>=6?[0,2,4].map(i=>parseInt(hx.substr(i,2),16)):[74,64,206];return (0.299*q[0]+0.587*q[1]+0.114*q[2])/255>0.6?"#000":"#fff";})():null;
       if(e.curve){ctx.strokeStyle=e.c;ctx.lineWidth=2*dpr;ctx.beginPath();ctx.moveTo(L+pw-tw-22*dpr,y+fh*0.5);ctx.lineTo(L+pw-tw-10*dpr,y+fh*0.5);ctx.stroke();}
-      else{ctx.fillStyle=selTx||e.c;ctx.fillRect(L+pw-tw-22*dpr,y+fh*0.35,12*dpr,(e.pre?6:4)*dpr);}ctx.fillStyle=selTx||(e.pre?e.c:ink);ctx.fillText(e.t,L+pw-4*dpr,y);if(!exp&&e.ph){const T=ctx.getTransform(),x0=L+pw-tw-26*dpr,ya=y-2*dpr,yb=ya+fh*1.35;window.LGROWS.push({ph:e.ph,x:T.a*x0+T.c*ya+T.e,y0:T.b*x0+T.d*ya+T.f,y1:T.b*x0+T.d*yb+T.f});}y+=RH(e);});});}}
+      else{ctx.fillStyle=selTx||e.c;ctx.fillRect(L+pw-tw-22*dpr,y+fh*0.35,12*dpr,(e.pre?6:4)*dpr);}ctx.fillStyle=selTx||(e.pre?e.c:ink);ctx.fillText(e.t,L+pw-4*dpr,y);if(!exp&&(e.ph||e.pv)){const T=ctx.getTransform(),x0=L+pw-tw-26*dpr,x1=L+pw,ya=y-2*dpr,yb=ya+fh*1.35;window.LGROWS.push({ph:e.ph||e.pv,pre:!e.ph,x:T.a*x0+T.c*ya+T.e,x1:T.a*x1+T.c*ya+T.e,y0:T.b*x0+T.d*ya+T.f,y1:T.b*x0+T.d*yb+T.f});}y+=RH(e);});});}}
   for(const sl of S.sels){const xv=rToX(sl.r,mode);if(xv>=lo&&xv<=hi){const col=sl.color==="#ffffff"?muted:sl.color;ctx.strokeStyle=col;ctx.lineWidth=2*dpr;ctx.setLineDash([6*dpr,4*dpr]);
     ctx.beginPath();ctx.moveTo(sx(xv),T);ctx.lineTo(sx(xv),T+ph);ctx.stroke();ctx.setLineDash([]);
     if(true){const lab=selLab(sl);ctx.font=`600 ${11*dpr}px "IBM Plex Mono",monospace`;const tw=ctx.measureText(lab).width;
@@ -1384,10 +1384,11 @@ async function openFile(f){
   }catch(err){setStatus("Could not read "+f.name+": "+err.message,true);}
   document.body.classList.remove("busy");
 }
-$("file").addEventListener("change",e=>openFile(e.target.files[0]));
+$("file").addEventListener("change",e=>{const f=e.target.files&&e.target.files[0];if(!f)return;try{IMG_FILECHECK=true;}catch(err){}Promise.resolve(openFile(f)).then(()=>{try{logsRangeCheck();}catch(err){}});});
 /* Chrome/Edge: open the pickers with the File System Access API, which remembers the last folder separately for each button (by id).
    Other browsers, or if it is unavailable, fall back to the normal file input. */
 const FSA=typeof window.showOpenFilePicker==="function"&&typeof window.showDirectoryPicker==="function";
+/* buttons use the browser's plain file / folder window (Chrome's newer picker closes without returning anything on some PCs, e.g. OneDrive folders) */const FSA_PICK=true;
 async function walkDir(dir,path,out){for await(const [name,h] of dir.entries()){if(h.kind==="directory")await walkDir(h,path.concat(name),out);
   else if(/\.cif$/i.test(name))out.push({f:await h.getFile(),group:path[path.length-1]});}}
 /* last-used location per button: Chrome's own memory (id) plus the last picked file/folder handle kept in IndexedDB and passed as startIn,
@@ -1397,7 +1398,7 @@ const PICK_DB=(()=>{let p=null;const open=()=>p||(p=new Promise((res,rej)=>{cons
           set:async(k,v)=>{try{const db=await open();await new Promise(res=>{const t=db.transaction("h","readwrite");t.objectStore("h").put(v,k);t.oncomplete=res;t.onerror=res;});}catch(e){}}};})();
 async function pickWithMemory(key,fn,opts){const last=await PICK_DB.get(key);let r;
   try{r=await fn(Object.assign({id:key},opts,last?{startIn:last}:{}));}
-  catch(err){if(err&&err.name==="AbortError")throw err;r=await fn(Object.assign({id:key},opts));}   // stored location gone (moved / deleted): open normally
+  catch(err){if(err&&err.name==="AbortError")throw err;try{PICK_DB.set(key,null);}catch(e){}r=await fn(Object.assign({id:key},opts));}   /* the remembered place is gone: forgotten, so the next click opens normally */   // stored location gone (moved / deleted): open normally
   const h=Array.isArray(r)?r[0]:r;if(h){PICK_DB.set(key,h);if(key==="is-stack")PICK_DB.set("is-notes-dir",h);if(IMG_KEYS.has(key)){await imgFolderCheck(h);PICK_DB.set("saed-imglast",h);}}return r;}
 /* images from another folder: forget the temperature / pressure logs (each folder has its own) and open the log pickers there.
    Two folders, or a folder and a file, are compared directly; two single files (folder not visible to the browser) are checked by the logs' time range after loading. */
@@ -1421,9 +1422,13 @@ async function logPick(key,desc,exts){const img=(await PICK_DB.get("saed-loglast
   if(img){try{hs=await fn(Object.assign({},o,{startIn:img}));}catch(err){if(err&&err.name==="AbortError")throw err;}}
   if(!hs)hs=await pickWithMemory(key,fn,o);      // no image folder known yet (or it moved): reopen where this log was last picked
   PICK_DB.set(key,hs[0]);PICK_DB.set("saed-loglast",hs[0]);return hs[0].getFile();}
-function hookPicker(labelFor,run){const lab=document.querySelector(`label[for="${labelFor}"]`);if(!lab||!FSA)return;
-  lab.addEventListener("click",async e=>{e.preventDefault();try{await run();}catch(err){if(err&&err.name==="AbortError")return;console.warn(err);$(labelFor).click();}});}
-hookPicker("file",async()=>{const [h]=await pickWithMemory("saed-pattern",o=>window.showOpenFilePicker(o),{multiple:false,excludeAcceptAllOption:false,
+/* Chrome's picker closed without a choice (or failed): the next click on the same button within 2 min opens the browser's plain window instead */
+const PLAIN_NEXT={};function plainNext(k){const t=PLAIN_NEXT[k];delete PLAIN_NEXT[k];return !!(t&&t>Date.now());}
+function pickFailed(k,err){PLAIN_NEXT[k]=Date.now()+120000;const m=(err&&err.name==="AbortError"?"Chrome's picker closed without a choice":`Chrome's picker failed (${err&&err.message||err})`)+" — click the same button again (within 2 min) for the browser's plain window";try{setStatus(m,true);}catch(e){}try{cpToast(m,true);}catch(e){}}
+function hookPicker(labelFor,run){const lab=document.querySelector(`label[for="${labelFor}"]`);if(!lab||!FSA||!FSA_PICK)return;
+  lab.addEventListener("click",async e=>{if(e.target&&e.target.tagName==="INPUT")return;   /* the click the label passes on to its file box */
+    if(plainNext(labelFor))return;e.preventDefault();try{await run();}catch(err){console.warn(err);pickFailed(labelFor,err);}});}
+/* Open .dm4 / image uses the browser's normal file window (the Chrome picker sometimes closed without returning the file) */hookPicker("file",async()=>{const [h]=await pickWithMemory("saed-pattern",o=>window.showOpenFilePicker(o),{multiple:false,excludeAcceptAllOption:false,
   types:[{description:"Diffraction pattern / FFT / image",accept:{"application/octet-stream":[".dm4",".dm3"],"image/*":[".png",".jpg",".jpeg",".tif",".tiff"]}}]});
   await openFile(await h.getFile());logsRangeCheck();});
 hookPicker("cifIn",async()=>{const hs=await pickWithMemory("saed-cif",o=>window.showOpenFilePicker(o),{multiple:true,types:[{description:"CIF files",accept:{"chemical/x-cif":[".cif"]}}]});
@@ -1431,8 +1436,8 @@ hookPicker("cifIn",async()=>{const hs=await pickWithMemory("saed-cif",o=>window.
   addCIFs(await Promise.all(hs.map(h=>h.getFile())));});
 hookPicker("cifDir",async()=>{const d=await pickWithMemory("saed-cifdir",o=>window.showDirectoryPicker(o),{mode:"read"});PICK_DB.set("saed-cif",d);cifRecentAdd({kind:"dir",h:d});const out=[];await walkDir(d,[d.name],out);
   if(!out.length){$("cifStatus").textContent=`No .cif files found in “${d.name}”.`;return;}addCIFs(out);});
-hookPicker("tIn",async()=>{const f=await logPick("saed-tlog","Temperature log",[".xlsx",".csv",".txt"]);loadTempLog(f);});
-hookPicker("pIn",async()=>{const f=await logPick("saed-plog","Pressure log",[".txt",".csv",".tsv",".log",".xlsx"]);loadPresLog(f);});
+/* the log buttons use the browser's normal file window */hookPicker("tIn",async()=>{const f=await logPick("saed-tlog","Temperature log",[".xlsx",".csv",".txt"]);loadTempLog(f);});
+/* the log buttons use the browser's normal file window */hookPicker("pIn",async()=>{const f=await logPick("saed-plog","Pressure log",[".txt",".csv",".tsv",".log",".xlsx"]);loadPresLog(f);});
 hookPicker("tmFile",async()=>{const [h]=await pickWithMemory("is-stack",o=>window.showOpenFilePicker(o),{multiple:false,excludeAcceptAllOption:false,types:[{description:"Radial-profile stack",accept:{"application/octet-stream":[".dm4",".dm3"]}}]});tmOpen(await h.getFile());});
 let dragDepth=0;
 window.addEventListener("dragenter",e=>{if(e.dataTransfer&&[...e.dataTransfer.types].includes("Files")){dragDepth++;$("drop").hidden=false;e.preventDefault();}});
@@ -1533,13 +1538,18 @@ function simulate(ph,dmin){
   const n=ph.atoms.length,AX=new Float64Array(n),AY=new Float64Array(n),AZ=new Float64Array(n),AO=new Float64Array(n),AB=new Float64Array(n),FA=[];
   ph.atoms.forEach((t,i)=>{AX[i]=t.x;AY[i]=t.y;AZ[i]=t.z;AO[i]=t.occ;AB[i]=t.B;FA.push(FE[t.el]);});
   const refl=[];const qmax=1/(dmin*dmin);
+  /* speed: the scattering factor is worked out once per kind of atom (element, occupancy, B), and |F(−h)|² = |F(h)|² (Friedel) is computed once per pair */
+  const GK=new Map(),GI=new Int32Array(n),GA=[],GO=[],GB=[];for(let i=0;i<n;i++){const key=FA[i]+"|"+AO[i]+"|"+AB[i];let g=GK.get(key);if(g==null){g=GA.length;GK.set(key,g);GA.push(FA[i]);GO.push(AO[i]);GB.push(AB[i]);}GI[i]=g;}
+  const ng=GA.length,FG=new Float64Array(ng),NK=2*km+1,NL=2*lm+1,F2S=new Float64Array((2*hm+1)*NK*NL).fill(-1),ix=(h,k,l)=>((h+hm)*NK+(k+km))*NL+(l+lm);
   for(let h=-hm;h<=hm;h++)for(let k=-km;k<=km;k++)for(let l=-lm;l<=lm;l++){if(!h&&!k&&!l)continue;
     const q2=h*h*inv[0][0]+k*k*inv[1][1]+l*l*inv[2][2]+2*(h*k*inv[0][1]+h*l*inv[0][2]+k*l*inv[1][2]);if(q2>qmax)continue;
-    const s2=q2/4;let re=0,im=0;
-    for(let i=0;i<n;i++){const A=FA[i];const f=(A[0]*Math.exp(-A[5]*s2)+A[1]*Math.exp(-A[6]*s2)+A[2]*Math.exp(-A[7]*s2)+A[3]*Math.exp(-A[8]*s2)+A[4]*Math.exp(-A[9]*s2))*AO[i]*Math.exp(-AB[i]*s2);
-      const ph2=2*Math.PI*(h*AX[i]+k*AY[i]+l*AZ[i]);re+=f*Math.cos(ph2);im+=f*Math.sin(ph2);}
-    refl.push({d:1/Math.sqrt(q2),F2:re*re+im*im,h,k,l});}
-  refl.sort((x,y)=>y.d-x.d);const Fmax=Math.max(...refl.map(r=>r.F2));
+    let F2=F2S[ix(h,k,l)];
+    if(F2<0){const s2=q2/4;let re=0,im=0;
+      for(let g=0;g<ng;g++){const A=GA[g];FG[g]=(A[0]*Math.exp(-A[5]*s2)+A[1]*Math.exp(-A[6]*s2)+A[2]*Math.exp(-A[7]*s2)+A[3]*Math.exp(-A[8]*s2)+A[4]*Math.exp(-A[9]*s2))*GO[g]*Math.exp(-GB[g]*s2);}
+      for(let i=0;i<n;i++){const f=FG[GI[i]];const ph2=2*Math.PI*(h*AX[i]+k*AY[i]+l*AZ[i]);re+=f*Math.cos(ph2);im+=f*Math.sin(ph2);}
+      F2=re*re+im*im;F2S[ix(-h,-k,-l)]=F2;}
+    refl.push({d:1/Math.sqrt(q2),F2,h,k,l});}
+  refl.sort((x,y)=>y.d-x.d);let Fmax=0;for(const r of refl)if(r.F2>Fmax)Fmax=r.F2;   /* a loop, not Math.max(...): big cells (zeolites) have >100 000 reflections */
   const CEN=[r=>(r.h+r.k+r.l)%2!==0,r=>(r.h+r.k)%2!==0,r=>(r.k+r.l)%2!==0,r=>(r.h+r.l)%2!==0,r=>((r.h+r.k)%2!==0)||((r.k+r.l)%2!==0),r=>((-r.h+r.k+r.l)%3+3)%3!==0,r=>((r.h-r.k+r.l)%3+3)%3!==0]   /* I, C, A, B, F, R obverse, R reverse */
     .filter(fn=>{let n=0;for(const r of refl){if(fn(r)){n++;if(r.F2>1e-6*Fmax)return false;}}return n>0;});
   const latAbs=r=>CEN.some(fn=>fn(r));
@@ -1552,7 +1562,7 @@ function simulate(ph,dmin){
     else{/* every reflection at this d is extinct: a forbidden (systematically absent) peak */let fb=null;const nn=x=>x.h>=0&&x.k>=0&&x.l>=0;
       for(let t=i;t<=j;t++){const r=refl[t];if(latAbs(r))continue;if(!fb)fb=r;else if(nn(r)&&(!nn(fb)||r.h+r.k+r.l>fb.h+fb.k+fb.l||(r.h+r.k+r.l===fb.h+fb.k+fb.l&&(r.h>fb.h||(r.h===fb.h&&r.k>fb.k)))))fb=r;}
       if(fb)FORB.push({d:refl[i].d,m:refl.slice(i,j+1).filter(r=>!latAbs(r)).length,hkl:`${fb.h} ${fb.k} ${fb.l}`,rep:[fb.h,fb.k,fb.l]});}i=j+1;}
-  const ref=Math.max(...lines.filter(x=>x.d>=0.75).map(x=>x.I),1e-30);lines.forEach(x=>x.I=100*x.I/ref);
+  let ref=1e-30;for(const x of lines)if(x.d>=0.75&&x.I>ref)ref=x.I;lines.forEach(x=>x.I=100*x.I/ref);
   lines.forb=FORB;return lines;}
 const labTxt=ln=>[$("cLab").checked?ln.hkl:"",$("cLabD").checked?(ln.d*phaseScale()).toFixed(3)+" Å":""].filter(Boolean).join("  ");
 const phVisible=ph=>ph.show||ph.id===S.focus||!!(S.multi&&S.multi.length>=2&&S.multi.includes(ph.id));     // ticked phases, plus the highlighted one as a preview
@@ -1702,11 +1712,11 @@ function renderLines(){
 async function addCIFs(files){
   const st=$("cifStatus");let added=0,failed=[];
   const items=files.map(x=>x instanceof File?{f:x,group:"Files"}:x).sort((a,b)=>a.group===b.group?a.f.name.localeCompare(b.f.name,undefined,{numeric:true}):0);
-  let firstNew=null;
+  let firstNew=null;const PRE=(typeof cifPre==="function")?await cifPre(items,st):null;   /* reflections of all files computed first, on several CPU cores */
   for(const it of items){const f=it.f;st.textContent=`Reading ${f.name}…`;await new Promise(r=>setTimeout(r,0));
     try{const txt=await f.text();const blocks=cifBlocks(txt);let any=false;
       for(const b of blocks){const ph=phaseFromBlock(b,f.name);if(!ph)continue;
-        ph.lines=simulate(ph,0.62);ph.id=++phaseSeq;ph.baseColor=colLoad(ph)||phColor(ph.id);ph.starColor=colLoad(ph,"star")||null;ph.customLabel=colLoad(ph,"lab")||"";
+        const pre=PRE&&PRE.get(f)&&PRE.get(f)[blocks.indexOf(b)];ph.lines=(pre&&(pre.lines||(Array.isArray(pre)?pre:null)))||simulate(ph,0.62);if(pre&&pre.key){ph.srcKey=pre.key;ph.srcHash=pre.hash;}ph.id=++phaseSeq;ph.baseColor=colLoad(ph)||phColor(ph.id);ph.starColor=colLoad(ph,"star")||null;ph.customLabel=colLoad(ph,"lab")||"";
         Object.defineProperty(ph,"color",{get(){return (this.star&&this.starColor)||this.baseColor;},set(v){this.baseColor=v;},enumerable:true,configurable:true});ph.show=false;
         ph.label=[ph.formula||ph.block||f.name,ph.mineral?`(${ph.mineral})`:"",ph.sg].filter(Boolean).join(" ");
         ph.legend=compactFormula(ph.formula||ph.block||f.name)+(ph.code?`  ICSD ${ph.code}`:"");ph.group=it.group;ph.star=starLoad(ph);
@@ -2208,9 +2218,16 @@ async function brLoad(entries,dirName){const gen=++BR.gen;BR.dir=dirName;BR.item
   let last=0;for(const it of BR.items){if(gen!==BR.gen)return;await scanItem(it);if(performance.now()-last>400){brRender();last=performance.now();}}
   if(gen===BR.gen)brRender();}
 async function brWalk(dir,path,out){for await(const [name,h] of dir.entries()){if(h.kind==="directory")await brWalk(h,path.concat(name),out);else if(IMG_EXT.test(name))out.push({file:await h.getFile(),rel:path.concat(name).join("/")});}}
-$("brPick").addEventListener("click",async e=>{e.preventDefault();
-  if(FSA){try{const d=await pickWithMemory("saed-imgdir",o=>window.showDirectoryPicker(o),{mode:"read"});const out=[];await brWalk(d,[],out);brLoad(out,d.name);return;}catch(err){if(err&&err.name==="AbortError")return;}}
+$("brPick").addEventListener("click",async e=>{e.preventDefault();const say=(t,bad)=>{try{setStatus(t,!!bad);}catch(err){}};
+  if(FSA){let d=null;try{say("Opening the folder window…");d=await pickWithMemory("saed-imgdir",o=>window.showDirectoryPicker(o),{mode:"read"});}
+    catch(err){if(err&&err.name==="AbortError"){say("The folder window closed without a folder. If you did choose one, Chrome did not hand it to the page — use 📁 (next to Browse folder) to open it with the browser's plain folder window",true);brSimpleShow(true);return;}
+      say(`The folder window failed (${err&&err.name||""}: ${err&&err.message||err}) — use 📁 next to Browse folder`,true);brSimpleShow(true);return;}
+    try{say(`Reading “${d.name}”…`);const out=[];await brWalk(d,[],out);brLoad(out,d.name);say(`“${d.name}”: ${out.length} image${out.length!==1?"s":""} listed`);return;}
+    catch(err){say(`Could not read the folder “${d&&d.name||""}” (${err&&err.name||""}: ${err&&err.message||err}). OneDrive files that are only online must be on this PC (“Always keep on this device”) — or use 📁 next to Browse folder`,true);brSimpleShow(true);return;}}
   $("brDir").click();});
+/* 📁: the browser's plain folder window (always works; notes are then not saved into the folder automatically) */
+function brSimpleShow(on){const b=document.getElementById("brSimple");if(b)b.style.display=on?"":"none";}
+{const p=$("brPick");if(p&&!document.getElementById("brSimple")){const b=document.createElement("button");b.id="brSimple";b.textContent="📁";b.title="Open the folder with the browser's plain folder window (use it if Browse folder does not open your folder). The images are listed as usual; notes are then not written into the folder automatically (💾 Save notes still works)";b.style.cssText="padding:2px 8px";p.after(b);b.addEventListener("click",()=>$("brDir").click());}}
 $("brDir").addEventListener("change",e=>{const fs=[...e.target.files];const root=(fs[0]&&fs[0].webkitRelativePath||"").split("/")[0];
   brLoad(fs.map(f=>({file:f,rel:(f.webkitRelativePath||f.name).split("/").slice(1).join("/")||f.name})),root||"folder");e.target.value="";});
 $("brShow").addEventListener("click",()=>{if(S.cmp.length){const f=new Set(S.cmp.map(e=>e.file));for(const i of BR.items)i.tick=f.has(i.file);}$("brModal").hidden=false;brRender();});
@@ -2913,7 +2930,7 @@ $("isnFile").addEventListener("click",async()=>{if(!TM.data){$("isnStat").textCo
   try{const o0={suggestedName:isnName(),types:[{description:"Notes",accept:{"text/plain":[".txt"]}}]},at=window.TM_FH||(await PICK_DB.get("is-notes-dir"));let h;
     try{h=await window.showSaveFilePicker(Object.assign({},o0,at?{startIn:at}:{}));}catch(err){if(err&&err.name==="AbortError")throw err;h=await window.showSaveFilePicker(o0);}PICK_DB.set("is-notes-dir",h);
     ISN.h=h;await PICK_DB.set(isnKey(),h);ISN.ok=await isnPerm(true);
-    const f=await h.getFile();if(f.size>0)await isnRead();ISN.last="";await isnWrite();isnUI();}catch(e){if(e&&e.name!=="AbortError")$("isnStat").textContent="notes file: "+e.message;}});
+    const f=await h.getFile();if(f.size>0)await isnRead();ISN.last="";await isnWrite();isnUI();}catch(e){try{pickFailed("isn",e);}catch(_){}$("isnStat").textContent=(e&&e.name==="AbortError"?"Chrome's picker closed without a file":"notes file: "+e.message)+" — click 📄 again (within 2 min) for the plain window";}});
 /* after a .dm4 is opened: find its notes file again */
 {const _o=tmOpen;tmOpen=async function(f){await _o(f);ISN.h=null;ISN.ok=false;ISN.last="";if(!TM.data)return isnUI();
    const h=await PICK_DB.get(isnKey());if(h){ISN.h=h;if(await isnPerm(false))await isnRead();}isnUI();};}
@@ -3802,7 +3819,7 @@ $("tmClear").addEventListener("click",()=>{TM.every=null;},true);
     if(ok){cifRecentOpen(e);return;}
     $("cifStatus").textContent=`Auto-load: click anywhere on the page to load the CIFs of “${cifRName(e)}” (the browser asks for permission once).`;
     const once=async()=>{window.removeEventListener("pointerdown",once,true);if(S.phases&&S.phases.length)return;cifRecentOpen(e);};window.addEventListener("pointerdown",once,true);};
-  setTimeout(()=>{if(window.CIF_AUTO_ALL)window.CIF_AUTO_ALL();else go();},600);
+  {const AUTO=()=>setTimeout(()=>{if(window.CIF_AUTO_ALL)window.CIF_AUTO_ALL();else go();},600);if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",AUTO);else AUTO();}   /* after the whole page is read */
   const _g=layoutGet;layoutGet=function(){const o=_g.apply(this,arguments)||{};o.cifAuto=$("cifAuto").checked;return o;};
   const _s=layoutSet;layoutSet=function(o){if(o&&typeof o.cifAuto==="boolean"){$("cifAuto").checked=o.cifAuto;try{localStorage.setItem("cif-auto",o.cifAuto?"1":"0");}catch(e){}}return _s.apply(this,arguments);};}}
 
@@ -4269,21 +4286,28 @@ function edZone(ph,u){const {Inv}=edMat(ph);const f=[0,1,2].map(i=>Inv[i][0]*u[0
   for(let n=1;n<=12;n++){const w=v.map(x=>Math.round(x*n)),e=Math.hypot(...v.map((x,i)=>x*n-w[i]))/n;if(!best||e<best.e-1e-9)best={w,e};if(e<0.02)break;}
   const g=(a,b)=>b?g(b,a%b):Math.abs(a);let q=best.w.reduce((a,b)=>g(a,b),0)||1;const w=best.w.map(x=>x/q);
   /* angle between the beam and that zone axis */const toC=fracToCart(ph.cell),zc=toC(w),cos=Math.abs((zc[0]*u[0]+zc[1]*u[1]+zc[2]*u[2])/(Math.hypot(...zc)||1));return {w,ang:Math.acos(Math.min(1,cos))*180/Math.PI};}
-let EDRAF=0;function edDraw(){if(EDRAF)return;EDRAF=requestAnimationFrame(()=>{EDRAF=0;try{edPaint();}catch(e){}});}
+let EDRAF=0;/* view range of the overlap: the 1/d range, or — “fit to my FFT” — only as far as your FFT / pattern reaches (it then fills the frame) */
+function edViewG(gmax){try{const f=$("edFit");if(!f||!f.checked||!S||!S.img)return gmax;const scp=+(($("scale")&&$("scale").value)||0);if(!(scp>0))return gmax;
+  const r=Math.min(S.cx,S.W-S.cx,S.cy,S.H-S.cy)*scp/10;return r>0.02&&r*0.94<gmax?r*0.94:gmax;}catch(e){return gmax;}}   /* ×0.94: the view keeps a 6 % margin, so this makes the FFT reach the frame edge exactly */
+function edDraw(){if(EDRAF)return;EDRAF=requestAnimationFrame(()=>{EDRAF=0;try{edPaint();}catch(e){}});}
+/* overlap labels and scale bar: offsets you set by dragging (✥ move), and where each was drawn (to pick it up) */
+var OVP={},OVHIT={};try{OVP=JSON.parse(localStorage.getItem("ov-pos")||"{}")||{};}catch(e){}
+var OVK=100;try{OVK=+localStorage.getItem("ov-labk")||100;}catch(e){}function ovK(){return (OVK||100)/100;}
+function ovP(k,x,y,d){const o=OVP[k];return o?[x+o.dx*d,y+o.dy*d]:[x,y];}
 function edPaint(){const box=$("edBox"),cv=$("edCv");if(!box||!cv)return;const on=$("edOn").checked&&$("v3on").checked;$("edWrap").hidden=!on;
   /* closed: only the title and the “show” box */for(const el of box.querySelectorAll(".chartbar > *")){if(el===box.querySelector(".chartbar > .keys")||el.contains($("edOn")))continue;el.style.display=$("edOn").checked?"":"none";}if(!on)return;
   sizeCanvas(cv);const g=cv.getContext("2d"),W=cv.width,H=cv.height,dpr=W/Math.max(1,cv.getBoundingClientRect().width);g.fillStyle="#05070a";g.fillRect(0,0,W,H);
   const ph=V3.ph;if((!ph||!ph.atoms||!ph.atoms.length)&&$("edOv")&&$("edOv").checked){/* no CIF highlighted: still show your pattern (overlay my pattern), on the same scale */
-    const P=edPatCanvas(),scp=+(($("scale")&&$("scale").value)||0),gmax=Math.max(0.1,(+$("edG").value||10)/10),sc0=(Math.min(W,H)/2*0.94)/gmax,sc=sc0*(ED.z||1),cx=W/2-(ED.px||0)*sc,cy=H/2-(ED.py||0)*sc;
-    if(P&&scp>0){const k=scp/10*sc*P.f;g.save();g.globalAlpha=Math.max(0.35,(+$("edOvA").value||0)/100);g.imageSmoothingEnabled=true;{const br=+(($("edOvBr")&&$("edOvBr").value)||100),ct=+(($("edOvCt")&&$("edOvCt").value)||100);if(br!==100||ct!==100)g.filter=`brightness(${br}%) contrast(${ct}%)`;}g.drawImage(P.cv,cx-S.cx/P.f*k,cy-S.cy/P.f*k,P.cv.width*k,P.cv.height*k);g.filter="none";g.restore();
+    const P=edPatCanvas(),scp=+(($("scale")&&$("scale").value)||0),gmax=Math.max(0.1,(+$("edG").value||10)/10),sc0=(Math.min(W,H)/2*0.94)/edViewG(gmax),sc=sc0*(ED.z||1),cx=W/2-(ED.px||0)*sc,cy=H/2-(ED.py||0)*sc;
+    if(P&&scp>0){const k=scp/10*sc*P.f;g.save();g.globalAlpha=Math.max(0.35,(+$("edOvA").value||0)/100);g.imageSmoothingEnabled=!ED.exp;/* saving at native size: pixels kept sharp */{const br=+(($("edOvBr")&&$("edOvBr").value)||100),ct=+(($("edOvCt")&&$("edOvCt").value)||100);if(br!==100||ct!==100)g.filter=`brightness(${br}%) contrast(${ct}%)`;}g.drawImage(P.cv,cx-S.cx/P.f*k,cy-S.cy/P.f*k,P.cv.width*k,P.cv.height*k);g.filter="none";g.restore();
       g.strokeStyle="rgba(255,255,255,.12)";g.lineWidth=1;g.beginPath();g.arc(cx,cy,gmax*sc,0,2*Math.PI);g.stroke();ED.geo={cx,cy,sc,sc0,W,H,dpr,mode:"pattern",spots:[],rings:[]};
       $("edOvMsg").textContent="overlay: "+(S.name||"open pattern");$("edInfo").textContent="your pattern only — highlight a CIF phase to simulate its spots on it";return;}
     ED.geo=null;g.fillStyle="#8a94a6";g.font=`${13*dpr}px "IBM Plex Sans",sans-serif`;g.textAlign="center";g.fillText(S&&S.img?"Calibrate the pattern (nm⁻¹ per pixel) to show it here":"Open an FFT / SAED pattern to show it here",W/2,H/2);$("edOvMsg").textContent="";$("edInfo").textContent="";return;}
   if(!ph||!ph.atoms||!ph.atoms.length){g.fillStyle="#8a94a6";g.font=`${13*dpr}px "IBM Plex Sans",sans-serif`;g.textAlign="center";g.fillText("Highlight a phase to see its diffraction pattern",W/2,H/2);$("edInfo").textContent="";return;}
   const gmax=Math.max(0.1,(+$("edG").value||10)/10),R=V3.R,ux=R[0],uy=R[1],uz=R[2],beam=uz.map(v=>-v);   /* screen x, y (down), z toward the viewer → beam into the screen */
-  const sc0=(Math.min(W,H)/2*0.94)/gmax,sc=sc0*(ED.z||1),cx=W/2-(ED.px||0)*sc,cy=H/2-(ED.py||0)*sc,fs=Math.round(10*dpr),lab=$("edLab").checked,ring=$("edRing").checked,col=ph.color||"#ffd23f";
+  const sc0=(Math.min(W,H)/2*0.94)/edViewG(gmax),sc=sc0*(ED.z||1),cx=W/2-(ED.px||0)*sc,cy=H/2-(ED.py||0)*sc,fs=Math.round(10*dpr*ovK()),lab=$("edLab").checked,ring=$("edRing").checked,col=ph.color||"#ffd23f";
   if($("edOv")&&$("edOv").checked){const P=edPatCanvas(),scp=+(($("scale")&&$("scale").value)||0);
-    if(P&&scp>0){const k=scp/10*sc*P.f;g.save();g.globalAlpha=(+$("edOvA").value||0)/100;g.imageSmoothingEnabled=true;{const br=+(($("edOvBr")&&$("edOvBr").value)||100),ct=+(($("edOvCt")&&$("edOvCt").value)||100);if(br!==100||ct!==100)g.filter=`brightness(${br}%) contrast(${ct}%)`;}g.drawImage(P.cv,cx-S.cx/P.f*k,cy-S.cy/P.f*k,P.cv.width*k,P.cv.height*k);g.filter="none";g.restore();$("edOvMsg").textContent="overlay: "+(S.name||"open pattern");}
+    if(P&&scp>0){const k=scp/10*sc*P.f;g.save();g.globalAlpha=(+$("edOvA").value||0)/100;g.imageSmoothingEnabled=!ED.exp;/* saving at native size: pixels kept sharp */{const br=+(($("edOvBr")&&$("edOvBr").value)||100),ct=+(($("edOvCt")&&$("edOvCt").value)||100);if(br!==100||ct!==100)g.filter=`brightness(${br}%) contrast(${ct}%)`;}g.drawImage(P.cv,cx-S.cx/P.f*k,cy-S.cy/P.f*k,P.cv.width*k,P.cv.height*k);g.filter="none";g.restore();$("edOvMsg").textContent="overlay: "+(S.name||"open pattern");}
     else $("edOvMsg").textContent=S&&S.img?"calibrate the pattern (nm⁻¹ per pixel) to overlay it":"open an FFT / SAED pattern to overlay it";}else if($("edOvMsg"))$("edOvMsg").textContent="";
   g.strokeStyle="rgba(255,255,255,.12)";g.lineWidth=1;g.beginPath();g.arc(cx,cy,gmax*sc,0,2*Math.PI);g.stroke();
   let n=0;
@@ -4313,7 +4337,7 @@ function edPaint(){const box=$("edBox"),cv=$("edCv");if(!box||!cv)return;const o
       for(const p of spots.slice().sort((a,b)=>b.I-a.I)){if(used.some(u=>Math.abs(u[0]-p.x)<fs*2.2&&Math.abs(u[1]-p.y)<fs*1.2))continue;used.push([p.x,p.y]);g.fillText(`${p.r.h} ${p.r.k} ${p.r.l}`,p.x,p.y-5*dpr);if(used.length>80)break;}}
     const z=edZone(ph,beam);$("edInfo").textContent=`${ph.legend?ph.legend.trim():""} · beam ≈ [${z.w.join(" ")}]${z.ang>0.5?` (${z.ang.toFixed(1)}° off)`:""} · ${spots.length} spots · t = ${t/10} nm · λ = ${(lam*100).toFixed(3)} pm`;}n=spots.length;}
   /* scale bar, 1/d */const L=(()=>{const tg=gmax*0.25,c=[0.5,1,2,5,10];let b=c[0];for(const v of c)if(Math.abs(Math.log(v/10/tg))<Math.abs(Math.log(b/10/tg)))b=v;return b;})(),lp=L/10*sc;
-  g.fillStyle="#fff";g.fillRect(12*dpr,H-16*dpr,lp,3*dpr);g.font=`600 ${fs}px "IBM Plex Mono",monospace`;g.textAlign="left";g.textBaseline="bottom";g.fillText(`${L} nm⁻¹`,12*dpr,H-20*dpr);}
+  {const pb=ovP("sbB",12*dpr,H-16*dpr,dpr),pt=ovP("sbT",12*dpr,H-20*dpr,dpr),tx=`${L} nm⁻¹`;g.fillStyle="#fff";g.fillRect(pb[0],pb[1],lp,3*dpr*ovK());OVHIT.sbB=[pb[0]-3*dpr,pb[1]-5*dpr,pb[0]+lp+3*dpr,pb[1]+8*dpr];g.font=`600 ${fs}px "IBM Plex Mono",monospace`;g.textAlign="left";g.textBaseline="bottom";g.fillText(tx,pt[0],pt[1]);OVHIT.sbT=[pt[0]-2*dpr,pt[1]-fs*1.2,pt[0]+g.measureText(tx).width+2*dpr,pt[1]+2*dpr];}}
 /* follow the 3D view */
 {const _d=v3Draw;v3Draw=function(target){const r=_d.apply(this,arguments);if(!target)edDraw();return r;};}
 {const _s=v3Sync;v3Sync=function(){const r=_s.apply(this,arguments);edDraw();return r;};}
@@ -4502,6 +4526,29 @@ window.addEventListener("pointerdown",e=>{if(!ZF.ang||typeof cvM==="undefined"||
     ZF.spots.forEach((s,i)=>{const p=P(s.x,s.y);g.beginPath();g.moveTo(c[0],c[1]);g.lineTo(p[0],p[1]);g.stroke();g.beginPath();g.arc(p[0],p[1],7*dpr,0,2*Math.PI);g.stroke();g.fillText(`S${i+1} ${s.d.toFixed(3)} Å`,p[0]+9*dpr,p[1]-4*dpr);});
     if(ZF.spots.length===2){g.fillText(`∠ ${zfAngObs().toFixed(1)}°`,c[0]+10*dpr,c[1]-10*dpr);}g.restore();}}catch(e){}return r;};}
 /* ③ the search */
+/* "some picks may be wrong": the one-zone search also accepts zones that leave out up to N picks (each left-out pick costs 15 points; at least 2 picks must stay) */
+function zfAllOn(){const c=$("zfAll"),p=$("zfPoly");return !!(c&&c.checked&&!(p&&p.checked));}
+function zfAllIdx(){return zfAllOn()?(+($("zfAllN")||{}).value||6):6;}
+function zfLongOn(){const c=$("zfLong");return !c||c.checked;}
+function zfTolOn(){const c=$("zfTolOn");return !!(c&&c.checked);}
+function zfTol(n){if(!zfTolOn())return 0;const v=$("zfTolN")?$("zfTolN").value:"1";return Math.max(0,Math.min(n-2,v==="all"?99:+v||1));}
+function zfTolUI(after){if($("zfTolOn"))return;const w=document.createElement("label");w.className="row2";w.style.gap="4px";
+  w.title="Tick if some of the sticks you picked may be wrong (e.g. an overlapping stick of another phase or family). The one-zone search then also lists zones that contain all but a few of your picks — the row says which picks it leaves out (red). Each left-out pick lowers the score by 15, so a zone that explains every pick still wins. At least two picks always have to be in the zone. (polycrystal mode already allows this)";
+  w.innerHTML='<input id="zfTolOn" type="checkbox"> some picks may be wrong: up to <select id="zfTolN" style="width:auto"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="all">any</option></select>';
+  after.after(w);{const a=document.createElement("label");a.className="row2";a.style.gap="4px";
+    a.title="List every zone that contains your picks, up to the index you choose (not only the best 12). With one pick: every zone [u v w] up to that index that contains the stick's family is tried. Symmetry-equivalent zones (same pattern) are still merged into one row";
+    a.innerHTML='<input id="zfAll" type="checkbox"> list all zones up to index <select id="zfAllN" style="width:auto"><option>6</option><option>10</option><option>15</option></select>';w.after(a);
+    const b=document.createElement("label");b.className="row2";b.style.gap="4px";
+    b.title="Drop zones too long along the beam: a zone whose lattice repeat t along the beam is so long that its reciprocal plane holds fewer than ~6 spots inside your measured range (N ≈ π·(1/d_min)²·V/t < 6) cannot give the pattern you see. Untick to list those too";
+    b.innerHTML='<input id="zfLong" type="checkbox" checked> drop zones too long along the beam';a.after(b);
+    try{$("zfAll").checked=localStorage.getItem("zf-all")==="1";$("zfAllN").value=localStorage.getItem("zf-alln")||"6";$("zfLong").checked=localStorage.getItem("zf-long")!=="0";}catch(e){}
+    const sv=()=>{try{localStorage.setItem("zf-all",$("zfAll").checked?"1":"0");localStorage.setItem("zf-alln",$("zfAllN").value);localStorage.setItem("zf-long",$("zfLong").checked?"1":"0");}catch(e){}};
+    for(const id of ["zfAll","zfAllN","zfLong"])$(id).addEventListener("change",sv);
+    const dm=()=>{const p=$("zfPoly")&&$("zfPoly").checked;for(const el of [a,b])el.style.opacity=p?.45:1;$("zfAll").disabled=$("zfAllN").disabled=!!p;};if($("zfPoly"))$("zfPoly").addEventListener("change",dm);dm();}
+  try{$("zfTolOn").checked=localStorage.getItem("zf-tol")==="1";$("zfTolN").value=localStorage.getItem("zf-toln")||"1";}catch(e){}
+  const sv=()=>{try{localStorage.setItem("zf-tol",$("zfTolOn").checked?"1":"0");localStorage.setItem("zf-toln",$("zfTolN").value);}catch(e){}};
+  const dim=()=>{const p=$("zfPoly")&&$("zfPoly").checked;w.style.opacity=p?.45:1;$("zfTolOn").disabled=$("zfTolN").disabled=!!p;};
+  $("zfTolOn").addEventListener("change",sv);$("zfTolN").addEventListener("change",sv);if($("zfPoly"))$("zfPoly").addEventListener("change",dim);dim();}
 function zfRun(){const P=ZF.picks,sp=ZF.spots.length===2?ZF.spots:[];let ph=P.length?P[0].ph:(typeof v3Phase==="function"?v3Phase():null)||S.phases.find(phVisible);
   if(!ph){$("zfStat").textContent="Pick CIF sticks of one phase first (or highlight a phase and measure 2 spots).";return;}
   const sV=phaseScale(),fams=P.map(p=>p.ln);
@@ -4516,22 +4563,22 @@ function zfRun(){const P=ZF.picks,sp=ZF.spots.length===2?ZF.spots:[];let ph=P.le
   if(ONE)zfOneCand(ph,srcs[0],cand,obs);
   const res=[];
   for(const u of cand.values()){const inZ=h=>h[0]*u[0]+h[1]*u[1]+h[2]*u[2]===0;
-    if(!fams.every(l=>mem(l).some(inZ)))continue;
+    const outP=fams.map((l,i)=>mem(l).some(inZ)?-1:i).filter(i=>i>=0);if(outP.length>zfTol(fams.length))continue;   /* "some picks may be wrong": a zone may leave out a few picks */
     /* this zone's reflections (zero-order Laue zone) */const Z=[];for(const l of ph.lines){const n=mem(l).filter(inZ).length;if(n)Z.push({d:l.d*sV,I:l.I/(l.m||1)*n,hkl:l.hkl,l});}
     if(!Z.length)continue;const Zr=Z.filter(z=>z.d>=dlo&&z.d<=dhi),Im=Math.max(1e-9,...Zr.map(z=>z.I)),strong=Zr.filter(z=>z.I>=0.15*Im);
     const near=(a,b)=>Math.abs(a-b)/b<0.015,expl=obs.filter(d=>Z.some(z=>z.I>=0.02*Im&&near(z.d,d))).length,miss=strong.filter(z=>!obs.some(d=>near(z.d,d)));
     /* measured angle: best assignment of the two spots to in-zone reflections */let dA=null;
     if(sp.length){for(const m1 of [].concat(...spF[0].map(mem)).filter(inZ))for(const m2 of [].concat(...spF[1].map(mem)).filter(inZ)){const g1=gc(m1),g2=gc(m2),L1=Math.hypot(...g1),L2=Math.hypot(...g2),c=(g1[0]*g2[0]+g1[1]*g2[1]+g1[2]*g2[2])/(L1*L2);if(Math.abs(c)>0.9999)continue;
         const a=Math.acos(Math.max(-1,Math.min(1,c)))*180/Math.PI,e=Math.abs(a-aObs);if(dA===null||e<dA)dA=e;}if(dA===null)continue;}
-    const score=100*(obs.length?0.6*expl/obs.length:0.3)+40*(strong.length?(strong.length-miss.length)/strong.length:0.5)-(dA!==null?3*dA:0)-0.3*(Math.abs(u[0])+Math.abs(u[1])+Math.abs(u[2]));
-    const sig=Z.map(z=>z.d.toFixed(3)+":"+Math.round(z.I)).sort().join("|");res.push({u,score,expl,miss,dA,sig,nObs:obs.length});}
+    const score=100*(obs.length?0.6*expl/obs.length:0.3)+40*(strong.length?(strong.length-miss.length)/strong.length:0.5)-(dA!==null?3*dA:0)-15*outP.length-0.3*(Math.abs(u[0])+Math.abs(u[1])+Math.abs(u[2]));
+    const sig=Z.map(z=>z.d.toFixed(3)+":"+Math.round(z.I)).sort().join("|");res.push({u,score,expl,miss,dA,sig,nObs:obs.length,outP});}
   /* zones with the same pattern (symmetry-equivalent, or indistinguishable) are merged */const groups=new Map();for(const r of res.sort((a,b)=>b.score-a.score)){const g=groups.get(r.sig);if(g)g.eq.push(r.u);else groups.set(r.sig,Object.assign(r,{eq:[]}));}
-  ZF.res=[...groups.values()].sort((a,b)=>b.score-a.score||(Math.abs(a.u[0])+Math.abs(a.u[1])+Math.abs(a.u[2]))-(Math.abs(b.u[0])+Math.abs(b.u[1])+Math.abs(b.u[2]))).slice(0,12);ZF.ph=ph;
+  ZF.res=[...groups.values()].sort((a,b)=>b.score-a.score||(Math.abs(a.u[0])+Math.abs(a.u[1])+Math.abs(a.u[2]))-(Math.abs(b.u[0])+Math.abs(b.u[1])+Math.abs(b.u[2]))).slice(0,zfAllOn()?100000:12);ZF.ph=ph;
   const tb=$("zfRows");tb.textContent="";$("zfRes").hidden=false;
-  if(!ZF.res.length){tb.innerHTML=`<tr><td colspan="8">No zone axis contains all the picked reflections${sp.length?" with the measured angle":""} — try fewer / other sticks.</td></tr>`;}
-  ZF.res.forEach((r,i)=>{const tr=document.createElement("tr");tr.innerHTML=`<td>${i+1}</td><td><b>[${r.u.join(" ")}]</b>${r.u.k2?ZF_K2:""}</td><td>${r.score.toFixed(0)}</td><td>${r.expl} / ${r.nObs}</td><td title="${r.miss.map(z=>z.hkl+" "+z.d.toFixed(3)+" Å").join(", ")}">${r.miss.length}${r.miss.length?" ("+r.miss.slice(0,3).map(z=>z.hkl).join(", ")+(r.miss.length>3?"…":"")+")":""}</td><td>${r.dA===null?"–":r.dA.toFixed(1)+"°"}</td><td style="text-align:left">${r.eq.slice(0,6).map(u=>"["+u.join(" ")+"]").join(" ")}${r.eq.length>6?" …":""}</td><td><button style="padding:1px 8px" title="Rotate the 3D structure to this zone and show its simulated pattern">▶ show</button></td>`;
+  if(!ZF.res.length){tb.innerHTML=`<tr><td colspan="8">No zone axis contains all the picked reflections${sp.length?" with the measured angle":""} — try fewer / other sticks${zfTolOn()?"":", or tick “some picks may be wrong”"}.</td></tr>`;}
+  ZF.res.forEach((r,i)=>{const tr=document.createElement("tr");tr.innerHTML=`<td>${i+1}</td><td><b>[${r.u.join(" ")}]</b>${r.u.k2?ZF_K2:""}${r.outP&&r.outP.length?`<br><span style="color:#e0533d;font-size:.85em;white-space:nowrap" title="These picks are NOT in this zone: if this zone is right, they were wrong sticks">without ${r.outP.map(i=>`<b>${i+1}</b> {${fams[i].hkl}}`).join(", ")}</span>`:""}</td><td>${r.score.toFixed(0)}</td><td>${r.expl} / ${r.nObs}</td><td title="${r.miss.map(z=>z.hkl+" "+z.d.toFixed(3)+" Å").join(", ")}">${r.miss.length}${r.miss.length?" ("+r.miss.slice(0,3).map(z=>z.hkl).join(", ")+(r.miss.length>3?"…":"")+")":""}</td><td>${r.dA===null?"–":r.dA.toFixed(1)+"°"}</td><td style="text-align:left">${r.eq.length&&zfAllOn()?`<b>${r.eq.length}</b>: `:""}${r.eq.slice(0,zfAllOn()?99999:6).map(u=>"["+u.join(" ")+"]").join(" ")}${!zfAllOn()&&r.eq.length>6?" …":""}</td><td><button style="padding:1px 8px" title="Rotate the 3D structure to this zone and show its simulated pattern">▶ show</button></td>`;
     tr.querySelector("button").addEventListener("click",()=>zfShow(r.u));tb.appendChild(tr);});
-  $("zfStat").textContent=(ZF.res.length?`${ZF.res.length} candidate zone${ZF.res.length>1?"s":""} (best first) — ▶ show to compare the simulated pattern with yours`:"")+(ONE&&ZF.res.length?` · one pick: a SHORTLIST of zones containing {${fams[0].hkl}} (2× = two of its members in the zone, i.e. its spots in two directions) — pick a 2nd stick or measure two spots to decide`:"");}
+  $("zfStat").textContent=(ZF.res.length?`${ZF.res.length} candidate zone${ZF.res.length>1?"s":""}${zfAllOn()?` — all up to index ${zfAllIdx()}${zfLongOn()?"":", incl. zones too long along the beam"}`:""} (best first) — ▶ show to compare the simulated pattern with yours`:"")+(ONE&&ZF.res.length?` · one pick: ${zfAllOn()?"ALL zones (up to index "+zfAllIdx()+")":"a SHORTLIST of zones"} containing {${fams[0].hkl}} (2× = two of its members in the zone, i.e. its spots in two directions) — pick a 2nd stick or measure two spots to decide`:"");}
 function zfShow(u){const ph=ZF.ph;if(!ph)return;if(S.focus!==ph.id){S.focus=ph.id;try{renderPhases();}catch(e){}}if(!$("v3on").checked){$("v3on").checked=true;$("v3on").dispatchEvent(new Event("change"));}
   try{v3Sync(true);}catch(e){}v3Zone(u);if($("edOn")&&!$("edOn").checked){$("edOn").checked=true;$("edOn").dispatchEvent(new Event("change"));}try{edDraw();}catch(e){}if(!ZF.noScroll)try{$("v3Panel").scrollIntoView({behavior:"smooth",block:"start"});}catch(e){}}
 
@@ -4560,7 +4607,8 @@ function zfShow(u){const ph=ZF.ph;if(!ph)return;if(S.focus!==ph.id){S.focus=ph.i
   $("edRotN").addEventListener("keydown",e=>e.stopPropagation());$("edRotN").addEventListener("input",()=>{$("edRot").value=$("edRotN").value;save();edDraw();});}}
 const ED_PAT={key:null,cv:null};
 function edPatCanvas(){if(typeof S==="undefined"||!S.img||!S.pyr||!S.pyr.length)return null;let L=S.pyr[0];for(const l of S.pyr){L=l;if(l.w<=2048&&l.h<=2048)break;}
-  let h=0;for(let i=0;i<256;i+=7)h=(h*31+LUT[i])|0;const key=[L.w,L.h,L.f,S.name,h,L.d.length].join("|");if(ED_PAT.key===key)return ED_PAT;
+  let h=0;for(let i=0;i<256;i+=7)h=(h*31+LUT[i])|0;if(!window.ED_PID)window.ED_PID=new WeakMap();if(!ED_PID.has(L.d))ED_PID.set(L.d,(window.ED_PIDN=(window.ED_PIDN||0)+1));let hd=0;{const n=L.d.length,st=Math.max(1,Math.floor(n/97));for(let i=0;i<n;i+=st)hd=(hd*31+L.d[i])|0;}   /* a new FFT (other region, other size) gives a new key, so the overlap is redrawn from it */
+  const key=[L.w,L.h,L.f,S.name,h,L.d.length,ED_PID.get(L.d),hd].join("|");if(ED_PAT.key===key)return ED_PAT;
   const c=document.createElement("canvas");c.width=L.w;c.height=L.h;const id=new ImageData(L.w,L.h);for(let i=0;i<L.w*L.h;i++){const v=LUT[L.d[i]];id.data[4*i]=id.data[4*i+1]=id.data[4*i+2]=v;id.data[4*i+3]=255;}
   c.getContext("2d").putImageData(id,0,0);ED_PAT.key=key;ED_PAT.cv=c;ED_PAT.f=L.f;return ED_PAT;}
 
@@ -4571,9 +4619,9 @@ function edPatCanvas(){if(typeof S==="undefined"||!S.img||!S.pyr||!S.pyr.length)
 {const _p=edPaint;edPaint=function(){const r=_p.apply(this,arguments);try{if(!$("edOn").checked||!V3.ph||($("edLive")&&!$("edLive").checked))return r;const ph=V3.ph,L=[];
     if($("edTxCode")&&$("edTxCode").checked)L.push((ph.legend||ph.formula||"").trim());
     if($("edTxZone")&&$("edTxZone").checked){const z=edZone(ph,V3.R[2].map(v=>-v));L.push(`zone [${z.w.join(" ")}]`+(z.ang>0.5?`  (${z.ang.toFixed(1)}° off)`:""));}
-    if(!L.length)return r;const cv=$("edCv"),g=cv.getContext("2d"),dpr=cv.width/Math.max(1,cv.getBoundingClientRect().width),fs=13*dpr,lh=fs*1.35,pad=6*dpr;
+    if(!L.length||($("lzLegOn")&&!$("lzLegOn").checked))return r;const cv=$("edCv"),g=cv.getContext("2d"),dpr=cv.width/Math.max(1,cv.getBoundingClientRect().width),fs=13*dpr*ovK(),lh=fs*1.35,pad=6*dpr*ovK();
     g.save();g.font=`600 ${fs}px "IBM Plex Sans",sans-serif`;g.textBaseline="top";g.textAlign="left";const w=Math.max(...L.map(t=>g.measureText(t).width))+2*pad;
-    g.fillStyle="rgba(0,0,0,.6)";g.fillRect(8*dpr,8*dpr,w,lh*L.length+pad);g.fillStyle=($("edSpC")&&$("edSpC").value)||"#ffffff";L.forEach((t,i)=>g.fillText(t,8*dpr+pad,8*dpr+pad*0.7+i*lh));g.restore();}catch(e){}return r;};}
+    const pq=ovP("tl",8*dpr,8*dpr,dpr);g.fillStyle="rgba(0,0,0,.6)";g.fillRect(pq[0],pq[1],w,lh*L.length+pad);OVHIT.tl=[pq[0],pq[1],pq[0]+w,pq[1]+lh*L.length+pad];g.fillStyle=($("edSpC")&&$("edSpC").value)||"#ffffff";L.forEach((t,i)=>g.fillText(t,pq[0]+pad,pq[1]+pad*0.7+i*lh));g.restore();}catch(e){}return r;};}
 
 /* ===================== review fixes ===================== */
 /* (1) IS: no FFT / SAED image here — hide the overlay and the 2-spot angle measurement */
@@ -4644,7 +4692,7 @@ function zfAngTable(){const box=$("zfAngBox"),ph=(ZF.picks[0]&&ZF.picks[0].ph)||
 
 /* ===================== new: save the indexed pattern as a figure ===================== */
 {const c=$("edCopy");if(c){const b=document.createElement("button");b.id="edSave";b.textContent="💾 save figure";b.title="Save the pattern as shown (your FFT / SAED overlay, simulated spots, hkl labels, zone axis, ICSD code, scale bar) as a high-resolution PNG";c.before(b);
-  b.addEventListener("click",async()=>{const cv=$("edCv");if(!cv)return;ED.exp=2000;try{edPaint();const blob=await new Promise(r=>cv.toBlob(r,"image/png"));const ph=V3.ph,z=ph?edZone(ph,V3.R[2].map(v=>-v)).w.join(""):"";
+  b.addEventListener("click",async()=>{const cv=$("edCv");if(!cv)return;ED.exp=(typeof edExpN==="function"?edExpN():2000);try{edPaint();const blob=await new Promise(r=>cv.toBlob(r,"image/png"));const ph=V3.ph,z=ph?edZone(ph,V3.R[2].map(v=>-v)).w.join(""):"";
       await saveFile(`${ph?(ph.legend||"phase").trim().replace(/[^\w.-]+/g,"_"):"pattern"}_zone[${z}]${$("edOv")&&$("edOv").checked&&S.name?"_on_"+S.name.replace(/\.[^.]+$/,""):""}.png`,blob);}finally{ED.exp=0;edDraw();}});}}
 {const _s=sizeCanvas;sizeCanvas=function(cv){if(ED.exp&&cv&&cv.id==="edCv"){cv.width=ED.exp;cv.height=ED.exp;return;}return _s.apply(this,arguments);};}
 
@@ -4662,7 +4710,7 @@ const lzMem=l=>(l.mem&&l.mem.length?l.mem:[l.rep]);
 function lzOf(p){if(!p||!p.ln)return null;for(const z of LZ){if(!z.ph||z.ph!==p.ph)continue;const u=z.u;if(lzMem(p.ln).some(h=>h[0]*u[0]+h[1]*u[1]+h[2]*u[2]===0))return z;}return null;}
 /* zone-finder bar: polycrystal switch + its own result table */
 {const go=$("zfGo");if(go){const l=document.createElement("label");l.title="Polycrystal: the picked sticks may come from many grains (and several phases). Find lists every zone axis that contains two or more of them, with a suggested set (★ 1, 2, 3 …) that explains them all; lock zones one by one until every pick is found";
-  l.innerHTML='<input id="zfPoly" type="checkbox"> polycrystal: many zones';go.after(l);try{$("zfPoly").checked=localStorage.getItem("zf-poly")==="1";}catch(e){}ZF.poly=$("zfPoly").checked;
+  l.innerHTML='<input id="zfPoly" type="checkbox"> polycrystal: many zones';go.after(l);zfTolUI(l);try{$("zfPoly").checked=localStorage.getItem("zf-poly")==="1";}catch(e){}ZF.poly=$("zfPoly").checked;
   const box=document.createElement("div");box.className="tablebox";box.id="zfMRes";box.hidden=true;box.style.maxHeight="320px";
   box.innerHTML='<table class="zfTbl"><thead><tr><th title="suggested set: lock these in order to explain all the picked peaks">★</th><th>phase</th><th>zone axis</th><th style="text-align:left" title="picked sticks (numbers) that lie in this zone; ✓ = already found by a locked zone">picks in this zone</th><th title="picks not yet found that this zone would add">new</th><th title="detected peaks explained by this zone">peaks expl.</th><th title="strong reflections of this zone not among the detected peaks">strong missing</th><th style="text-align:left">equivalent</th><th></th></tr></thead><tbody id="zfMRows"></tbody></table>';
   $("zfRes").after(box);
@@ -4736,7 +4784,7 @@ function lzLegend(g,W,dpr,top){const L=LZ.filter(z=>z.on);if(!L.length)return;g.
 function lzCirc(g,x,y,r,q,dpr,col){g.globalAlpha=Math.min(1,0.45+0.55*q);g.strokeStyle=col;g.lineWidth=1.8*dpr;g.beginPath();g.arc(x,y,r,0,2*Math.PI);g.stroke();g.globalAlpha=0.12*Math.min(1,0.45+0.55*q);g.fillStyle=col;g.fill();g.globalAlpha=1;}
 function lzSq(g,x,y,q,dpr,col){const s=(3+4*q)*dpr;g.globalAlpha=Math.min(1,0.4+0.6*q);g.strokeStyle=col;g.lineWidth=1.7*dpr;g.strokeRect(x-s,y-s,2*s,2*s);}
 {const _p=edPaint;edPaint=function(){const r=_p.apply(this,arguments);try{if(LZ.length&&$("edOn").checked&&$("v3on").checked&&ED.geo){const G=ED.geo,cv=$("edCv"),g=cv.getContext("2d"),W=cv.width;g.save();
-    for(const z of LZ){if(!z.on)continue;for(const p of z.spots){const q=Math.sqrt(p.I/z.Im);if(q<0.05)continue;lzCirc(g,G.cx+p.gx*G.sc,G.cy+p.gy*G.sc,Math.max(2.5*G.dpr,(typeof spRnm==="function"?spRnm(q):0.25)/10*G.sc),q,G.dpr,z.color);}}g.restore();lzLegend(g,W,G.dpr,8*G.dpr);}}catch(e){}return r;};}
+    for(const z of LZ){if(!z.on)continue;for(const p of z.spots){const q=Math.sqrt(p.I/z.Im);if(q<0.05)continue;lzCirc(g,G.cx+p.gx*G.sc,G.cy+p.gy*G.sc,Math.max(2.5*G.dpr,(typeof spRnm==="function"?spRnm(q):0.25)/10*G.sc),q,G.dpr,z.color);}}g.restore();{const o=OVP.tr||{dx:0,dy:0};g.save();g.translate(o.dx*G.dpr,o.dy*G.dpr);lzLegend(g,W,G.dpr*ovK(),8*G.dpr);g.restore();try{OVHIT.tr=typeof lzLegBox==="function"?lzLegBox(g,W,G.dpr*ovK(),8*G.dpr,o,G.dpr):null;}catch(e){}}}}catch(e){}return r;};}
 if(typeof drawMain==="function"&&typeof cvM!=="undefined"){const _m=drawMain;drawMain=function(){const r=_m.apply(this,arguments);try{if(LZ.length&&$("lzMain")&&$("lzMain").checked&&S.img&&typeof TM==="undefined"){const scp=+(($("scale")&&$("scale").value)||0);if(scp>0){
     const g=cvM.getContext("2d"),dpr=cvM.width/Math.max(1,cvM.getBoundingClientRect().width),P=(x,y)=>[(x-S.ox)*S.zoom,(y-S.oy)*S.zoom],hk=$("lzHkl").checked;g.save();g.font=`600 ${9*dpr}px "IBM Plex Mono",monospace`;g.textAlign="center";g.textBaseline="bottom";
     const pts=[];for(const z of LZ){if(!z.on)continue;for(const p of z.spots){const q=Math.sqrt(p.I/z.Im);if(q<0.05)continue;const [X,Y]=P(S.cx+p.gx*10/scp,S.cy+p.gy*10/scp);if(X<-20||Y<-20||X>cvM.width+20||Y>cvM.height+20)continue;lzCirc(g,X,Y,Math.max(2.5*dpr,(typeof spRnm==="function"?spRnm(q):0.25)/scp*S.zoom),q,dpr,z.color);
@@ -4948,7 +4996,7 @@ function spRnm(q){const e=$("edSpR");const R0=e?+e.value:0.25;return Math.max(0.
 
 /* ===== locked zones belong to one file: switching files keeps each file's own list (saved in the notes file) ===== */
 const LZF={};let LZF_CUR=null;
-const lzSer=z=>({R0:z.R0||null,custom:z.custom||false,name:z.name||"",t:z.t||null,leg:z.leg,u:z.u,off:z.off,rot:z.rot,R:z.R,color:z.color,on:z.on,spR:z.spR||null,dr:z.dr||null,spots:z.spots,Im:z.Im});
+const lzSer=z=>({R0:z.R0||null,custom:z.custom||false,name:z.name||"",t:z.t||null,leg:z.leg,u:z.u,off:z.off,rot:z.rot,R:z.R,color:z.color,on:z.on,spR:z.spR||null,dr:z.dr||null,spots:z.spots,Im:z.Im,note:z.note||"",hl:!!z.hl});
 const lzDes=z=>Object.assign({id:++lzSeq,ph:S.phases.find(p=>(p.legend||"").trim()===z.leg)||null},z);
 function lzSwitch(){const f=dsFile()||"";if(f===LZF_CUR)return;if(LZF_CUR==null){LZF_CUR=f;if(!LZF[f]&&LZ.length)LZF[f]=LZ.slice();return;}if(LZF_CUR!=null)LZF[LZF_CUR]=LZ.slice();LZ.length=0;for(const z of (LZF[f]||[]))LZ.push(z);LZF_CUR=f;try{for(const z of LZ)if(!z.ph)z.ph=S.phases.find(p=>(p.legend||"").trim()===z.leg)||null;}catch(e){}try{lzAfter();}catch(e){}}
 setInterval(()=>{try{lzSwitch();}catch(e){}},400);
@@ -5536,12 +5584,20 @@ function rfsPhases(){return S.phases.filter(p=>p.show&&OVR.ids.has(p.id));}
 const RFS_ALLPH={id:"all",all:true,color:"#ff8c1a",lines:[],legend:"All spots (no CIF)"};
 function rfsPh(id){return id==="all"?RFS_ALLPH:S.phases.find(p=>p.id===+id);}
 function rfsNm(ph){return ph.all?ph.legend:(typeof phLeg==="function"?phLeg(ph):(ph.legend||ph.formula)).trim();}
+let RFS_MERGE=true;try{const v=localStorage.getItem("rfs-merge");if(v!=null)RFS_MERGE=v==="1";}catch(e){}
+function rfsMergeOn(){return RFS_MERGE;}
 function rfsFind(c){/* bright spots of the pattern between dmin and dmax (Å); one of each ± pair; cached per settings */
   const scp=+(($("scale")&&$("scale").value)||0);if(!S.img||!(scp>0))return {err:"Open a calibrated FFT / SAED first"};
   const d1=Math.min(c.dmin,c.dmax),d2=Math.max(c.dmin,c.dmax);if(!(d1>0))return {err:"d range must be above 0"};
-  const m=typeof useMask==="function"&&useMask(),kb=c.k>=2?2:c.k>=1.5?1.5:c.k,bk=[rfsKey(),d1,d2,kb,scp,S.cx,S.cy,m].join("|"),key=bk+"|"+c.k;if(RFS_CM.has(key))return RFS_CM.get(key);
+  const m=typeof useMask==="function"&&useMask(),kb=c.k>=2?2:c.k>=1.5?1.5:c.k,bk=[rfsKey(),d1,d2,kb,scp,S.cx,S.cy,m].join("|");
+  /* one mask per spot (option): maxima closer than two spot radii (their masks would overlap) are one spot, placed at their brightness-weighted centre */
+  const MG=rfsMergeOn(),Rm=MG?((c.spR>0?+c.spR:rfsSR0())/scp):0,sep=Math.max(5,S.W/400,2*Rm),key=bk+"|"+c.k+"|"+(MG?"m"+sep.toFixed(2):"");if(RFS_CM.has(key))return RFS_CM.get(key);
   let B=RFS_CM.get(bk);if(!B){B=rfsCand(d1,d2,kb,scp,m);if(B.err)return B;if(RFS_CM.size>60)RFS_CM.clear();RFS_CM.set(bk,B);}
-  const sep=Math.max(5,S.W/400),A=[],cx=S.cx,cy=S.cy;for(const q of B.C){if(q.z<c.k||q.n2<0.5*c.k)continue;const mxx=2*cx-q.x,myy=2*cy-q.y;if(A.some(a=>Math.hypot(a.x-q.x,a.y-q.y)<sep||Math.hypot(a.x-mxx,a.y-myy)<sep))continue;A.push(q);if(A.length>=500)break;}
+  let A=[];const cx=S.cx,cy=S.cy,grp=[];for(const q of B.C){if(q.z<c.k||q.n2<0.5*c.k)continue;const mxx=2*cx-q.x,myy=2*cy-q.y;
+    let j=A.findIndex(a=>Math.hypot(a.x-q.x,a.y-q.y)<sep),flip=false;if(j<0){j=A.findIndex(a=>Math.hypot(a.x-mxx,a.y-myy)<sep);flip=j>=0;}
+    if(j>=0){if(MG)grp[j].push(flip?{x:mxx,y:myy,z:q.z}:q);continue;}if(A.length>=500)continue;A.push(q);grp.push([q]);}
+  if(MG)A=A.map((a,i)=>{const G=grp[i];if(G.length<2)return a;let w=0,X=0,Y=0;for(const p of G){const t=Math.max(0.01,p.z);w+=t;X+=t*p.x;Y+=t*p.y;}const x=X/w,y=Y/w,gx=(x-cx)*scp/10,gy=(y-cy)*scp/10,g=Math.hypot(gx,gy);
+    return Object.assign({},a,{x,y,gx,gy,g,d:1/g,merged:G.length});});
   const F={key,spots:A,d1,d2};RFS_CM.set(key,F);return F;}
 function rfsCand(d1,d2,k,scp,m){
   const W=S.W,H=S.H,img=S.img,cx=S.cx,cy=S.cy,r1=10/(d2*scp),r2=10/(d1*scp),BW=2,nb=Math.ceil((r2-r1)/BW)+1;if(r2<3)return {err:"d range is inside the centre"};
@@ -6205,8 +6261,8 @@ function zfOneCand(ph,M,cand,obs){const gcd=(a,b)=>b?gcd(b,a%b):Math.abs(a),cano
     const k=u.join(","),o=cand.get(k)||u;o.k2=true;cand.set(k,o);}
   let tmax=Infinity;try{const toC=fracToCart(ph.cell),A=toC([1,0,0]),B=toC([0,1,0]),C=toC([0,0,1]),V=Math.abs(A[0]*(B[1]*C[2]-B[2]*C[1])-A[1]*(B[0]*C[2]-B[2]*C[0])+A[2]*(B[0]*C[1]-B[1]*C[0]));
     const ds=((obs&&obs.length)?obs:(ph.lines||[]).map(l=>l.d)).filter(d=>d>0),qm=1/Math.min(...ds);tmax=Math.PI*qm*qm*V/6;
-    for(let u0=0;u0<=6;u0++)for(let v0=-6;v0<=6;v0++)for(let w0=-6;w0<=6;w0++){if(!u0&&!v0&&!w0)continue;if(gcd(gcd(u0,v0),w0)!==1)continue;const u=canon([u0,v0,w0]),k=u.join(",");if(cand.has(k))continue;
-      if(!M.some(m=>m[0]*u[0]+m[1]*u[1]+m[2]*u[2]===0))continue;if(Math.hypot(...toC(u))>tmax)continue;cand.set(k,u);}}catch(e){console.error(e);}
+    const NI=zfAllIdx();for(let u0=0;u0<=NI;u0++)for(let v0=-NI;v0<=NI;v0++)for(let w0=-NI;w0<=NI;w0++){if(!u0&&!v0&&!w0)continue;if(gcd(gcd(u0,v0),w0)!==1)continue;const u=canon([u0,v0,w0]),k=u.join(",");if(cand.has(k))continue;
+      if(!M.some(m=>m[0]*u[0]+m[1]*u[1]+m[2]*u[2]===0))continue;if(zfLongOn()&&Math.hypot(...toC(u))>tmax)continue;cand.set(k,u);}}catch(e){console.error(e);}
   return tmax;}
 const ZF_K2='<span title="Two members of the picked family lie in this zone: its spots appear in two directions" style="font-size:10px;font-weight:700;color:var(--accent);margin-left:3px">2×</span>';
 </script>
@@ -7078,13 +7134,13 @@ const CPK={el:null,h:0,s:0,l:0,box:null};
 #cpkBox .sw span:hover::after{content:"×";position:absolute;right:-6px;top:-8px;font:700 11px sans-serif;color:var(--ink);background:var(--panel);border-radius:50%;width:12px;height:12px;line-height:12px;text-align:center;border:1px solid var(--line)}
 #cpkBox button{padding:2px 8px}`;document.head.appendChild(st);}
 function cpkPaint(){const b=CPK.box;if(!b)return;const {h,s,l}=CPK,hex=hsl2hex(h,s,l);
-  b.querySelector(".rh").style.background="linear-gradient(90deg,"+[0,60,120,180,240,300,360].map(x=>`hsl(${x},${s}%,${l}%)`).join(",")+")";
+  b.querySelector(".rh").style.background="linear-gradient(90deg,"+[0,60,120,180,240,300,360].map(x=>`hsl(${x},100%,50%)`).join(",")+")";   /* the hue bar always shows the pure hues */
   b.querySelector(".rs").style.background=`linear-gradient(90deg,hsl(${h},0%,${l}%),hsl(${h},100%,${l}%))`;
   b.querySelector(".rl").style.background=`linear-gradient(90deg,hsl(${h},${s}%,0%),hsl(${h},${s}%,50%),hsl(${h},${s}%,100%))`;
   for(const [k,v] of [["h",h],["s",s],["l",l]]){b.querySelector(".r"+k).value=v;const n=b.querySelector(".n"+k);if(document.activeElement!==n)n.value=v;}
   b.querySelector(".pv").style.background=hex;const hx=b.querySelector(".hx");if(document.activeElement!==hx)hx.value=hex;
   b.querySelector(".txt").textContent=`hsl(${h}, ${s}%, ${l}%)`;}
-function cpkSw(){const b=CPK.box;if(!b)return;const w=b.querySelector(".sw");w.innerHTML="";if(!CPS.length){w.innerHTML='<span style="width:auto;border:0;cursor:default;color:var(--muted)" class="keys">no saved colours yet</span>';return;}
+function cpkSw(){const b=CPK.box;if(!b)return;const w=b.querySelector(".sw");w.innerHTML="";if(!CPS.length){w.innerHTML='<span style="width:auto;height:auto;border:0;cursor:default;color:var(--muted);white-space:nowrap" class="keys">no saved colours yet</span>';return;}
   CPS.forEach((c,i)=>{const s=document.createElement("span");s.style.background=c;s.title=c+" · click: use it · click its × corner (or right-click): remove";
     s.addEventListener("click",e=>{const r=s.getBoundingClientRect();if(e.clientX>r.right-7&&e.clientY<r.top+7){CPS.splice(i,1);cpsSave();cpkSw();return;}[CPK.h,CPK.s,CPK.l]=hex2hsl(c);cpkApply();});
     s.addEventListener("contextmenu",e=>{e.preventDefault();CPS.splice(i,1);cpsSave();cpkSw();});w.appendChild(s);});}
@@ -7138,6 +7194,761 @@ function lgxPlace(){const cv=typeof cvC!=="undefined"?cvC:null;if(!cv)return;con
   for(let j=i;j<pool.length;j++)pool[j].hidden=true;}
 {const _c=drawChart;drawChart=function(t){const r=_c.apply(this,arguments);if(!(t instanceof HTMLCanvasElement))try{lgxPlace();}catch(e){}return r;};}
 setInterval(()=>{try{lgxPlace();}catch(e){}},700);
+</script>
+<script>
+/* ===== “Spots in a d range”: 👁 preview starts unticked (each time the app opens, and for each new image) — tick it when you want the spots drawn ===== */
+{const done=new Set();if(typeof rfsCfg==="function"){const _c=rfsCfg;rfsCfg=function(ph){const o=_c.apply(this,arguments);try{if(ph&&ph.all&&o){const f=(typeof rfsKey==="function"&&rfsKey())||"-";if(!done.has(f)){done.add(f);o.prev=false;}}}catch(e){}return o;};
+  try{rfsRender();}catch(e){}try{edDraw();}catch(e){}}}
+</script>
+<script>
+/* ===== CPU cores: CIF reflections are computed in parallel background workers (one per core you allow); 1 = as before, on the page itself ===== */
+const CORES_MAX=Math.max(1,navigator.hardwareConcurrency||4);
+let CORES=(()=>{let v=0;try{v=+localStorage.getItem("cpu-cores")||0;}catch(e){}return v>0?Math.min(v,CORES_MAX):Math.max(1,CORES_MAX-1);})();
+{const bar=$("sysBar")||($("memTag")&&$("memTag").parentElement);if(bar&&!$("cpuCores")){const l=document.createElement("label");l.className="row2";l.style.cssText="gap:4px;align-self:center;font-size:.78rem";
+  l.title=`How many CPU cores the app may use for heavy work (now: computing the reflections of CIF files while they load). This PC has ${CORES_MAX}. More = faster; leave one free to keep the PC responsive. 1 = no background work`;
+  l.innerHTML=`cores <select id="cpuCores" style="width:auto">${Array.from({length:CORES_MAX},(_,i)=>i+1).map(n=>`<option value="${n}"${n===CORES?" selected":""}>${n}${n===CORES_MAX?" (all)":""}</option>`).join("")}</select>`;
+  bar.appendChild(l);$("cpuCores").addEventListener("change",()=>{CORES=+$("cpuCores").value||1;try{localStorage.setItem("cpu-cores",String(CORES));}catch(e){}});}}
+let CPU_SRC=null;
+function cpuWorkerUrl(){if(CPU_SRC)return CPU_SRC;
+  const src=`let FE=null;\n${simulate.toString()}\nonmessage=e=>{const m=e.data;if(m.FE){FE=m.FE;return;}try{const L=simulate(m.ph,m.dmin);postMessage({id:m.id,lines:Array.from(L),forb:L.forb||[]});}catch(err){postMessage({id:m.id,err:String(err&&err.message||err)});}};`;
+  CPU_SRC=URL.createObjectURL(new Blob([src],{type:"text/javascript"}));return CPU_SRC;}
+/* run jobs [{ph,dmin}] on n workers; resolves to an array of line lists (null where a job failed) */
+function cpuRun(jobs,n,onProg){return new Promise(resolve=>{const out=new Array(jobs.length).fill(null);if(!jobs.length){resolve(out);return;}
+  let W=[];try{for(let i=0;i<Math.min(n,jobs.length);i++){const w=new Worker(cpuWorkerUrl());w.postMessage({FE});W.push(w);}}catch(e){W.forEach(w=>w.terminate());resolve(null);return;}
+  /* biggest first: atoms × cell volume */const order=jobs.map((j,i)=>i).sort((a,b)=>{const s=j=>(j.ph.atoms.length||1)*j.ph.cell[0]*j.ph.cell[1]*j.ph.cell[2];return s(jobs[b])-s(jobs[a]);});
+  let next=0,done=0,dead=false;const feed=w=>{if(next>=order.length)return;const i=order[next++];const j=jobs[i];w.postMessage({id:i,ph:{cell:j.ph.cell,atoms:j.ph.atoms},dmin:j.dmin});};
+  const fin=()=>{if(dead)return;dead=true;W.forEach(w=>w.terminate());resolve(out);};
+  for(const w of W){w.onmessage=e=>{const m=e.data;if(m&&!m.err&&m.lines){const L=m.lines;L.forb=m.forb;out[m.id]=L;}done++;if(onProg)try{onProg(done,jobs.length);}catch(err){}if(done>=jobs.length)fin();else feed(w);};
+    w.onerror=ev=>{ev.preventDefault();done++;if(done>=jobs.length)fin();else feed(w);};feed(w);}
+  setTimeout(()=>{if(!dead){/* safety: never hang the loading */fin();}},600000);});}
+/* called by the CIF loader before its loop: reads + parses all files, computes every block's reflections in parallel; returns Map(File → [lines per block]) */
+async function cifPre(items,st){if(!(CORES>1)||!items||items.length<3||typeof Worker==="undefined")return null;
+  const t0=performance.now(),jobs=[],ref=[];
+  for(const it of items){const f=it.f;try{const txt=await f.text();const blocks=cifBlocks(txt);blocks.forEach((b,k)=>{let ph=null;try{ph=phaseFromBlock(b,f.name);}catch(e){}if(ph&&ph.cell&&ph.atoms){jobs.push({ph,dmin:0.62});ref.push([f,k]);}});}catch(e){}}
+  if(st)st.textContent=`Computing reflections of ${jobs.length} CIF${jobs.length>1?"s":""} on ${Math.min(CORES,jobs.length)} cores…`;
+  const res=await cpuRun(jobs,CORES,(d,n)=>{if(st&&(d%5===0||d===n))st.textContent=`Computing reflections on ${Math.min(CORES,n)} cores… ${d} / ${n}`;});
+  if(!res)return null;const M=new Map();res.forEach((L,i)=>{if(!L)return;const [f,k]=ref[i];if(!M.has(f))M.set(f,[]);M.get(f)[k]=L;});
+  window.CIF_PRE_MS=performance.now()-t0;return M;}
+</script>
+<script>
+/* ===== CIF results kept: the computed reflections of every CIF are saved in this browser AND in a results file in the CIF folder
+   (_cif_results.json) — unchanged CIFs load in a moment, only new / edited ones are computed (on the cores you allow).
+   Each image folder remembers the CIFs used with it (notes file) and loads exactly those when you open it. ↻ refresh CIFs adds new
+   CIFs from your CIF folders and drops ones that are gone ===== */
+const CC_FILE="_cif_results.json";
+const ccHash=s=>{let h1=0x811c9dc5,h2=5381;for(let i=0;i<s.length;i++){const c=s.charCodeAt(i);h1=Math.imul(h1^c,16777619);h2=(Math.imul(h2,33)+c)|0;}return (h1>>>0).toString(36)+(h2>>>0).toString(36)+s.length.toString(36);};
+const CC_V=ccHash(simulate.toString()+"|0.62|"+JSON.stringify(Object.keys(FE).length));   /* changes when the calculation changes → old results are not used */
+const CC_DB=(()=>{let p=null;const open=()=>p||(p=new Promise((res,rej)=>{const r=indexedDB.open("saed-cifcache",1);r.onupgradeneeded=()=>{r.result.createObjectStore("res");r.result.createObjectStore("txt");};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);}));
+  const getMany=async(st,keys)=>{try{const db=await open();return await new Promise(res=>{const t=db.transaction(st),os=t.objectStore(st),out=new Array(keys.length).fill(null);let n=keys.length;if(!n){res(out);return;}
+      keys.forEach((k,i)=>{const q=os.get(k);q.onsuccess=()=>{out[i]=q.result||null;if(--n===0)res(out);};q.onerror=()=>{if(--n===0)res(out);};});});}catch(e){return keys.map(()=>null);}};
+  const putMany=async(st,pairs)=>{try{if(!pairs.length)return;const db=await open();await new Promise(res=>{const t=db.transaction(st,"readwrite"),os=t.objectStore(st);for(const [k,v] of pairs)os.put(v,k);t.oncomplete=res;t.onerror=res;t.onabort=res;});}catch(e){}};
+  return {getMany,putMany};})();
+/* compact form of a reflection list (d, I, m, hkl, rep, members) */
+const ccPack=L=>({l:L.map(x=>[x.d,x.I,x.m,x.hkl,x.rep,x.mem]),f:(L.forb||[]).map(x=>[x.d,x.m,x.hkl,x.rep])});
+const ccUnpack=o=>{const L=o.l.map(a=>({d:a[0],I:a[1],m:a[2],hkl:a[3],rep:a[4],mem:a[5]}));L.forb=(o.f||[]).map(a=>({d:a[0],m:a[1],hkl:a[2],rep:a[3]}));return L;};
+/* the CIF folder being loaded (recorded by the folder walk): its handle and every file in it */
+let CIF_DIR_CTX=null;
+{const _w=walkDir;walkDir=async function(dir,path,out){const root=Array.isArray(path)&&path.length===1;const r=await _w.apply(this,arguments);
+  if(root&&out){CIF_DIR_CTX={h:dir,t:Date.now(),all:new Set(out.map(o=>(o.group||"")+"/"+o.f.name))};}return r;};}
+async function ccResRead(h){try{const fh=await h.getFileHandle(CC_FILE);const o=JSON.parse(await (await fh.getFile()).text());return o&&o.v===CC_V&&o.e?o:null;}catch(e){return null;}}
+async function ccResWrite(h,o){try{const fh=await h.getFileHandle(CC_FILE,{create:true});const w=await fh.createWritable();await w.write(JSON.stringify(o));await w.close();return true;}catch(e){return false;}}
+async function ccWritable(h,ask){try{let st=await h.queryPermission({mode:"readwrite"});if(st!=="granted"&&ask){try{st=await h.requestPermission({mode:"readwrite"});}catch(e){}}return st==="granted";}catch(e){return false;}}
+const CC_STAT={hitB:0,hitF:0,comp:0,ms:0,file:""};
+/* replaces the plain parallel step: cache first, then compute only what is missing */
+cifPre=async function(items,st){if(!items||!items.length)return null;const t0=performance.now();
+  const ctx=CIF_DIR_CTX&&Date.now()-CIF_DIR_CTX.t<180000&&items.some(it=>CIF_DIR_CTX.all.has((it.group||"")+"/"+it.f.name))?CIF_DIR_CTX:null;
+  /* write access to the folder's results file: asked now, while your click still counts (the browser asks once per session) */
+  const canW=ctx?await ccWritable(ctx.h,!!(navigator.userActivation&&navigator.userActivation.isActive)):false;
+  const files=[];for(const it of items){try{const txt=await it.f.text();const hash=ccHash(txt);const blocks=cifBlocks(txt);const phs=blocks.map(b=>{try{return phaseFromBlock(b,it.f.name);}catch(e){return null;}});
+      files.push({it,txt,hash,phs});}catch(e){}}
+  const jobs=[];for(const F of files)F.phs.forEach((ph,k)=>{if(ph&&ph.cell&&ph.atoms)jobs.push({F,k,ph,key:CC_V+"|"+F.hash+"|"+k,dmin:0.62,L:null});});
+  if(st)st.textContent=`Looking up ${jobs.length} CIF${jobs.length!==1?"s":""} in the saved results…`;
+  /* 1 · this browser */const got=await CC_DB.getMany("res",jobs.map(j=>j.key));let hitB=0,hitF=0;jobs.forEach((j,i)=>{if(got[i]){try{j.L=ccUnpack(got[i]);hitB++;}catch(e){}}});
+  /* 2 · the results file of the CIF folder */let res=null;if(ctx&&jobs.some(j=>!j.L)){res=await ccResRead(ctx.h);if(res)for(const j of jobs)if(!j.L&&res.e[j.key]){try{j.L=ccUnpack(res.e[j.key]);j.fromF=true;hitF++;}catch(e){}}}
+  /* 3 · compute the rest */const miss=jobs.filter(j=>!j.L);
+  if(miss.length){if(CORES>1&&miss.length>=2&&typeof Worker!=="undefined"){if(st)st.textContent=`Computing ${miss.length} new CIF${miss.length>1?"s":""} on ${Math.min(CORES,miss.length)} cores…`;
+      const R=await cpuRun(miss.map(j=>({ph:j.ph,dmin:j.dmin})),CORES,(d,n)=>{if(st&&(d%5===0||d===n))st.textContent=`Computing new CIFs on ${Math.min(CORES,n)} cores… ${d} / ${n}`;});
+      if(R)miss.forEach((j,i)=>{if(R[i])j.L=R[i];});}
+    for(const j of miss)if(!j.L){if(st)st.textContent=`Computing ${j.F.it.f.name}…`;await new Promise(r=>setTimeout(r,0));try{j.L=simulate(j.ph,j.dmin);}catch(e){}}}
+  /* keep: browser (results + the CIF text, so an image folder can bring its CIFs back) and the folder file */
+  CC_DB.putMany("res",jobs.filter(j=>j.L&&(!got[jobs.indexOf(j)])).map(j=>[j.key,ccPack(j.L)]));
+  CC_DB.putMany("txt",files.map(F=>[F.hash,{name:F.it.f.name,group:F.it.group||"",text:F.txt,lm:F.it.f.lastModified||0}]));
+  let wrote=false;if(ctx&&canW){const old=res||(await ccResRead(ctx.h))||{v:CC_V,e:{},n:{}};const o={v:CC_V,app:"d-Spacing / IS Studio",saved:new Date().toISOString(),e:{},n:{}};
+    /* keep entries of files still in the folder, add / replace the ones loaded now */
+    for(const k in old.e){const nm=old.n&&old.n[k];if(nm&&ctx.all.has(nm)){o.e[k]=old.e[k];o.n[k]=nm;}}
+    let ch=Object.keys(old.e).length!==Object.keys(o.e).length;
+    for(const j of jobs){if(!j.L)continue;const nm=(j.F.it.group||"")+"/"+j.F.it.f.name;if(!o.e[j.key]){o.e[j.key]=ccPack(j.L);o.n[j.key]=nm;ch=true;}}
+    if(ch||!res)wrote=await ccResWrite(ctx.h,o);}
+  const M=new Map();for(const j of jobs){if(!j.L)continue;const f=j.F.it.f;if(!M.has(f))M.set(f,[]);M.get(f)[j.k]={lines:j.L,key:j.key,hash:j.F.hash};}
+  Object.assign(CC_STAT,{hitB,hitF,comp:miss.length,ms:performance.now()-t0,file:ctx?(canW?(wrote?"results file updated":"results file up to date"):"results file not writable (allow editing the folder to keep it)"):""});
+  return M;};
+/* the status line after loading says where the results came from */
+{const _a=addCIFs;addCIFs=async function(){const r=await _a.apply(this,arguments);try{const s=CC_STAT,st=$("cifStatus");if(st&&(s.hitB||s.hitF||s.comp)){st.textContent+=` · ${s.hitB+s.hitF} from saved results${s.hitF?` (${s.hitF} from ${CC_FILE})`:""}, ${s.comp} computed · ${(s.ms/1000).toFixed(1)} s`+(s.file?` · ${s.file}`:"");}}catch(e){}
+  try{if(typeof notesAuto==="function")notesAuto();}catch(e){}try{if(typeof isnAuto==="function")isnAuto();}catch(e){}return r;};}
+/* ---- the CIFs used with an image folder: kept in its notes file; opening the folder loads exactly those ---- */
+let NOTES_APPLYING=false;
+{const W=f=>function(){NOTES_APPLYING=true;try{return f.apply(this,arguments);}finally{NOTES_APPLYING=false;}};
+ if(typeof notesApply==="function")notesApply=W(notesApply);if(typeof isnApply==="function")isnApply=W(isnApply);}
+/* while an image folder's CIF set is being brought back (or some of its CIFs were not found), the notes file keeps that set */
+let CIF_SET_PEND=null,CIF_SET_MISS=[];
+const cifSetNow=()=>{if(CIF_SET_PEND)return CIF_SET_PEND.slice();const seen=new Set(),L=[];for(const p of S.phases){if(!p.srcHash||seen.has(p.srcHash))continue;seen.add(p.srcHash);L.push({h:p.srcHash,n:p.file,g:p.group||""});}for(const x of CIF_SET_MISS)if(!seen.has(x.h)){seen.add(x.h);L.push(x);}return L;};
+{const _g=layoutGet;layoutGet=function(){const o=_g.apply(this,arguments)||{};try{const L=cifSetNow();if(L.length)o.cifSet=L;}catch(e){}return o;};
+ const _s=layoutSet;layoutSet=function(o){const r=_s.apply(this,arguments);try{if(NOTES_APPLYING&&o&&Array.isArray(o.cifSet)&&o.cifSet.length){const L=o.cifSet.slice();CIF_SET_PEND=L;CIF_SET_MISS=[];setTimeout(()=>cifSetApply(L).finally(()=>{if(CIF_SET_PEND===L)CIF_SET_PEND=null;}),50);}}catch(e){}return r;};}
+async function cifSetApply(L){const st=$("cifStatus"),want=new Set(L.map(x=>x.h)),have=new Set(S.phases.map(p=>p.srcHash).filter(Boolean));
+  CIF_SET_MISS=[];const same=S.phases.length&&S.phases.every(p=>want.has(p.srcHash))&&[...want].every(h=>have.has(h));if(same)return;
+  /* take off the CIFs that do not belong to this image folder */const before=S.phases.length;S.phases=S.phases.filter(p=>p.srcHash&&want.has(p.srcHash));if(S.focus!=null&&!S.phases.some(p=>p.id===S.focus))S.focus=null;
+  const need=L.filter(x=>!have.has(x.h));let items=[],missing=[];
+  if(need.length){const T=await CC_DB.getMany("txt",need.map(x=>x.h));need.forEach((x,i)=>{const t=T[i];if(t&&t.text)items.push({f:new File([t.text],t.name||x.n,{lastModified:t.lm||Date.now()}),group:t.group||x.g});else missing.push(x);});
+    /* not in this browser (other PC): look in your remembered CIF folders */
+    if(missing.length&&typeof cifRecentGet==="function"){const R=await cifRecentGet();const left=new Map(missing.map(x=>[x.h,x]));
+      for(const e of R){if(!left.size)break;const hs=e.kind==="dir"?[e.h]:e.hs;let ok=true;for(const h of hs){try{if((await h.queryPermission({mode:"read"}))!=="granted")ok=false;}catch(err){ok=false;}}if(!ok)continue;
+        const out=[];try{if(e.kind==="dir")await walkDir(e.h,[e.h.name],out);else for(const h of e.hs)out.push({f:await h.getFile(),group:"Files"});}catch(err){continue;}
+        for(const o of out){if(!left.size)break;const cand=[...left.values()].filter(x=>x.n===o.f.name);if(!cand.length)continue;try{const hh=ccHash(await o.f.text());if(left.has(hh)){items.push(o);left.delete(hh);}}catch(err){}}}
+      missing=[...left.values()];}}
+  CIF_SET_MISS=missing.slice();CIF_SET_PEND=null;
+  if(items.length)await addCIFs(items);else{try{renderPhases();redrawAll();drawChart();}catch(e){}}
+  if(st)st.textContent=`CIFs of this image folder: ${L.length-missing.length} of ${L.length} loaded`+(before-S.phases.length+items.length>0?"":"")+(missing.length?` · not found: ${missing.slice(0,6).map(x=>x.n).join(", ")}${missing.length>6?" …":""} (load their folder once, then reopen the images)`:"");}
+/* ---- ↻ refresh CIFs: new CIFs in your CIF folders are added, CIFs whose file is gone are taken off ---- */
+async function cifRefresh(){const st=$("cifStatus");if(typeof cifRecentGet!=="function"||typeof FSA==="undefined"||!FSA){if(st)st.textContent="Refresh needs Chrome / Edge (folder access).";return;}
+  const R=await cifRecentGet();if(!R.length){if(st)st.textContent="No CIF folder remembered yet — use Add folder… once.";return;}
+  const loaded=new Set(S.phases.map(p=>(p.group||"")+"/"+p.file)),seen=new Set(),walkedGroups=new Set();let add=[];
+  for(const e of R){const hs=e.kind==="dir"?[e.h]:e.hs;let ok=true;for(const h of hs){try{let s=await h.queryPermission({mode:"read"});if(s!=="granted")s=await h.requestPermission({mode:"read"});if(s!=="granted")ok=false;}catch(err){ok=false;}}if(!ok)continue;
+    const out=[];try{if(e.kind==="dir")await walkDir(e.h,[e.h.name],out);else for(const h of e.hs){try{out.push({f:await h.getFile(),group:"Files"});}catch(err){}}}catch(err){continue;}
+    const ex=new Set(e.ex||[]);for(const o of out){const k=(o.group||"")+"/"+o.f.name;seen.add(k);walkedGroups.add(o.group||"");}
+    /* only folders whose CIFs are in use now (or all, when nothing is loaded) */const used=!S.phases.length||out.some(o=>loaded.has((o.group||"")+"/"+o.f.name));
+    if(used)for(const o of out){const k=(o.group||"")+"/"+o.f.name;if(!loaded.has(k)&&!ex.has(o.f.name))add.push(o);}
+    if(add.length)await addCIFs(add.splice(0));}
+  const nAdd=S.phases.filter(p=>!loaded.has((p.group||"")+"/"+p.file)).length;
+  const gone=S.phases.filter(p=>walkedGroups.has(p.group||"")&&!seen.has((p.group||"")+"/"+p.file));
+  if(gone.length){const G=new Set(gone);S.phases=S.phases.filter(p=>!G.has(p));if(S.focus!=null&&!S.phases.some(p=>p.id===S.focus))S.focus=null;try{renderPhases();redrawAll();drawChart();}catch(e){}}
+  if(st)st.textContent=`↻ refresh: ${nAdd} new CIF${nAdd!==1?"s":""} added, ${gone.length} taken off (file gone) · ${S.phases.length} loaded`;
+  try{if(typeof notesAuto==="function")notesAuto();}catch(e){}try{if(typeof isnAuto==="function")isnAuto();}catch(e){}}
+{const lab=document.querySelector('label[for="cifIn"]');if(lab&&!$("cifRefresh")){const b=document.createElement("button");b.id="cifRefresh";b.textContent="↻ refresh CIFs";
+  b.title="Look in your CIF folders again: CIFs you added there are loaded (saved results make it quick), CIFs whose file is gone are taken off the list";
+  b.addEventListener("click",()=>cifRefresh());lab.after(b);}}
+</script>
+<script>
+/* ===== when CIFs load: with the image folder (the CIFs saved in its notes / save file — default), all remembered CIFs when the app opens (as before), or never by themselves ===== */
+let CIF_MODE=(()=>{let v="";try{v=localStorage.getItem("cif-mode")||"";}catch(e){}return ["img","start","off"].includes(v)?v:"img";})();
+function cifModeSet(v,save){CIF_MODE=["img","start","off"].includes(v)?v:"img";const a=$("cifAuto");if(a)a.checked=CIF_MODE==="start";const s=$("cifMode");if(s)s.value=CIF_MODE;
+  if(save){try{localStorage.setItem("cif-mode",CIF_MODE);localStorage.setItem("cif-auto",CIF_MODE==="start"?"1":"0");}catch(e){}try{if(typeof notesAuto==="function")notesAuto();}catch(e){}try{if(typeof isnAuto==="function")isnAuto();}catch(e){}}}
+{const a=$("cifAuto"),lab=a&&a.closest("label");if(lab&&!$("cifMode")){const l=document.createElement("label");l.className="row2";l.style.gap="4px";
+  l.title="When CIFs are loaded by themselves:\n• with the image folder — nothing at start; opening an image folder loads exactly the CIFs you used with it (saved in its notes / save file and in this browser). A folder with no saved CIFs keeps the ones loaded now, and they are saved with it.\n• at start — every remembered CIF folder when the app opens (the old auto-load).\n• never — only when you load them yourself";
+  l.innerHTML='load CIFs <select id="cifMode" style="width:auto"><option value="img">with the image folder</option><option value="start">all remembered, at start</option><option value="off">only by hand</option></select>';
+  lab.after(l);lab.style.display="none";$("cifMode").addEventListener("change",()=>cifModeSet($("cifMode").value,true));}}
+cifModeSet(CIF_MODE,false);
+/* the start-up auto-load runs only in the "at start" mode */
+{const _all=window.CIF_AUTO_ALL;window.CIF_AUTO_ALL=async function(){if(CIF_MODE!=="start")return;return _all?_all.apply(this,arguments):undefined;};}
+/* an image folder's CIF set is applied unless the mode is "only by hand" */
+{const _c=cifSetApply;cifSetApply=async function(L){if(CIF_MODE==="off")return;return _c.apply(this,arguments);};}
+{const _g=layoutGet;layoutGet=function(){const o=_g.apply(this,arguments)||{};o.cifMode=CIF_MODE;o.cifAuto=CIF_MODE==="start";return o;};
+ const _s=layoutSet;layoutSet=function(o){const r=_s.apply(this,arguments);try{cifModeSet(o&&o.cifMode?o.cifMode:CIF_MODE,false);if(o&&o.cifMode)try{localStorage.setItem("cif-mode",CIF_MODE);}catch(e){}}catch(e){}return r;};}
+</script>
+<script>
+/* (mouse events: the legend is a movable text, which keeps its pointer / click events for itself) */
+/* ===== click a CIF name in the plot legend = like clicking its row in Phases from CIF: it is highlighted and the CIF list takes the keys,
+   so ↑ ↓ go on stepping through the CIFs (the page does not jump) ===== */
+function lgRowAt(e){const cv=typeof cvC!=="undefined"?cvC:null;if(!cv)return null;const s=cv.width/Math.max(1,cv.getBoundingClientRect().width),x=e.offsetX*s,y=e.offsetY*s;
+  for(const r of (window.LGROWS||[])){if(!r.ph||r.x1==null)continue;if(x>=r.x-2*s&&x<=r.x1+2*s&&y>=r.y0&&y<=r.y1)return r;}return null;}
+{const cv=typeof cvC!=="undefined"?cvC:null;if(cv){let dn=null;
+  window.addEventListener("mousedown",e=>{if(e.target!==cv)return;dn=e.button===0?{x:e.clientX,y:e.clientY,r:lgRowAt(e)}:null;},true);
+  window.addEventListener("mouseup",e=>{if(e.target!==cv)return;const d=dn;dn=null;if(typeof txtMoving==="function"&&txtMoving("pk"))return;if(!d||!d.r||Math.hypot(e.clientX-d.x,e.clientY-d.y)>4)return;if($("pkAddBtn")&&$("pkAddBtn").getAttribute("aria-pressed")==="true")return;
+    const r=lgRowAt(e);if(!r||r.ph!==d.r.ph||!S.phases.includes(r.ph))return;e.preventDefault();e.stopImmediatePropagation();if(typeof STK!=="undefined"){STK.ph=STK.ln=null;}
+    const g=r.ph.group||"Files";if(S.collapsed&&S.collapsed.has(g)){S.collapsed.delete(g);try{renderPhases();}catch(err){}}
+    focusPhase(r.ph.id,g);const pb=$("phaseBox");if(pb)pb.focus({preventScroll:true});try{drawChart();}catch(err){}
+    try{cpToast(`${r.ph.legend.trim()} highlighted · ↑ ↓ step through the CIFs`);}catch(err){}},true);
+  cv.addEventListener("pointermove",e=>{if(e.buttons)return;if(lgRowAt(e)&&!cv.style.cursor)cv.style.cursor="pointer";else if(cv.style.cursor==="pointer"&&!lgRowAt(e))cv.style.cursor="";});}}
+</script>
+<script>
+/* ===== a note for each locked zone (the free space at the right of its row) — kept with the zone in the browser and in the notes / save file ===== */
+{const st=document.createElement("style");st.textContent=".lzNote{flex:1 1 14rem;min-width:9rem;padding:1px 6px;font:12px var(--f-body);background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:6px}.lzNote:focus{border-color:var(--accent);outline:none}";document.head.appendChild(st);}
+let LZN_T=0;
+{const _u=lzUI;lzUI=function(){const r=_u.apply(this,arguments);try{const rw=$("lzRows");if(!rw)return r;const rows=[...rw.children];
+  LZ.forEach((z,i)=>{const d=rows[i];if(!d||d.querySelector(".lzNote"))return;const n=document.createElement("input");n.type="text";n.className="lzNote";n.value=z.note||"";n.placeholder="note…";
+    n.title="Your note for this zone (e.g. grain, region, confidence, what it explains). Saved with the zone in this browser and in the notes / save file";
+    for(const t of ["keydown","keyup","keypress"])n.addEventListener(t,e=>{e.stopPropagation();if(t==="keydown"&&(e.key==="Enter"||e.key==="Escape"))n.blur();});
+    n.addEventListener("input",()=>{z.note=n.value;clearTimeout(LZN_T);LZN_T=setTimeout(()=>{try{if(typeof notesAuto==="function")notesAuto();}catch(e){}try{if(typeof isnAuto==="function")isnAuto();}catch(e){}},800);});
+    n.addEventListener("change",()=>{z.note=n.value;try{if(typeof notesAuto==="function")notesAuto();}catch(e){}try{if(typeof isnAuto==="function")isnAuto();}catch(e){}});
+    const x=d.querySelector(".lzX");if(x&&x.nextSibling)d.insertBefore(n,x.nextSibling);else d.appendChild(n);});}catch(e){}return r;};}
+try{lzUI();}catch(e){}
+</script>
+<script>
+/* ===== ★ best of each folder: the best-fitting CIFs of every folder box (phase category) at once, against the current peak list ===== */
+const BPF={on:false};
+function bestPerRun(){const box=$("bestPer");if(!box)return;
+  if(!S.phases.length){box.hidden=true;return;}
+  if(!S.profile||!S.peaks||!S.peaks.length){box.hidden=false;box.innerHTML='<span class="keys">Compute the profile (peaks) first, then ★ best of each folder.</span>';return;}
+  const G=[];for(const p of S.phases){const g=p.group||"Files";if(!G.includes(g))G.push(g);}
+  const top=+($("bestPerN")?$("bestPerN").value:3)||3;let html="";BPF.rows=[];
+  for(const g of G){const R=S.phases.filter(p=>(p.group||"Files")===g).map(ph=>({ph,f:fitScore(ph)})).filter(o=>o.f).sort((a,b)=>b.f.score-a.f.score);if(!R.length)continue;
+    BPF.rows.push({g,R});
+    html+=`<div class="row2" style="gap:5px;flex-wrap:wrap;align-items:center"><b style="min-width:7rem">📁 ${g.replace(/[<>&]/g,"")}</b><span class="keys">${R.length} CIF${R.length>1?"s":""}</span>`+
+      R.slice(0,top).map((o,i)=>`<button class="bpGo" data-g="${encodeURIComponent(g)}" data-i="${i}" style="padding:1px 8px;border-color:${o.ph.color}" title="peaks hit ${(100*o.f.hitW).toFixed(0)} %, chance ${(100*o.f.chance).toFixed(0)} %, strong lines missing ${(100*o.f.missF).toFixed(0)} % · click: highlight it (↑ ↓ then step through the list)"><b style="color:${o.ph.color}">${i+1}.</b> ${o.ph.legend.trim().replace(/[<>&]/g,"")} <span class="keys">${o.f.score.toFixed(2)}</span></button>`).join("")+`</div>`;}
+  box.hidden=false;box.innerHTML=`<div class="row2" style="gap:8px;align-items:center"><b>★ Best of each folder</b><span class="keys">score against the current peak list (same score as ★ Best fit)</span><span class="spacer" style="flex:1"></span><button id="bpTick" title="Tick the #1 CIF of every folder">tick each #1</button><button id="bpRe" title="Score again (after the peaks changed)">↻</button><button id="bpX" title="Close">✕</button></div>`+(html||'<span class="keys">No CIF matches the peaks.</span>');
+  box.querySelectorAll(".bpGo").forEach(b=>b.addEventListener("click",()=>{const g=decodeURIComponent(b.dataset.g),row=BPF.rows.find(r=>r.g===g),o=row&&row.R[+b.dataset.i];if(!o)return;
+    if(S.collapsed&&S.collapsed.has(g)){S.collapsed.delete(g);renderPhases();}focusPhase(o.ph.id,g);const pb=$("phaseBox");if(pb)pb.focus({preventScroll:true});
+    $("cifStatus").textContent=`📁 ${g}: #${+b.dataset.i+1} of ${row.R.length} · ${o.ph.legend.trim()} · score ${o.f.score.toFixed(2)} (peaks hit ${(100*o.f.hitW).toFixed(0)} %, chance ${(100*o.f.chance).toFixed(0)} %, strong lines missing ${(100*o.f.missF).toFixed(0)} %)`;}));
+  $("bpTick").addEventListener("click",()=>{for(const r of BPF.rows)r.R[0].ph.show=true;phaseRefresh();});
+  $("bpRe").addEventListener("click",bestPerRun);$("bpX").addEventListener("click",()=>{BPF.on=false;box.hidden=true;});}
+{const ref=$("cBestIn"),sp=ref&&ref.closest("span");if(sp&&!$("bestPerBtn")){const w=document.createElement("span");w.className="row2";w.style.gap="4px";
+  w.innerHTML='<button id="bestPerBtn" title="Rank the CIFs inside every folder box against the current peak list and show the best of each folder (phase category)">★ best of each folder</button><label title="How many of the best CIFs to show per folder">top <select id="bestPerN" style="width:auto"><option>1</option><option selected>3</option><option>5</option><option>10</option></select></label>';
+  sp.after(w);const box=document.createElement("div");box.id="bestPer";box.hidden=true;box.style.cssText="display:grid;gap:4px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;margin:4px 0";
+  (sp.closest(".chartbar")||sp.parentElement).after(box);
+  try{const v=localStorage.getItem("best-per-n");if(v)$("bestPerN").value=v;}catch(e){}
+  $("bestPerN").addEventListener("change",()=>{try{localStorage.setItem("best-per-n",$("bestPerN").value);}catch(e){}if(BPF.on)bestPerRun();});
+  $("bestPerBtn").addEventListener("click",()=>{BPF.on=true;BPF.sig=null;bestPerRun();});
+  /* kept up to date: scored again when the peaks, the CIFs or s change */
+  setInterval(()=>{if(!BPF.on||$("bestPer").hidden)return;let sg="";try{sg=(S.peaks||[]).map(p=>(+p.d).toFixed(4)).join(",")+"|"+S.phases.length+"|"+phaseScale()+"|"+S.phases.map(p=>p.sOwn||"").join("");}catch(e){}if(sg!==BPF.sig){const first=BPF.sig==null;BPF.sig=sg;if(!first)bestPerRun();}},1500);
+  /* enabled together with ★ Best fit */setInterval(()=>{const b=$("cBest");if(b)$("bestPerBtn").disabled=b.disabled;},700);}}
+</script>
+<script>
+/* ===== ★ best fit for each phase (the green phase headers of "group by phase"): ranks only the CIFs of that phase in that folder against the current peaks;
+   click again (or ▸) for the next best ===== */
+function phBestList(box,k){return S.phases.filter(p=>(p.group||"Files")===box&&phKey(p)===k).map(ph=>({ph,f:fitScore(ph)})).filter(o=>o.f).sort((a,b)=>b.f.score-a.f.score);}
+function phBestGo(box,k,step){if(!S.profile||!S.peaks||!S.peaks.length){setStatus("Compute the profile first, then use Best fit.",true);return;}
+  const R=phBestList(box,k);if(!R.length){$("cifStatus").textContent="No CIF of this phase matches the peaks.";return;}
+  const cur=R.findIndex(o=>o.ph.id===S.focus),i=step===0||cur<0?0:((cur+step)%R.length+R.length)%R.length,o=R[i];
+  focusPhase(o.ph.id,box);const pb=$("phaseBox");if(pb)pb.focus({preventScroll:true});const f=o.f;
+  $("cifStatus").textContent=`Best fit of ${k} in 📁 ${box}: #${i+1} of ${R.length} · ${o.ph.legend.trim()} · score ${f.score.toFixed(2)} (peaks hit ${(100*f.hitW).toFixed(0)} %, chance ${(100*f.chance).toFixed(0)} %, strong lines missing ${(100*f.missF).toFixed(0)} %) · ▸ next`;}
+{const _r=renderPhases;renderPhases=function(){const r=_r.apply(this,arguments);try{if(typeof PHG==="undefined"||!PHG.on)return r;
+  for(const hdr of document.querySelectorAll("#phaseGroups tr.phSub")){if(hdr.querySelector(".phBF"))continue;const box=hdr.closest(".pgroup").dataset.g,k=hdr.dataset.k,u=hdr.querySelector(".phU");if(!u)continue;
+    const b=document.createElement("button");b.className="phBF";b.textContent="★ best fit";b.title="Best fit within this phase (only its CIFs in this folder), against the current peaks";
+    const n=document.createElement("button");n.className="phBN";n.textContent="▸";n.title="Next best CIF of this phase";
+    b.addEventListener("click",e=>{e.stopPropagation();phBestGo(box,k,0);});n.addEventListener("click",e=>{e.stopPropagation();phBestGo(box,k,1);});u.after(b,n);}}catch(e){}return r;};}
+try{renderPhases();}catch(e){}
+/* ★ best of each … : per folder or per phase */
+{const sel=$("bestPerN");if(sel&&!$("bestPerBy")){const l=document.createElement("label");l.title="One row per folder box, or one row per phase (same reduced formula) inside each folder";
+  l.innerHTML='per <select id="bestPerBy" style="width:auto"><option value="g">folder</option><option value="p">phase</option></select>';sel.closest("label").after(l);
+  try{const v=localStorage.getItem("best-per-by");if(v)$("bestPerBy").value=v;}catch(e){}
+  $("bestPerBy").addEventListener("change",()=>{try{localStorage.setItem("best-per-by",$("bestPerBy").value);}catch(e){}$("bestPerBtn").textContent=$("bestPerBy").value==="p"?"★ best of each phase":"★ best of each folder";if(BPF.on)bestPerRun();});
+  $("bestPerBtn").textContent=$("bestPerBy").value==="p"?"★ best of each phase":"★ best of each folder";}}
+{const _b=bestPerRun;bestPerRun=function(){if(!$("bestPerBy")||$("bestPerBy").value!=="p")return _b.apply(this,arguments);
+  /* per phase: the same panel, one row per folder · phase */const box=$("bestPer");if(!box)return;
+  if(!S.phases.length){box.hidden=true;return;}
+  if(!S.profile||!S.peaks||!S.peaks.length){box.hidden=false;box.innerHTML='<span class="keys">Compute the profile (peaks) first, then ★ best of each phase.</span>';return;}
+  const K=[];for(const p of S.phases){const g=p.group||"Files",k=phKey(p),id=g+"\u0001"+k;if(!K.some(x=>x.id===id))K.push({id,g,k});}
+  const top=+($("bestPerN").value)||3;let html="";BPF.rows=[];
+  for(const x of K){const R=phBestList(x.g,x.k);if(!R.length)continue;BPF.rows.push({g:x.id,box:x.g,R});
+    html+=`<div class="row2" style="gap:5px;flex-wrap:wrap;align-items:center"><b style="min-width:7rem">${x.k.replace(/[<>&]/g,"")}</b><span class="keys">📁 ${x.g.replace(/[<>&]/g,"")} · ${R.length} CIF${R.length>1?"s":""}</span>`+
+      R.slice(0,top).map((o,i)=>`<button class="bpGo" data-g="${encodeURIComponent(x.id)}" data-i="${i}" style="padding:1px 8px;border-color:${o.ph.color}" title="peaks hit ${(100*o.f.hitW).toFixed(0)} %, chance ${(100*o.f.chance).toFixed(0)} %, strong lines missing ${(100*o.f.missF).toFixed(0)} %"><b style="color:${o.ph.color}">${i+1}.</b> ${o.ph.legend.trim().replace(/[<>&]/g,"")} <span class="keys">${o.f.score.toFixed(2)}</span></button>`).join("")+`</div>`;}
+  /* best phases first */
+  box.hidden=false;box.innerHTML=`<div class="row2" style="gap:8px;align-items:center"><b>★ Best of each phase</b><span class="keys">score against the current peak list (same score as ★ Best fit)</span><span class="spacer" style="flex:1"></span><button id="bpTick" title="Tick the #1 CIF of every phase">tick each #1</button><button id="bpRe" title="Score again">↻</button><button id="bpX" title="Close">✕</button></div>`+(html||'<span class="keys">No CIF matches the peaks.</span>');
+  box.querySelectorAll(".bpGo").forEach(b=>b.addEventListener("click",()=>{const id=decodeURIComponent(b.dataset.g),row=BPF.rows.find(r=>r.g===id),o=row&&row.R[+b.dataset.i];if(!o)return;
+    if(S.collapsed&&S.collapsed.has(row.box)){S.collapsed.delete(row.box);renderPhases();}focusPhase(o.ph.id,row.box);const pb=$("phaseBox");if(pb)pb.focus({preventScroll:true});
+    $("cifStatus").textContent=`${phKey(o.ph)} in 📁 ${row.box}: #${+b.dataset.i+1} of ${row.R.length} · ${o.ph.legend.trim()} · score ${o.f.score.toFixed(2)}`;}));
+  $("bpTick").addEventListener("click",()=>{for(const r of BPF.rows)r.R[0].ph.show=true;phaseRefresh();});
+  $("bpRe").addEventListener("click",()=>bestPerRun());$("bpX").addEventListener("click",()=>{BPF.on=false;box.hidden=true;});};}
+</script>
+<script>
+/* the IS app has no per-CIF s: the global CIF factor (or 1) */
+if(typeof phS!=="function")window.phS=function(){try{return typeof phaseScale==="function"?phaseScale():1;}catch(e){return 1;}};
+let LZSEEN_Z=2.5;let LZHL_M="all";try{const m=localStorage.getItem("lz-hl-mode");if(m==="seen"||m==="all"||m==="both")LZHL_M=m;}catch(e){}
+let LZHL_C2="#8a8f98";try{const c=localStorage.getItem("lz-hl-c2");if(/^#[0-9a-f]{6}$/i.test(c||""))LZHL_C2=c;}catch(e){}
+function lzDrawn(z){if(!z.spots||!z.spots.length)return null;const Im=z.Im||Math.max(1e-30,...z.spots.map(p=>p.I)),set=new Set();for(const p of z.spots){if(Math.sqrt(p.I/Im)<0.05||Math.hypot(p.gx,p.gy)<1e-6)continue;const H=[p.h,p.k,p.l].map(v=>+v||0);set.add(H.join(","));set.add(H.map(v=>-v||0).join(","));}return set;}let LZSEEN_OWN=null;try{const v=localStorage.getItem("lz-seen-own");if(v&&+v>0)LZSEEN_OWN=+v;}catch(e){}
+/* the overlap test uses the σ of ✨ reflection only (Bragg filter) unless you type your own value */
+const lzSigma=()=>{if(LZSEEN_OWN>0)return LZSEEN_OWN;const b=$("bfBrightK"),v=b?parseFloat(b.value):NaN;return v>0?v:2.5;};
+LZSEEN_Z=lzSigma();
+/* ===== CIF settings: a ★ on every row (click = unstar), and at the far right the notes — your note for this CIF and the notes of its locked zones (editable here too) ===== */
+if(typeof cfsUI==="function"){
+let CNOTE={};try{CNOTE=JSON.parse(localStorage.getItem("cif-notes")||"{}")||{};}catch(e){}
+const cnSave=()=>{try{localStorage.setItem("cif-notes",JSON.stringify(CNOTE));}catch(e){}clearTimeout(cnSave.t);cnSave.t=setTimeout(()=>{try{if(typeof notesAuto==="function")notesAuto();}catch(e){}},800);};
+{const _g=layoutGet;layoutGet=function(){const o=_g.apply(this,arguments)||{};o.cifNotes=CNOTE;return o;};
+ const _s=layoutSet;layoutSet=function(o){const r=_s.apply(this,arguments);try{if(o&&o.cifNotes&&typeof o.cifNotes==="object"){Object.assign(CNOTE,o.cifNotes);try{localStorage.setItem("cif-notes",JSON.stringify(CNOTE));}catch(e){}cfsUI(true);}}catch(e){}return r;};}
+{const st=document.createElement("style");st.textContent="#cfsBox table{width:100%}#cfsBox .cfsNotes{width:99%;min-width:14rem}#cfsBox td>.row2{flex-wrap:nowrap}#cfsBox td{white-space:nowrap}#cfsBox td:nth-child(3){white-space:normal}#cfsBox .cfsNotes input{width:100%;box-sizing:border-box;padding:1px 6px;font:12px var(--f-body)}#cfsBox .cfsZn{display:grid;grid-template-columns:auto 1fr;gap:2px 6px;align-items:center;margin-top:2px}#cfsBox .cfsZn label{flex-wrap:nowrap!important;white-space:nowrap}#cfsBox .cfsStar{background:none;border:0;font-size:1.05rem;padding:0 4px;color:#e0a800;cursor:pointer}";document.head.appendChild(st);}
+const keyIn=i=>{for(const t of ["keydown","keyup","keypress"])i.addEventListener(t,e=>{e.stopPropagation();if(t==="keydown"&&(e.key==="Enter"||e.key==="Escape"))i.blur();});};
+const znOf=p=>(typeof LZ!=="undefined"?LZ:[]).filter(z=>z.ph===p||(!z.ph&&z.leg&&z.leg===(p.legend||"").trim()));
+function cfsNotesFill(td,p){td.textContent="";const n=document.createElement("input");n.type="text";n.className="cfsCn";n.placeholder="note for this CIF…";n.value=CNOTE[ovrKey(p)]||"";
+  n.title="Your note for this CIF (kept in this browser and in the notes / save file of the image folder)";keyIn(n);n.addEventListener("input",()=>{const v=n.value;if(v)CNOTE[ovrKey(p)]=v;else delete CNOTE[ovrKey(p)];cnSave();});td.appendChild(n);
+  const Z=znOf(p);if(Z.length){const g=document.createElement("div");g.className="cfsZn";
+    for(const z of Z){const hk=document.createElement("input");hk.type="checkbox";hk.className="cfsHl";hk.checked=!!z.hl;hk.title="Highlight on the peaks plot the CIF sticks of this zone whose spots overlap spots of your pattern (brightest pixel in the spot circle compared with the same test at 35 other places on its ring: at least the σ set at the top of CIF settings above them), in the zone colour. Without a calibrated pattern: every stick of the zone (h·u = 0)";hk.disabled=!!z.custom;hk.addEventListener("change",()=>{z.hl=hk.checked;try{drawChart();}catch(e){}try{if(typeof notesAuto==="function")notesAuto();}catch(e){}});const b=document.createElement("b");b.textContent="🔒 ["+(z.u||[]).join(" ")+"]";b.style.color=z.color;b.style.fontSize="11px";const i=document.createElement("input");i.type="text";i.value=z.note||"";i.placeholder="zone note…";i.title="Note of this locked zone (same as in 🔒 Locked zones)";keyIn(i);
+      i.addEventListener("input",()=>{z.note=i.value;try{lzUI();}catch(e){}clearTimeout(cfsNotesFill.t);cfsNotesFill.t=setTimeout(()=>{try{if(typeof notesAuto==="function")notesAuto();}catch(e){}},800);});const cn=document.createElement("span");cn.className="keys cfsHlN";cn.dataset.zid=z.id;const w=document.createElement("label");w.className="row2";w.style.gap="3px";w.append(hk,b,cn);g.append(w,i);}
+    td.appendChild(g);}
+  td.dataset.sig=cfsSig(p);}
+const cfsSig=p=>(CNOTE[ovrKey(p)]||"")+"¦"+znOf(p).map(z=>(z.u||[]).join(",")+":"+(z.note||"")+":"+z.color+":"+(z.hl?1:0)).join("|");
+const _c=cfsUI;cfsUI=function(){const r=_c.apply(this,arguments);try{const b=$("cfsBox");if(!b)return r;const tb=b.querySelector("table");if(!tb)return r;
+  {const top=b.querySelector(".row2");if(top&&!top.querySelector(".cfsSz")){const l=document.createElement("label");l.className="row2 cfsSz";l.style.gap="4px";l.title="Highlighted zone sticks: a spot counts as overlapping a spot of your pattern when the brightest pixel in its circle is at least this many σ above the same test at 35 other places on its ring (noise at that radius). Lower = more sticks (also weak spots), higher = only clear spots";
+    l.innerHTML='highlight <select class="cfsHm" style="width:auto" title="Which sticks a ticked zone highlights on the peaks plot"><option value="all">every ring of the zone pattern</option><option value="seen">only rings with a spot on my pattern</option><option value="both">both: with a spot (zone colour) · ring only (dashed)</option></select><span class="cfsC2W row2" style="gap:4px" title="Colour of the rings of the zone pattern that have no spot on your pattern (dashed)">ring only <input class="cfsC2" type="color"></span><span class="cfsSzW row2" style="gap:4px">overlap ≥ <input class="cfsSzN" type="number" min="0.5" max="10" step="0.5" style="width:3.6rem;padding:1px 4px"> σ</span>';top.appendChild(l);const n=l.querySelector(".cfsSzN");n.value=LZSEEN_OWN>0?LZSEEN_OWN:"";n.placeholder=String(lzSigma());keyIn(n);n.title="Empty = the same σ as ✨ reflection only in the Bragg filter (shown greyed); type a number to use your own";setInterval(()=>{const v=String(lzSigma());if(!(LZSEEN_OWN>0)&&n.placeholder!==v){n.placeholder=v;try{drawChart();}catch(e){}}},700);
+    const hm=l.querySelector(".cfsHm"),sw=l.querySelector(".cfsSzW");hm.value=LZHL_M;const c2=l.querySelector(".cfsC2"),cw=l.querySelector(".cfsC2W");c2.value=LZHL_C2;const vis=()=>{sw.style.display=LZHL_M==="all"?"none":"";cw.style.display=LZHL_M==="both"?"":"none";};vis();
+    c2.addEventListener("input",()=>{LZHL_C2=c2.value;try{drawChart();}catch(e){}});c2.addEventListener("change",()=>{LZHL_C2=c2.value;try{localStorage.setItem("lz-hl-c2",LZHL_C2);}catch(e){}try{drawChart();}catch(e){}});
+    hm.addEventListener("change",()=>{LZHL_M=hm.value;try{localStorage.setItem("lz-hl-mode",LZHL_M);}catch(e){}vis();try{drawChart();}catch(e){}});
+    n.addEventListener("change",()=>{const v=parseFloat(n.value);LZSEEN_OWN=v>0?v:null;if(!(v>0))n.value="";n.placeholder=String(lzSigma());try{localStorage.setItem("lz-seen-own",LZSEEN_OWN?String(LZSEEN_OWN):"");}catch(e){}{LZSEEN_Z=lzSigma();try{drawChart();}catch(e){}setTimeout(()=>{for(const t of document.querySelectorAll("#cfsBox .cfsHlN"))t.dataset.k="";},0);}});}}
+  const hr=tb.querySelector("thead tr");if(hr&&!hr.querySelector(".cfsStH")){const th=document.createElement("th");th.className="cfsStH";th.textContent="★";th.title="Starred — click a ★ to unstar that CIF (it leaves this table and the ★ box)";hr.children[0].after(th);
+    const tn=document.createElement("th");tn.textContent="notes";tn.title="Your note for this CIF, and the notes of its locked zones";tn.style.textAlign="left";hr.appendChild(tn);}
+  for(const tr of tb.querySelectorAll("tbody tr[data-id]")){const p=S.phases.find(q=>String(q.id)===tr.dataset.id);if(!p)continue;
+    if(!tr.querySelector(".cfsStar")){const td=document.createElement("td");td.style.textAlign="center";const bt=document.createElement("button");bt.className="cfsStar";bt.textContent=p.star?"★":"☆";bt.title="Click: unstar this CIF";
+      bt.addEventListener("click",()=>{starToggleHere(p);try{renderPhases();}catch(e){}try{phRedraw();}catch(e){}cfsUI(true);});td.appendChild(bt);tr.children[0].after(td);
+      const tn=document.createElement("td");tn.className="cfsNotes";tr.appendChild(tn);cfsNotesFill(tn,p);}
+    else{const tn=tr.querySelector(".cfsNotes");if(tn&&!tn.contains(document.activeElement)&&tn.dataset.sig!==cfsSig(p))cfsNotesFill(tn,p);}}}catch(e){console.error(e);}return r;};
+try{cfsUI(true);}catch(e){}}
+/* which spots of a locked zone sit on a spot of your pattern: the brightest pixel inside the spot circle, against the mean ± sd of its ring (same test as ⟳ auto-align), ≥ 3.5 σ = overlapping */
+/* every circle the zone draws on the pattern (the spots shown, ≥ 5 % of √I as on the pattern) */
+function lzSeen(z){const P=typeof edPatCanvas==="function"?edPatCanvas():null,scp=+(($("scale")&&$("scale").value)||0);if(!P||!(scp>0)||!z.spots||!z.spots.length)return null;
+  LZSEEN_Z=lzSigma();const key=[z.id,z.rot,scp,P.f,S.cx,S.cy,P.cv.width,P.cv.height,z.spR||0,z.spots.length,z.spots[0]&&z.spots[0].gx,LZSEEN_Z,P.key].join("|");if(z._seen&&z._seen.key===key)return z._seen.set;
+  const c=P.cv,w=c.width,h=c.height,D=c.getContext("2d").getImageData(0,0,w,h).data,f=P.f,val=(x,y)=>{x=Math.round(x);y=Math.round(y);return x<0||y<0||x>=w||y>=h?NaN:D[4*(y*w+x)];},px=g=>g*10/scp/f,cx=S.cx/f,cy=S.cy/f;
+  const Im=z.Im||Math.max(1e-30,...z.spots.map(p=>p.I)),set=new Set();
+  /* the same disk test at 36 places around the spot's ring gives the noise level for that radius (median and spread, robust to other spots on the ring) */
+  const dmax=(X,Y,rr)=>{let b=-Infinity;const R=Math.ceil(rr);for(let dy=-R;dy<=R;dy++)for(let dx=-R;dx<=R;dx++){if(dx*dx+dy*dy>rr*rr)continue;const v=val(X+dx,Y+dy);if(v>b)b=v;}return b;};
+  for(const p of z.spots){const g=Math.hypot(p.gx,p.gy);if(g<1e-6)continue;const r=px(g),q=Math.sqrt(p.I/Im),rr=Math.max(2,Math.min(12,(typeof spRz==="function"?spRz(z,q):0.25)/scp/f));
+    const X=cx+px(p.gx),Y=cy+px(p.gy),b=dmax(X,Y,rr);if(!isFinite(b))continue;const a0=Math.atan2(Y-cy,X-cx),M=[];
+    for(let k=1;k<36;k++){const a=a0+2*Math.PI*k/36,v=dmax(cx+r*Math.cos(a),cy+r*Math.sin(a),rr);if(isFinite(v))M.push(v);}if(M.length<8)continue;
+    M.sort((u,v)=>u-v);const med=M[M.length>>1],dev=M.map(v=>Math.abs(v-med)).sort((u,v)=>u-v),mad=Math.max(1,1.4826*dev[dev.length>>1]);
+    if((b-med)/mad>=LZSEEN_Z){const H=[p.h,p.k,p.l].map(v=>+v||0);set.add(H.join(","));set.add(H.map(v=>-v||0).join(","));}}
+  z._seen={key,set};return set;}
+/* the sticks of a highlighted locked zone: drawn over the CIF sticks on the peaks plot, full height, in the zone colour, with its [u v w] on top */
+{const _d=drawChart;drawChart=function(t){const r=_d.apply(this,arguments);try{if(typeof LZ==="undefined")return r;const Z=LZ.filter(z=>z.hl&&!z.custom&&z.ph&&Array.isArray(z.u)&&z.u.length===3&&S.phases.includes(z.ph));if(!Z.length||!S.profile)return r;
+  const exp=t instanceof HTMLCanvasElement,G=exp?window.chartGeomExp:chartGeom;if(!G)return r;const cv=exp?t:cvC,g=cv.getContext("2d"),dpr=G.dpr||1,lo=Math.min(G.lo,G.hi),hi=Math.max(G.lo,G.hi);
+  g.save();g.beginPath();g.rect(G.L,G.T,G.pw,G.ph);g.clip();
+  for(const z of Z){const u=z.u,inZ=h=>h[0]*u[0]+h[1]*u[1]+h[2]*u[2]===0,mem=l=>(l.mem&&l.mem.length?l.mem:[l.rep]);let n=0;
+    const both=LZHL_M==="both",drawn=LZHL_M==="seen"?null:lzDrawn(z),spot=LZHL_M==="all"?null:lzSeen(z),key=m=>m.map(v=>+v||0).join(",");let ns=0;z._hlAll=0;
+    for(const ln of phaseLines(z.ph,false)){const M=mem(ln);let kind=null;   /* "s" = a spot of your pattern on it, "r" = only a ring of the zone pattern */
+      if(LZHL_M==="seen"){if(spot){if(M.some(m=>spot.has(key(m))))kind="s";}else if(M.some(inZ))kind="s";}
+      else if(LZHL_M==="all"){if(drawn?M.some(m=>drawn.has(key(m))):M.some(inZ))kind="s";}
+      else{const inD=drawn?M.some(m=>drawn.has(key(m))):M.some(inZ);if(spot&&M.some(m=>spot.has(key(m))))kind="s";else if(inD)kind=spot?"r":"s";}
+      if(!kind)continue;z._hlAll++;const q=10/(ln.d*phS(z.ph)),xv=rToX(q/S.profile.sc,G.mode);if(!isFinite(xv)||xv<lo||xv>hi)continue;const X=G.sx(xv);
+      const col=kind==="s"?z.color:LZHL_C2;g.globalAlpha=kind==="s"?.85:.75;g.strokeStyle=col;g.lineWidth=(kind==="s"?3:2)*dpr;g.setLineDash(kind==="s"?[]:[6*dpr,4*dpr]);g.beginPath();g.moveTo(X,G.T+G.ph);g.lineTo(X,G.T+14*dpr);g.stroke();g.setLineDash([]);
+      g.globalAlpha=1;g.fillStyle=col;g.beginPath();g.moveTo(X,G.T+14*dpr);g.lineTo(X-5*dpr,G.T+4*dpr);g.lineTo(X+5*dpr,G.T+4*dpr);g.closePath();g.fill();n++;if(kind==="s")ns++;}
+    z._hlS=ns;z._hlBoth=both&&!!spot;
+    z._hlN=n;z._hlChk=LZHL_M==="all"?!!drawn:!!spot;}
+  g.restore();}catch(e){}return r;};}
+try{drawChart();}catch(e){}
+/* how many sticks each highlighted zone lights up */
+setInterval(()=>{try{for(const t of document.querySelectorAll("#cfsBox .cfsHlN")){const z=(typeof LZ!=="undefined"?LZ:[]).find(q=>String(q.id)===t.dataset.zid);const v=z&&z.hl?(z._hlBoth?`${z._hlS||0} with a spot · ${(z._hlN||0)-(z._hlS||0)} ring only`:`${z._hlN||0} stick${z._hlN===1?"":"s"}`)+(z._hlChk?"":" (no calibrated pattern: zone law only)"):"";if(t.textContent!==v)t.textContent=v;}}catch(e){}},700);
+</script>
+<script>
+/* ===== a CIF's own s (CIF settings) moves its locked zones' spots at once — also while you drag the slider ===== */
+if(typeof lzSpotT==="function"&&typeof LZ!=="undefined"){const LZS=new Map();let busy=false;
+  const tick=()=>{if(busy)return;busy=true;try{const all=new Set(LZ);try{for(const f in LZF)for(const z of LZF[f])all.add(z);}catch(e){}let ch=false;
+    for(const z of all){if(z.custom||!z.R)continue;if(!z.ph)z.ph=S.phases.find(p=>(p.legend||"").trim()===z.leg)||null;if(!z.ph)continue;const s=phS(z.ph),o=LZS.get(z);
+      if(o===undefined){LZS.set(z,s);continue;}if(Math.abs(o-s)<1e-9)continue;LZS.set(z,s);
+      try{const sp=lzSpotT(z);if(sp.length){z.spots=sp;z.Im=Math.max(1e-30,...sp.map(p=>p.I));ch=ch||LZ.includes(z);}}catch(e){}}
+    if(ch){try{edDraw();}catch(e){}try{drawMain();}catch(e){}try{drawChart();}catch(e){}
+      /* the row list is rebuilt only when no slider / box in it is being used */const a=document.activeElement;if(!(a&&$("lzRows")&&$("lzRows").contains(a)))try{lzUI();}catch(e){}}}finally{busy=false;}};
+  setInterval(tick,150);}
+</script>
+<script>
+/* ===== a new FFT (e.g. another region of the real image): the overlap view and the highlighted zone sticks are redrawn from it ===== */
+{let K=null;setInterval(()=>{try{if(typeof S==="undefined"||!S.d8)return;const d=S.d8,n=d.length,st=Math.max(1,Math.floor(n/97));let h=0;for(let i=0;i<n;i+=st)h=(h*31+d[i])|0;
+  if(!window.ED_PID)window.ED_PID=new WeakMap();if(!ED_PID.has(d))ED_PID.set(d,(window.ED_PIDN=(window.ED_PIDN||0)+1));const k=[ED_PID.get(d),n,h,S.W,S.H].join("|");
+  if(k===K)return;const first=K==null;K=k;if(first)return;try{edDraw();}catch(e){}try{drawChart();}catch(e){}}catch(e){}},400);}
+</script>
+<script>
+/* ===== 🔎 index marked spots: from spots you marked on the FFT (a custom-spots entry), find which CIF and which zone axis explain them —
+   spacings (within the d tolerance) and angles of every spot, searched over the CIFs you choose, best first ===== */
+if(typeof LZ!=="undefined"&&typeof edRefl==="function"&&typeof lzSpotsFor==="function"){
+const IDX={res:[],busy:false};let IDXMAX=30;try{const v=+localStorage.getItem("idx-max");if(v>=1&&v<=30)IDXMAX=Math.round(v);}catch(e){}
+const idxObs=z=>{const O=[];for(const p of (z&&z.spots)||[]){const v=[+p.gx,+p.gy];if(!(Math.hypot(v[0],v[1])>1e-4))continue;if(O.some(o=>Math.hypot(o[0]+v[0],o[1]+v[1])<1e-5||Math.hypot(o[0]-v[0],o[1]-v[1])<1e-5))continue;O.push(v);}return O;};
+const idxPhases=()=>{const m=$("idxScope")?$("idxScope").value:"star";let L;
+  if(m==="one"){const id=($("idxCif")||{}).value;L=S.phases.filter(p=>String(p.id)===id);}
+  else if(m==="focus")L=S.phases.filter(p=>p.id===S.focus);
+  else if(m.startsWith("g:")){const g=m.slice(2);L=S.phases.filter(p=>(p.group||"Files")===g);}
+  else if(m.startsWith("k:")){const k=m.slice(2);L=S.phases.filter(p=>{try{return phKey(p)===k;}catch(e){return false;}});}
+  else L=S.phases.filter(p=>m==="all"?true:m==="show"?p.show:m==="starshow"?(p.star||p.show):p.star);return L.filter(p=>p.cell&&p.atoms&&p.atoms.length);};
+/* the "in" choice: fixed ones, every folder, every phase category, the highlighted CIF, or one CIF you choose */
+function idxScopeUI(){const s=$("idxScope"),c=$("idxCif");if(!s||!c)return;const cur=s.value||"star",cc=c.value;const esc=t=>String(t).replace(/[<>&"]/g,"");
+  const G=[...new Set(S.phases.map(p=>p.group||"Files"))],K=[...new Set(S.phases.map(p=>{try{return phKey(p);}catch(e){return "";}}).filter(Boolean))];
+  const sig=G.join("|")+"#"+K.join("|")+"#"+S.phases.map(p=>p.id).join(",");if(s.dataset.sig!==sig){s.dataset.sig=sig;
+    s.innerHTML='<option value="star">★ starred</option><option value="show">ticked</option><option value="starshow">starred + ticked</option><option value="all">all loaded</option><option value="focus">highlighted CIF</option><option value="one">one CIF (choose) …</option>'+
+      (G.length?'<optgroup label="folder">'+G.map(g=>`<option value="g:${esc(g)}">📁 ${esc(g)}</option>`).join("")+'</optgroup>':"")+(K.length?'<optgroup label="phase">'+K.map(k=>`<option value="k:${esc(k)}">${esc(k)}</option>`).join("")+'</optgroup>':"");
+    c.innerHTML=S.phases.map(p=>`<option value="${p.id}">${esc((p.legend||p.file||"").trim())}${p.group?" · "+esc(p.group):""}</option>`).join("");}
+  if([...s.options].some(o=>o.value===cur))s.value=cur;else s.value="star";if([...c.options].some(o=>o.value===cc))c.value=cc;c.style.display=s.value==="one"?"":"none";}
+const gcd=(a,b)=>b?gcd(b,a%b):Math.abs(a);
+function idxPhase(ph,O,tol,angTol,NB){NB=NB||3;   /* score = spots explained − chance matches − ½·(error / tolerance) per spot − a little per index */const sc=phS(ph)||1,gmaxO=Math.max(...O.map(o=>Math.hypot(o[0],o[1]))),Rf=edRefl(ph,gmaxO*sc*1.08);if(!Rf||!Rf.length)return [];
+  const P=Rf.filter(r=>r.F2>=1e-4*Rf.Fmax).map(r=>({g:r.g.map(v=>v/sc),gl:r.gl/sc,h:r.h,k:r.k,l:r.l,w:Math.sqrt(r.F2/Rf.Fmax)}));
+  const near=L=>P.filter(r=>Math.abs(r.gl-L)/L<tol);const OL=O.map(o=>Math.hypot(o[0],o[1])),C=O.map((o,i)=>near(OL[i]));
+  /* base pairs: the shortest spots that are not parallel */
+  const ord=O.map((o,i)=>i).sort((a,b)=>OL[a]-OL[b]),base=[];
+  for(let x=0;x<ord.length&&base.length<NB;x++)for(let y=x+1;y<ord.length&&base.length<NB;y++){const i=ord[x],j=ord[y],cr=O[i][0]*O[j][1]-O[i][1]*O[j][0],sn=Math.abs(cr)/(OL[i]*OL[j]);if(sn>0.26)base.push([i,j]);}
+  const out=new Map();
+  for(const [i,j] of base){const phi=Math.atan2(O[i][0]*O[j][1]-O[i][1]*O[j][0],O[i][0]*O[j][0]+O[i][1]*O[j][1]),aphi=Math.abs(phi),al=Math.atan2(O[i][1],O[i][0]),ca=Math.cos(al),sa=Math.sin(al);
+    for(const a of C[i])for(const b of C[j]){const dot=a.g[0]*b.g[0]+a.g[1]*b.g[1]+a.g[2]*b.g[2],th=Math.acos(Math.max(-1,Math.min(1,dot/(a.gl*b.gl))));if(Math.abs(th-aphi)>angTol)continue;
+      let n=[a.g[1]*b.g[2]-a.g[2]*b.g[1],a.g[2]*b.g[0]-a.g[0]*b.g[2],a.g[0]*b.g[1]-a.g[1]*b.g[0]];const nl=Math.hypot(...n);if(nl<1e-9)continue;n=n.map(v=>v/nl);
+      let u=[a.k*b.l-a.l*b.k,a.l*b.h-a.h*b.l,a.h*b.k-a.k*b.h];if(!u[0]&&!u[1]&&!u[2])continue;const q=gcd(gcd(u[0],u[1]),u[2])||1;u=u.map(v=>v/q);if(Math.max(...u.map(Math.abs))>IDXMAX)continue;
+      if(phi<0){n=n.map(v=>-v);u=u.map(v=>-v);}
+      const e1=a.g.map(v=>v/a.gl),e2=[n[1]*e1[2]-n[2]*e1[1],n[2]*e1[0]-n[0]*e1[2],n[0]*e1[1]-n[1]*e1[0]];
+      const ux=e1.map((v,k)=>v*ca-e2[k]*sa),uy=e1.map((v,k)=>v*sa+e2[k]*ca);
+      const proj=r=>[r.g[0]*ux[0]+r.g[1]*ux[1]+r.g[2]*ux[2],r.g[0]*uy[0]+r.g[1]*uy[1]+r.g[2]*uy[2]],inZ=r=>r.h*u[0]+r.k*u[1]+r.l*u[2]===0;
+      /* every marked spot: the nearest in-zone reflection of the right length */
+      let m=0,err=0,wsum=0;const hit=[];
+      O.forEach((o,k)=>{let best=null,bd=Infinity;for(const r of C[k]){if(!inZ(r))continue;const p=proj(r),d=Math.hypot(p[0]-o[0],p[1]-o[1]);if(d<bd){bd=d;best=r;}}
+        if(best&&bd<=tol*OL[k]+0.004){m++;err+=bd/OL[k];wsum+=best.w;hit.push(`${best.h} ${best.k} ${best.l}`);}else hit.push(null);});
+      if(m<2)continue;const key=u.join(",");const o=out.get(key);
+      if(!o||m>o.m||(m===o.m&&err/m<o.err))out.set(key,{ph,u,m,err:err/m,wsum,hit,R:[ux,uy,n.map(v=>-v)],gmaxO});}}
+  /* chance matches: how crowded the zone is (a big cell matches anything by luck) */
+  const res=[...out.values()];for(const r of res){const u=r.u;let N=0;for(const p of P){if(p.gl>r.gmaxO*1.03||p.w<0.1)continue;   /* reflections at least 10 % of the strongest (|F|): the ones a bright spot could be */if(p.h*u[0]+p.k*u[1]+p.l*u[2]===0)N++;}
+    const rho=N/(Math.PI*r.gmaxO*r.gmaxO);let E=0;OL.forEach(L=>{const t=tol*L+0.004;E+=Math.min(1,rho*Math.PI*t*t);});r.nZone=N;r.chance=E;
+    r.score=r.m-E-0.5*r.m*r.err/tol-0.02*(Math.abs(u[0])+Math.abs(u[1])+Math.abs(u[2]))+0.15*r.wsum/Math.max(1,r.m);}
+  return res;}
+/* one search over the CIFs on a set of spots; rows best first, symmetry-equivalent zones merged */
+async function idxSearch(O,PH,tol,angTol,NB,st,lab){let all=[];for(let i=0;i<PH.length;i++){if(st&&(i%4===0||i===PH.length-1)){st.textContent=`${lab}${O.length} spot${O.length>1?"s":""} · ${i+1} / ${PH.length} CIFs…`;await new Promise(r=>setTimeout(r,0));}try{all=all.concat(idxPhase(PH[i],O,tol,angTol,NB));}catch(e){console.error(e);}}
+  all.sort((a,b)=>b.score-a.score);const G=new Map();for(const r of all){const k=r.ph.id+"|"+r.m+"|"+r.err.toFixed(4)+"|"+r.nZone;const g=G.get(k);if(g){g.eq.push(r.u);continue;}r.eq=[];G.set(k,r);}return [...G.values()];}
+async function idxRun(){if(IDX.busy)return;const st=$("idxStat"),box=$("idxRes");const src=LZ.find(z=>String(z.id)===($("idxSrc")||{}).value);
+  const O=idxObs(src);if(!O.length){st.textContent="Mark spots on the FFT overlap first (custom spots), then pick that entry here.";box.hidden=true;return;}
+  if(O.length===1||O.every(o=>Math.abs(o[0]*O[0][1]-o[1]*O[0][0])/(Math.hypot(...o)*Math.hypot(...O[0]))<0.26)){return idxOneRun(src,O);}
+  const tol=Math.max(0.002,(+$("idxTol").value||3)/100),angTol=Math.max(0.2,+$("idxAng").value||3)*Math.PI/180,PH=idxPhases();if(!PH.length){st.textContent="No CIFs in that choice (star or tick some).";return;}
+  const poly=$("idxPoly")&&$("idxPoly").checked,maxZ=Math.max(1,+(($("idxPolyN")||{}).value)||4);
+  IDX.busy=true;$("idxGo").disabled=true;IDX.src=src;IDX.O=O;IDX.poly=poly;IDX.left=null;IDX.one=false;
+  try{if(!poly){const R=await idxSearch(O,PH,tol,angTol,3,st,"Indexing ");IDX.res=R.slice(0,30).map(r=>Object.assign(r,{idx:O.map((o,k)=>k)}));}
+    else{/* polycrystal: the best zone, take away the spots it explains, search again on the rest — one zone (grain) at a time */
+      let left=O.map((o,k)=>k);const rows=[];
+      for(let g=1;g<=maxZ&&left.length>=2;g++){const Os=left.map(k=>O[k]);const R=await idxSearch(Os,PH,tol,angTol,12,st,`Zone ${g}: indexing `);
+        const best=R[0];if(!best||best.m<Math.min(3,Os.length)||best.score<1.5)break;
+        const mark=r=>Object.assign(r,{idx:left.slice(),grain:g});rows.push(Object.assign(mark(best),{alt:false}));
+        /* close alternatives for the same spots (same number explained) */for(const r of R.slice(1)){if(rows.filter(q=>q.grain===g).length>=4)break;if(r.m>=best.m-0)rows.push(Object.assign(mark(r),{alt:true}));}
+        const used=new Set(best.hit.map((h,k)=>h?left[k]:null).filter(v=>v!=null));left=left.filter(k=>!used.has(k));}
+      IDX.res=rows;IDX.left=left;}}
+  finally{IDX.busy=false;$("idxGo").disabled=false;}
+  idxShow();const nZ=poly?new Set(IDX.res.map(r=>r.grain)).size:0;
+  st.textContent=!IDX.res.length?`No CIF / zone explains ${poly?"three":"two"} of the spots within ${$("idxTol").value} % and ${$("idxAng").value}° — check the calibration (s), widen the tolerance or add CIFs`:
+    poly?`${nZ} zone${nZ>1?"s":""} found, one after the other (each takes the spots it explains, the next is searched on the rest) · ${IDX.left.length} of ${O.length} spots left unexplained${IDX.left.length?": "+IDX.left.map(k=>"#"+(k+1)).join(" "):""} · grey rows = close alternatives for the same spots · 🔒 lock all = the best of every zone`:
+    `${IDX.res.length} candidate${IDX.res.length>1?"s":""} from ${PH.length} CIF${PH.length>1?"s":""}, best first · score = spots explained − chance matches (crowded zones explain spots by luck) · ▶ show · 🔒 lock = drawn in this orientation on your pattern`;}
+function idxShow(){if(IDX.one)return idxShowOne();const box=$("idxRes");if(!box)return;const R=IDX.res;box.hidden=!R.length;if(!R.length)return;const N=IDX.O.length;
+  box.innerHTML=(IDX.poly&&R.length?`<div class="row2" style="gap:8px;padding:3px 6px"><button id="idxLockAll" title="Lock the best zone of every grain found, each in the orientation of its spots">🔒 lock all ${new Set(R.map(r=>r.grain)).size} zones</button></div>`:"")+`<table class="zfTbl"><thead><tr>${IDX.poly?"<th title=\"zone (grain) number, in the order found\">zone</th>":""}<th>#</th><th>CIF</th><th>zone axis</th><th title="marked spots explained (of ${N}), each spot = its ± pair">spots</th><th title="mean position error of the explained spots, % of |g|">error</th><th title="spots the zone would explain by luck (how crowded it is)">chance</th><th>score</th><th style="text-align:left" title="the hkl of each marked spot (#1, #2 … in the order you marked them); – = not explained">hkl of your spots</th><th style="text-align:left">equivalent</th><th></th></tr></thead><tbody></tbody></table>`;
+  const tb=box.querySelector("tbody");
+  R.forEach((r,i)=>{const tr=document.createElement("tr");if(r.alt)tr.style.opacity=".62";if(IDX.poly&&!r.alt&&i)tr.style.borderTop="2px solid var(--accent)";tr.innerHTML=(IDX.poly?`<td>${r.alt?"":"<b>"+r.grain+"</b>"}</td>`:"")+`<td>${i+1}</td><td style="color:${r.ph.color};white-space:nowrap">${String(r.ph.legend||"").trim().replace(/[<>&]/g,"")}</td><td><b>[${r.u.join(" ")}]</b></td><td>${r.m} / ${r.idx?r.idx.length:N}</td><td>${(100*r.err).toFixed(1)} %</td><td>${r.chance.toFixed(1)}</td><td>${r.score.toFixed(2)}</td>`+
+    `<td style="text-align:left;white-space:nowrap">${r.hit.map((h,k)=>h||!IDX.poly?`<span class="keys">#${(r.idx?r.idx[k]:k)+1}</span> ${h?"("+h+")":"–"}`:"").filter(Boolean).join(" ")}</td><td style="text-align:left">${r.eq.slice(0,4).map(u=>"["+u.join(" ")+"]").join(" ")}${r.eq.length>4?" …":""}</td>`+
+    `<td style="white-space:nowrap"><button class="idxS" style="padding:1px 8px" title="Show this zone in the 3D structure and the simulated pattern">▶ show</button> <button class="idxL" style="padding:1px 8px" title="Lock this zone in the orientation that matches your spots (drawn on your pattern)">🔒 lock</button></td>`;
+    tr.querySelector(".idxS").addEventListener("click",()=>{try{zfShowPh(r.ph,r.u);}catch(e){}});
+    tr.querySelector(".idxL").addEventListener("click",()=>idxLock(r));
+    tb.appendChild(tr);});
+  const la=$("idxLockAll");if(la)la.addEventListener("click",()=>{let n=0;for(const r of R)if(!r.alt){if(idxLock(r,true))n++;}try{cpToast(`${n} zone${n!==1?"s":""} locked in the orientation of their spots`);}catch(e){}});}
+function idxLock(r,quiet){const N=r.idx?r.idx.length:IDX.O.length;{const ph=r.ph;if(LZ.some(q=>q.ph===ph&&q.u.join()===r.u.join()&&q.R&&Math.abs(q.R[0][0]-r.R[0][0])<1e-6)){if(!quiet)try{cpToast(`[${r.u.join(" ")}] is already locked`);}catch(e){}return false;}
+      const sp=lzSpotsFor(ph,r.R,0);const used=new Set(LZ.map(q=>q.color)),color=ph.color||LZC.find(q=>!used.has(q))||LZC[lzSeq%LZC.length];
+      LZ.push({id:++lzSeq,ph,leg:(ph.legend||"").trim(),u:r.u.slice(),off:0,rot:0,R:r.R.map(v=>v.slice()),color,on:true,spots:sp,Im:Math.max(1e-30,...sp.map(p=>p.I)),note:`indexed from “${(IDX.src&&(IDX.src.name||IDX.src.u&&IDX.src.u[0]))||"marked spots"}”: ${r.m}/${N} spots${r.grain?" · zone "+r.grain+" of the polycrystal search":""}`});
+      lzAfter();try{if(typeof notesAuto==="function")notesAuto();}catch(e){}if(!quiet)try{cpToast(`[${r.u.join(" ")}] ${ph.legend.trim()} locked in the orientation of your spots`);}catch(e){}return true;}}
+/* ---- one pair of spots (or spots all on one line): the spacing gives the reflection, but ANY zone perpendicular to it fits.
+   Every zone [u v w] with h·u = 0 (up to max index) is listed, simplest first, with the other strong spots that zone would show —
+   if you do not see them, that zone is less likely. ▶ show / 🔒 lock put the zone in the orientation of your spot ---- */
+async function idxOneRun(src,O){const st=$("idxStat"),tol=Math.max(0.002,(+$("idxTol").value||3)/100),PH=idxPhases();if(!PH.length){st.textContent="No CIFs in that choice (star or tick some).";return;}
+  const o=O.reduce((a,b)=>Math.hypot(...b)<Math.hypot(...a)?b:a),oL=Math.hypot(...o),al=Math.atan2(o[1],o[0]),ca=Math.cos(al),sa=Math.sin(al),rows=[],gmaxS=Math.max(...O.map(v=>Math.hypot(...v)));
+  IDX.busy=true;$("idxGo").disabled=true;IDX.capF=IDX.capZ=false;const ONE_FAM=6,ONE_Z=PH.length>40?120:400;
+  try{for(let i=0;i<PH.length;i++){const ph=PH[i];if(i%4===0){st.textContent=`One spot pair (${(10*oL).toFixed(2)} nm⁻¹ · d ${(1/oL).toFixed(3)} Å): ${i+1} / ${PH.length} CIFs…`;await new Promise(r=>setTimeout(r,0));}
+    try{const sc=phS(ph)||1,Rf=edRefl(ph,Math.max(oL,gmaxS)*1.6*sc);if(!Rf||!Rf.length)continue;
+      const P=Rf.filter(r=>r.F2>=1e-4*Rf.Fmax).map(r=>({g:r.g.map(v=>v/sc),gl:r.gl/sc,h:r.h,k:r.k,l:r.l,w:Math.sqrt(r.F2/Rf.Fmax)}));
+      /* reflections of the right spacing, one per family (same spacing and strength) */
+      const C=P.filter(r=>Math.abs(r.gl-oL)/oL<tol&&r.w>=0.05),fam=new Map();for(const r of C){const k=r.gl.toFixed(4)+"|"+r.w.toFixed(3);const f=fam.get(k);const pos=r.h>=0&&r.k>=0&&r.l>=0;if(!f||(pos&&!(f.h>=0&&f.k>=0&&f.l>=0)))fam.set(k,r);}
+      const toC=fracToCart(ph.cell);
+      const lim=Math.max(oL,gmaxS)*1.5,Ps=P.filter(r=>r.w>=0.15&&r.gl<=lim);
+      const FAM=[...fam.values()].sort((x,y)=>y.w-x.w);if(FAM.length>ONE_FAM){IDX.capF=true;FAM.length=ONE_FAM;}
+      for(const a of FAM){const e1=a.g.map(v=>v/a.gl),M=IDXMAX,Z=[];
+        /* the zones perpendicular to this reflection, simplest first (at most ONE_Z per reflection) */
+        for(let u=-M;u<=M;u++)for(let v=-M;v<=M;v++){if(a.l===0){continue;}const t=-(a.h*u+a.k*v);if(t%a.l)continue;const w=t/a.l;if(Math.abs(w)>M)continue;Z.push([u,v,w]);}
+        if(a.l===0){for(let u=-M;u<=M;u++)for(let v=-M;v<=M;v++)for(let w=-M;w<=M;w++)if(a.h*u+a.k*v===0)Z.push([u,v,w]);}
+        const Zs=Z.filter(z=>(z[0]||z[1]||z[2])&&gcd(gcd(z[0],z[1]),z[2])===1&&z.find(x=>x!==0)>0).sort((x,y)=>Math.abs(x[0])+Math.abs(x[1])+Math.abs(x[2])-Math.abs(y[0])-Math.abs(y[1])-Math.abs(y[2]));
+        if(Zs.length>ONE_Z){IDX.capZ=true;Zs.length=ONE_Z;}
+        for(const [u,v,w] of Zs){
+          let n=toC([u,v,w]);const nl=Math.hypot(...n);n=n.map(x=>x/nl);
+          const e2=[n[1]*e1[2]-n[2]*e1[1],n[2]*e1[0]-n[0]*e1[2],n[0]*e1[1]-n[1]*e1[0]],ux=e1.map((x,k)=>x*ca-e2[k]*sa),uy=e1.map((x,k)=>x*sa+e2[k]*ca);
+          /* other strong reflections this zone would show within the range of your spots (×1.5) */
+          const oth=Ps.filter(r=>r.h*u+r.k*v+r.l*w===0&&!(r.h*a.k-r.k*a.h===0&&r.k*a.l-r.l*a.k===0&&r.h*a.l-r.l*a.h===0));
+          const seen=new Set(),ol=[];for(const r of oth.sort((x,y)=>x.gl-y.gl)){const k=r.gl.toFixed(3);if(seen.has(k+"|"+[r.h,r.k,r.l].map(Math.abs).sort().join()))continue;seen.add(k+"|"+[r.h,r.k,r.l].map(Math.abs).sort().join());ol.push(r);}
+          rows.push({ph,u:[u,v,w],a,err:Math.abs(a.gl-oL)/oL,nOth:oth.filter(r=>r.gl<=Math.max(oL,gmaxS)*1.05).length,oth:ol,R:[ux,uy,n.map(x=>-x)],idx:[0],m:1,hit:[`${a.h} ${a.k} ${a.l}`],eq:[],chance:0,score:0,ix:Math.abs(u)+Math.abs(v)+Math.abs(w)});}}}
+    catch(e){console.error(e);}}}
+  finally{IDX.busy=false;$("idxGo").disabled=false;}
+  rows.sort((x,y)=>x.ix-y.ix||x.nOth-y.nOth||x.err-y.err);
+  /* zones equivalent by symmetry for this spot (same index size, same other spots) shown as one row */
+  {const G=new Map(),out=[];for(const r of rows){const k=r.ph.id+"|"+r.a.gl.toFixed(4)+"|"+r.ix+"|"+r.nOth+"|"+[...r.u].map(Math.abs).sort().join()+"|"+r.oth.map(q=>q.gl.toFixed(3)).join(",");const g=G.get(k);if(g){g.eq.push(r.u);continue;}G.set(k,r);out.push(r);}rows.length=0;rows.push(...out);}
+  IDX.res=rows;IDX.O=O;IDX.src=src;IDX.one=true;IDX.poly=false;IDX.page=150;idxShow();
+  const nph=new Set(rows.map(r=>r.ph.id)).size;
+  st.textContent=!rows.length?`No CIF has a reflection at ${(1/oL).toFixed(3)} Å within ${$("idxTol").value} % — check the calibration (s) or add CIFs`:
+    `One spot pair = one set of planes: ${rows.length} zone${rows.length>1?"s":""} (symmetry-equivalent ones merged) (max index ${IDXMAX}) in ${nph} CIF${nph>1?"s":""} fit it equally — simplest first. “also shows” = other strong spots that zone would give within your range: if you do not see them, it is less likely. A second, non-parallel spot pair decides`+(IDX.capZ||IDX.capF?` · per CIF: the ${ONE_FAM} strongest matching reflections and their ${ONE_Z} simplest zones (choose one CIF in “in” for more)`:"");}
+function idxShowOne(){const box=$("idxRes");if(!box)return;const R=IDX.res;box.hidden=!R.length;if(!R.length)return;const n=Math.min(R.length,IDX.page||150),esc=t=>String(t).replace(/[<>&]/g,"");
+  box.innerHTML=`<table class="zfTbl"><thead><tr><th>#</th><th>CIF</th><th title="the reflection your spot pair is">your spot</th><th>zone axis</th><th title="spacing error, % of 1/d">error</th><th title="other strong reflections (≥ 15 % of the strongest |F|) this zone shows up to 1.05 × your spot range: none seen → this zone less likely (if they are within the resolution)">also shows</th><th style="text-align:left">nearest of them</th><th></th></tr></thead><tbody></tbody></table>`+(R.length>n?`<div class="row2" style="padding:4px 6px;gap:8px"><span class="keys">${n} of ${R.length} shown</span><button id="idxMore" style="padding:1px 8px">show 150 more</button></div>`:"");
+  const tb=box.querySelector("tbody");
+  R.slice(0,n).forEach((r,i)=>{const tr=document.createElement("tr");if(r.nOth)tr.style.opacity=".72";
+    tr.innerHTML=`<td>${i+1}</td><td style="color:${r.ph.color};white-space:nowrap">${esc((r.ph.legend||"").trim())}</td><td>(${r.hit[0]}) ${(1/r.a.gl).toFixed(3)} Å</td><td><b>[${r.u.join(" ")}]</b>${r.eq.length?` <span class="keys" title="equivalent: ${r.eq.map(u=>"["+u.join(" ")+"]").join(" ")}">+${r.eq.length} equiv.</span>`:""}</td><td>${(100*r.err).toFixed(1)} %</td><td>${r.nOth}</td>`+
+      `<td style="text-align:left;white-space:nowrap">${r.oth.slice(0,3).map(q=>`(${q.h} ${q.k} ${q.l}) ${(1/q.gl).toFixed(2)} Å`).join(" · ")}${r.oth.length>3?" …":""}</td>`+
+      `<td style="white-space:nowrap"><button class="idxS" style="padding:1px 8px" title="Show this zone in the 3D structure and the simulated pattern">▶ show</button> <button class="idxL" style="padding:1px 8px" title="Lock this zone with its (${r.hit[0]}) on your spot pair">🔒 lock</button></td>`;
+    tr.querySelector(".idxS").addEventListener("click",()=>{try{zfShowPh(r.ph,r.u);}catch(e){}});tr.querySelector(".idxL").addEventListener("click",()=>idxLock(r));tb.appendChild(tr);});
+  const mo=$("idxMore");if(mo)mo.addEventListener("click",()=>{IDX.page=(IDX.page||150)+150;idxShowOne();});}
+window.IDX=IDX;window.idxRun=idxRun;
+function idxSrcUI(){const s=$("idxSrc");if(!s)return;const C=LZ.filter(z=>z.custom&&z.spots&&z.spots.length>=2),cur=s.value;s.innerHTML=C.length?C.map(z=>`<option value="${z.id}">${String(z.name||(z.u&&z.u[0])||"custom spots").replace(/[<>&]/g,"")} · ${idxObs(z).length} spot${idxObs(z).length>1?"s":""}</option>`).join(""):'<option value="">— mark spots first (custom spots) —</option>';
+  if(C.some(z=>String(z.id)===cur))s.value=cur;$("idxGo").disabled=!C.length||IDX.busy;}
+{const lb=$("lzBox");if(lb&&!$("idxBar")){const bar=document.createElement("div");bar.id="idxBar";bar.className="chartbar";bar.style.cssText="gap:6px 10px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:4px";
+  bar.innerHTML=`<b style="font:600 .72rem var(--f-body);letter-spacing:.07em;text-transform:uppercase;color:var(--accent)">🔎 Index marked spots</b>
+    <label title="Your marked spots: a custom-spots entry (mark spots on the FFT overlap with the custom spot picker; each spot comes with its −g pair)">spots <select id="idxSrc" style="width:auto;max-width:16rem"></select></label>
+    <label title="Which CIFs to try: starred, ticked, all, the highlighted one, one CIF you choose, a folder or a phase category">in <select id="idxScope" style="width:auto;max-width:14rem"><option value="star">★ starred</option></select><select id="idxCif" style="width:auto;max-width:18rem;display:none" title="The CIF to try"></select></label>
+    <label title="How far a spot spacing may be from the CIF's (calibration error, strain), in % of 1/d">d ± <input id="idxTol" type="number" min="0.2" max="10" step="0.1" value="3" style="width:3.6rem;padding:1px 4px"> %</label>
+    <label title="How far the angle between the first two spots may be from the CIF's">angle ± <input id="idxAng" type="number" min="0.2" max="15" step="0.1" value="3" style="width:3.6rem;padding:1px 4px"> °</label>
+    <label title="Largest zone-axis index allowed: zones [u v w] with any |index| above this are not tried. Small cells (γ, δ, corundum) rarely need more than ~10; big cells (θ, κ, mullite-type) more. 30 = the most">max index <input id="idxMax" type="number" min="1" max="30" step="1" style="width:3.4rem;padding:1px 4px"></label>
+    <label title="The spots may come from several crystals / zones: find the best zone, take away the spots it explains, then search the rest again (up to the number you set)"><input id="idxPoly" type="checkbox"> polycrystal: up to <select id="idxPolyN" style="width:auto"><option>2</option><option>3</option><option selected>4</option><option>6</option></select> zones</label>
+    <button id="idxGo" class="primary" title="Find the CIF and zone axis that explain your marked spots">🔎 find CIF + zone</button><button id="idxClr" title="Clear the results table">↺ reset</button><span class="keys" id="idxStat"></span>`;
+  const rows=$("lzRows");try{if(typeof lzClrPlace==="function")lzClrPlace();}catch(e){}(rows||lb.lastChild).after(bar);   /* below the zone list (its colours / remove-all sit at the top right of the box) */const res=document.createElement("div");res.id="idxRes";res.className="tablebox";res.hidden=true;res.style.maxHeight="320px";bar.after(res);
+  for(const id of ["idxTol","idxAng","idxMax"])$(id).addEventListener("keydown",e=>e.stopPropagation());$("idxMax").value=IDXMAX;$("idxMax").addEventListener("change",()=>{const v=Math.round(+$("idxMax").value);if(v>=1&&v<=30){IDXMAX=v;try{localStorage.setItem("idx-max",String(v));}catch(e){}}$("idxMax").value=IDXMAX;});
+  idxScopeUI();try{const v=localStorage.getItem("idx-scope");if(v&&[...$("idxScope").options].some(o=>o.value===v))$("idxScope").value=v;idxScopeUI();const t=localStorage.getItem("idx-tol");if(t)$("idxTol").value=t;const a=localStorage.getItem("idx-ang");if(a)$("idxAng").value=a;}catch(e){}
+  try{$("idxPoly").checked=localStorage.getItem("idx-poly")==="1";const n=localStorage.getItem("idx-polyn");if(n)$("idxPolyN").value=n;}catch(e){}$("idxPoly").addEventListener("change",()=>{try{localStorage.setItem("idx-poly",$("idxPoly").checked?"1":"0");}catch(e){}});$("idxPolyN").addEventListener("change",()=>{try{localStorage.setItem("idx-polyn",$("idxPolyN").value);}catch(e){}});
+  for(const [id,k] of [["idxScope","idx-scope"],["idxTol","idx-tol"],["idxAng","idx-ang"]])$(id).addEventListener("change",()=>{try{localStorage.setItem(k,$(id).value);}catch(e){}});$("idxScope").addEventListener("change",()=>idxScopeUI());{const _r=renderPhases;renderPhases=function(){const r=_r.apply(this,arguments);try{idxScopeUI();}catch(e){}return r;};}
+  $("idxGo").addEventListener("click",idxRun);$("idxClr").addEventListener("click",()=>{if(IDX.busy)return;IDX.res=[];IDX.O=[];const b=$("idxRes");if(b){b.hidden=true;b.innerHTML="";}$("idxStat").textContent="";});{const _u=lzUI;lzUI=function(){const r=_u.apply(this,arguments);try{idxSrcUI();}catch(e){}return r;};}idxSrcUI();}}
+}
+</script>
+<script>
+/* ===== “one mask per spot”: in the spot boxes (Spots in a d range, CIF rings) maxima whose masks would overlap become one spot at their brightness-weighted centre ===== */
+if(typeof rfsRender==="function"&&typeof rfsMergeOn==="function"){
+  const add=()=>{for(const bd of document.querySelectorAll("#rfsPanel .rfsBody")){if(bd.querySelector(".rfsMg"))continue;const row=bd.querySelector(".rfsSR")&&bd.querySelector(".rfsSR").closest(".row2")||bd.lastElementChild||bd;
+      const l=document.createElement("label");l.className="row2 rfsMgL";l.style.gap="3px";l.title="Several bright maxima inside one spot (a split or smeared spot) give overlapping masks. Ticked: maxima closer than two spot radii are taken as ONE spot, its mask placed at their brightness-weighted centre (the same for every spot box)";
+      l.innerHTML='<input class="rfsMg" type="checkbox"> one mask per spot';const cb=l.querySelector("input");cb.checked=rfsMergeOn();
+      cb.addEventListener("change",()=>{RFS_MERGE=cb.checked;try{localStorage.setItem("rfs-merge",RFS_MERGE?"1":"0");}catch(e){}for(const o of document.querySelectorAll("#rfsPanel .rfsMg"))o.checked=RFS_MERGE;try{rfsRender();}catch(e){}try{edDraw();}catch(e){}try{if(typeof rfsStat==="function")rfsStat();}catch(e){}});
+      row.appendChild(l);}};
+  {const _r=rfsRender;rfsRender=function(){const r=_r.apply(this,arguments);try{add();}catch(e){}return r;};}
+  try{add();}catch(e){}setInterval(()=>{try{add();}catch(e){}},1500);}
+</script>
+<script>
+/* ===== locked zones: “colours” and “✕ remove all locked zones” (+ undo) at the top right of the box, in its title bar ===== */
+{const mv=()=>{const f=$("lzFoot"),bx=$("lzBox"),hd=bx&&bx.querySelector(":scope > .chartbar");if(!f||!hd)return;if(f.parentNode!==hd){hd.appendChild(f);f.style.marginLeft="auto";f.style.marginTop="0";}};
+  try{if(typeof lzClrPlace==="function")lzClrPlace();}catch(e){}mv();{const _u=lzUI;lzUI=function(){const r=_u.apply(this,arguments);try{mv();}catch(e){}return r;};}setInterval(()=>{try{mv();}catch(e){}},1500);}
+</script>
+<script>
+/* ===== logs vs time of day: stretch it to the right, past the page column (up to the window edge) — the right edge drags the width, the corner width + height;
+   works with the size: auto (fit) zoom; double-click either = back to normal ===== */
+{const box=$("lpBox"),old=$("lpGrip");if(box&&old&&!$("lpGripR")){
+  const g=old.cloneNode(true);old.replaceWith(g);   /* drop the old handlers (they stopped at the page column and did not allow for the zoom) */
+  const r=document.createElement("div");r.id="lpGripR";r.title="Drag to stretch the logs to the right (wider than the page column, up to the window edge) · double-click = normal width";box.appendChild(r);
+  const st=document.createElement("style");st.textContent=`.lpBox{max-width:none!important}#lpGripR{position:absolute;top:0;right:-3px;width:7px;bottom:18px;cursor:ew-resize;touch-action:none;z-index:3}#lpGripR:hover,#lpGripR.on{background:color-mix(in srgb,var(--accent) 45%,transparent);border-radius:3px}`;document.head.appendChild(st);
+  const SZ={w:null,h:170};try{const o=JSON.parse(localStorage.getItem("lp-size")||"{}");if(o.w>0)SZ.w=o.w;if(o.h>0)SZ.h=o.h;}catch(e){}
+  const zoom=()=>{try{return typeof uiZoomNow==="function"?(uiZoomNow()||1):1;}catch(e){return 1;}};
+  const apply=()=>{box.style.setProperty("--lpW",SZ.w?SZ.w+"px":"100%");box.style.setProperty("--lpH",SZ.h+"px");try{if(!box.hidden&&typeof lpDraw==="function")lpDraw();}catch(e){}};
+  const save=()=>{try{localStorage.setItem("lp-size",JSON.stringify(SZ));}catch(e){}};
+  /* never wider than the window: a size saved on a wider screen is cut back */
+  const fit=()=>{if(!SZ.w||box.hidden)return;const z=zoom(),R=box.getBoundingClientRect(),mx=Math.floor((document.documentElement.clientWidth-R.left)/z-10);if(mx>420&&SZ.w>mx){SZ.w=mx;apply();}};
+  apply();setTimeout(fit,500);window.addEventListener("resize",()=>{fit();});
+  let D=null;
+  const down=(e,kind)=>{if(e.button!==0)return;e.preventDefault();e.stopPropagation();const z=zoom(),R=box.getBoundingClientRect(),n=Math.max(1,[...box.querySelectorAll(".lpCv")].filter(c=>!c.hidden&&c.offsetParent!==null).length);
+    D={kind,z,x:e.clientX,y:e.clientY,w:R.width/z,h:SZ.h,n,max:(document.documentElement.clientWidth-R.left)/z-10,col:box.parentNode.getBoundingClientRect().width/z};try{e.target.setPointerCapture(e.pointerId);}catch(err){}if(kind==="r")r.classList.add("on");};
+  const move=e=>{if(!D)return;const w=Math.max(420,Math.min(D.max,D.w+(e.clientX-D.x)/D.z));SZ.w=Math.abs(w-D.col)<2?null:Math.round(w);
+    if(D.kind==="c")SZ.h=Math.round(Math.max(70,Math.min(900,D.h+(e.clientY-D.y)/D.z/D.n)));apply();};
+  const end=()=>{if(!D)return;D=null;r.classList.remove("on");save();};
+  for(const [el,k] of [[g,"c"],[r,"r"]]){el.addEventListener("pointerdown",e=>down(e,k));el.addEventListener("pointermove",move);el.addEventListener("pointerup",end);el.addEventListener("pointercancel",end);}
+  g.addEventListener("dblclick",e=>{e.stopPropagation();SZ.w=null;SZ.h=170;apply();save();});r.addEventListener("dblclick",e=>{e.stopPropagation();SZ.w=null;apply();save();});}}
+</script>
+<script>
+/* ===== RAM and CPU bars (top right): how much of your PC this app uses now, and its peak in this session; bigger cache choices (up to what you type) ===== */
+{
+/* --- cache sizes: more choices + your own number --- */
+const big=(sel,list)=>{if(!sel)return;const have=new Set([...sel.options].map(o=>+o.value));for(const v of list)if(!have.has(v)){const o=document.createElement("option");o.value=v;o.textContent=v>=1000?(v/1000)+" GB":v+" MB";sel.appendChild(o);}
+  const sorted=[...sel.options].filter(o=>o.value!=="c").sort((a,b)=>+a.value- +b.value),cur=sel.value;sel.innerHTML="";for(const o of sorted)sel.appendChild(o);
+  const c=document.createElement("option");c.value="c";c.textContent="your own …";sel.appendChild(c);sel.value=[...sel.options].some(o=>o.value===cur)?cur:sorted[0].value;};
+const custom=(sel,key)=>{if(!sel)return;const n=document.createElement("input");n.type="number";n.min="0.1";n.max="256";n.step="0.1";n.placeholder="GB";n.style.cssText="width:4.2rem;padding:1px 4px;display:none";n.title="Your own size in GB — as high as your PC's memory allows (keep well below its RAM, the tab is closed by Chrome when the PC runs out)";sel.after(n);
+  n.addEventListener("keydown",e=>e.stopPropagation());let prev=sel.value;
+  sel.addEventListener("change",e=>{if(sel.value==="c"){e.stopImmediatePropagation();n.style.display="";n.value=(+prev/1000||1).toString();n.focus();return;}prev=sel.value;n.style.display="none";},true);
+  n.addEventListener("change",()=>{const g=parseFloat(n.value);if(!(g>0))return;const v=Math.round(g*1000);let o=[...sel.options].find(x=>+x.value===v);if(!o){o=document.createElement("option");o.value=v;o.textContent=(v/1000)+" GB";sel.insertBefore(o,sel.querySelector('option[value="c"]'));}
+    sel.value=String(v);prev=sel.value;n.style.display="none";sel.dispatchEvent(new Event("change"));});
+  /* a saved size that is not in the list (your own) is shown */let o={};try{o=JSON.parse(localStorage.getItem("cache-max")||"{}")||{};}catch(e){}const v=+(o[key]||0);if(v>0){if(![...sel.options].some(x=>+x.value===v)){const op=document.createElement("option");op.value=v;op.textContent=v>=1000?(v/1000)+" GB":v+" MB";sel.insertBefore(op,sel.querySelector('option[value="c"]'));}sel.value=String(v);}};   /* the menu always shows the size in use */
+big($("cacheMax"),[3000,4000,6000,8000,12000,16000]);big($("cacheMedMax"),[2000,4000,8000]);custom($("cacheMax"),"f");custom($("cacheMedMax"),"m");
+for(const id of ["cacheMax","cacheMedMax"]){const s=$(id);if(s)s.title=(s.title||"")+" · above ≈ 2 GB only if your PC has plenty of RAM: when the whole tab runs out of memory Chrome closes it (unsaved work is lost)";}
+
+/* --- your PC's RAM: the browser does not tell it (it reports at most 8 GB), so you can type it once --- */
+let PCRAM=0;try{PCRAM=+localStorage.getItem("pc-ram")||0;}catch(e){}const RAMG=()=>PCRAM>0?PCRAM:(navigator.deviceMemory||8);
+/* --- CPU: background workers alive right now + how busy the page itself is (long tasks) --- */
+const CPU={live:new Set(),busyT:[],peak:0,peakR:0,seq:0,dead:[]};
+let W0=typeof Worker!=="undefined"?Worker:null;
+if(W0){window.Worker=function(u,o){const w=new W0(u,o);CPU.live.add(w);w._b={pend:0,since:0,iv:[],n:++CPU.seq};const B=w._b;
+    const pm=w.postMessage.bind(w);w.postMessage=function(m){const init=m&&typeof m==="object"&&("FE" in m)&&!("ph" in m);if(!init){if(B.pend===0)B.since=performance.now();B.pend++;}return pm.apply(null,arguments);};
+    w.addEventListener("message",()=>{if(B.pend>0){B.pend--;if(B.pend===0){B.iv.push([B.since,performance.now()]);}}});
+    const t=w.terminate.bind(w);w.terminate=function(){if(B.pend>0)B.iv.push([B.since,performance.now()]);B.pend=0;CPU.live.delete(w);CPU.dead.push(B);return t();};w.addEventListener("error",()=>{});return w;};window.Worker.prototype=W0.prototype;}
+/* busy share of a worker in the last second (a computing worker uses one full core) */
+const wBusy=B=>{const now=performance.now(),win=1000;B.iv=B.iv.filter(([a,b])=>b>now-win);let s=0;for(const [a,b] of B.iv)s+=Math.min(now,b)-Math.max(now-win,a);if(B.pend>0)s+=now-Math.max(now-win,B.since);return Math.max(0,Math.min(1,s/win));};
+try{new PerformanceObserver(l=>{for(const e of l.getEntries())CPU.busyT.push([e.startTime,e.duration]);}).observe({type:"longtask",buffered:true});}catch(e){}
+/* the page itself: long tasks (> 50 ms, from Chrome) and, for shorter ones, how late a 10-ms heartbeat comes back (a busy page answers late) */
+CPU.lag=[];{let t0=0;const beat=()=>{const now=performance.now();if(t0){const late=now-t0-10;if(late>2)CPU.lag.push([t0+10,late]);}t0=now;setTimeout(beat,10);};setTimeout(beat,10);}
+const mainBusy=(W)=>{const now=performance.now(),win=W||2000,part=L=>{let b=0;for(const [s,d] of L)b+=Math.max(0,Math.min(now,s+d)-Math.max(now-win,s));return b;};
+  CPU.busyT=CPU.busyT.filter(([s,d])=>s+d>now-4000);CPU.lag=CPU.lag.filter(([s,d])=>s+d>now-4000);
+  return Math.max(0,Math.min(1,Math.max(part(CPU.busyT),part(CPU.lag))/win));};
+
+/* --- the two bars --- */
+const st=document.createElement("style");st.textContent=`.smBar{display:inline-grid;grid-template-columns:auto 9rem auto;gap:5px;align-items:center;font:600 .72rem var(--f-data);cursor:help}
+  .smTrack{position:relative;height:10px;border:1px solid var(--line);border-radius:5px;background:var(--panel);overflow:hidden}.smTrack span{position:absolute;top:0;bottom:0;left:0}
+  .smTrack .pk{background:color-mix(in srgb,var(--accent) 30%,transparent)}.smTrack .now{background:var(--accent)}.smTrack .al{background:color-mix(in srgb,var(--muted) 28%,transparent)}.smTrack .mk{width:2px;background:#e0533d}
+  .smTxt{font-variant-numeric:tabular-nums;white-space:nowrap;text-align:left;display:inline-block}#smRam .smTxt{min-width:31ch}#smCpu .smTxt{min-width:40ch}#smThr .smTxt{min-width:15ch}#memTag{font-variant-numeric:tabular-nums;min-width:66ch;text-align:center;box-sizing:border-box;display:inline-block}#smPc{min-width:16ch;text-align:center;font-variant-numeric:tabular-nums;display:inline-block}.smBar.warn .now{background:#e0a800}.smBar.bad .now{background:#e0533d}`;document.head.appendChild(st);
+const mk=(id,lab)=>{const d=document.createElement("span");d.id=id;d.className="smBar";d.innerHTML=`<span>${lab}</span><span class="smTrack"><span class="al"></span><span class="pk"></span><span class="now"></span><span class="mk"></span></span><span class="smTxt"></span>`;return d;};
+const host=$("sysBar")||($("memTag")&&$("memTag").parentElement);let bR=null,bC=null;
+if(host&&!$("smRam")){bR=mk("smRam","RAM");bC=mk("smCpu","CPU");const w=document.createElement("span");w.className="row2";w.style.cssText="gap:12px;flex-basis:100%;justify-content:flex-end";w.append(bR,bC);host.appendChild(w);
+  const ed=document.createElement("input");ed.type="number";ed.min="1";ed.max="2048";ed.step="1";ed.style.cssText="width:3.6rem;padding:0 4px;font-size:.72rem;display:none";ed.title="Your PC's RAM in GB (Windows: Settings → System → About → Installed RAM). The browser itself reports at most 8 GB";
+  bR.appendChild(ed);ed.addEventListener("keydown",e=>{e.stopPropagation();if(e.key==="Enter"||e.key==="Escape")ed.blur();});ed.addEventListener("change",()=>{const v=+ed.value;PCRAM=v>0?v:0;try{localStorage.setItem("pc-ram",String(PCRAM));}catch(e){}ed.style.display="none";tick();});
+  ed.addEventListener("blur",()=>{ed.style.display="none";});bR.addEventListener("dblclick",()=>{ed.value=PCRAM||"";ed.style.display="";ed.focus();});}
+const gb=b=>b>=1e9?(b/1e9).toFixed(b>=1e10?0:1)+" GB":Math.round(b/1e6)+" MB";
+let PEAKB=0;
+function tick(){if(document.hidden||!bR)return;
+  /* RAM: the app's big data (images, profiles, caches, frames…) + the JavaScript heap */const tn=performance.now();if(!tick.acc||tn-tick.t>2900){try{tick.acc=typeof memScan==="function"?memScan():{};}catch(e){tick.acc={};}tick.t=tn;}const acc=tick.acc;   /* the memory scan only every 3 s (it walks all the data) */
+  const data=Object.values(acc).reduce((s,v)=>s+v,0),pm=performance.memory,heap=pm?pm.usedJSHeapSize:0,used=data+heap,tot=RAMG()*1e9;if(used>PEAKB)PEAKB=used;
+  const f=x=>Math.max(0,Math.min(100,100*x/tot))+"%";bR.querySelector(".now").style.width=f(used);bR.querySelector(".pk").style.width=f(PEAKB);bR.querySelector(".mk").style.left="calc("+f(PEAKB)+" - 1px)";
+  const fr=used/tot;bR.classList.toggle("warn",fr>0.5&&fr<=0.75);bR.classList.toggle("bad",fr>0.75);
+  bR.querySelector(".smTxt").textContent=`${gb(used)} / ${PCRAM>0?PCRAM+" GB":"≈"+RAMG()+" GB?"} · peak ${gb(PEAKB)}`;
+  bR.title=`Memory used by this app now: ${gb(used)} (images, profiles, caches and frames ${gb(data)} + JavaScript ${gb(heap)})\nPeak in this session: ${gb(PEAKB)} (light bar, red mark)\nYour PC: ${PCRAM>0?PCRAM+" GB (as you set it)":"the browser reports ≈ "+(navigator.deviceMemory||"?")+" GB (it never says more than 8) — double-click this bar to type your real RAM"}\n${pm?"Chrome allows this tab's JavaScript "+gb(pm.jsHeapSizeLimit)+"; images and caches sit outside that and are limited by your RAM":""}\nOther programs and other tabs are not included (the browser cannot see them).`;
+  /* CPU: cores of this PC, cores the app may use (cores box), and cores busy now: background workers + the page itself */
+  const n=navigator.hardwareConcurrency||4,al=typeof CORES!=="undefined"?CORES:n,mb=mainBusy(),wk=CPU.live.size,now=Math.min(n,wk+mb);if(now>CPU.peak)CPU.peak=now;
+  const g=x=>Math.max(0,Math.min(100,100*x/n))+"%";bC.querySelector(".al").style.width=g(al);bC.querySelector(".now").style.width=g(now);bC.querySelector(".pk").style.width=g(CPU.peak);bC.querySelector(".mk").style.left="calc("+g(CPU.peak)+" - 1px)";
+  bC.classList.toggle("warn",false);bC.classList.toggle("bad",false);
+  bC.querySelector(".smTxt").textContent=`${now.toFixed(1)} / ${n} cores · allowed ${al} · peak ${CPU.peak.toFixed(1)}`;
+  bC.title=`Cores of this PC: ${n}\nAllowed for this app (cores box): ${al} (grey part)\nBusy now: ${now.toFixed(1)} — ${wk} background worker${wk!==1?"s":""} (CIF reflections, …) + the page itself ${(100*mb).toFixed(0)} % busy (last 2 s)\nPeak in this session: ${CPU.peak.toFixed(1)} (light bar, red mark)\nA worker counts as one full core while it is alive; other programs are not included.`;}
+/* ---- per thread: one small bar each, how busy it was in the last second (page + every core the app may use) ---- */
+const st2=document.createElement("style");st2.textContent=`#smThr{display:inline-flex;gap:5px;align-items:flex-end;font:600 .72rem var(--f-data);cursor:help}#smThr .bx{display:inline-flex;gap:2px;align-items:flex-end;height:18px;padding:1px 2px;border:1px solid var(--line);border-radius:4px;background:var(--panel)}
+  #smThr .b{width:6px;height:100%;position:relative;background:color-mix(in srgb,var(--muted) 18%,transparent);border-radius:1px}#smThr .b i{position:absolute;left:0;right:0;bottom:0;background:var(--accent);border-radius:1px}#smThr .b.pg i{background:#e0a800}#smThr .b.off{opacity:.35}
+  #smPc{font:600 .72rem var(--f-data);cursor:help;padding:0 6px;border-radius:999px;border:1px solid var(--line)}#smPc.busy{border-color:#e0a800;color:#e0a800}#smPc.full{border-color:#e0533d;color:#e0533d}`;document.head.appendChild(st2);
+let bT=null,bP=null;if(bC&&!$("smThr")){bT=document.createElement("span");bT.id="smThr";bT.innerHTML='<span>threads</span><span class="bx"></span><span class="smTxt"></span>';bP=document.createElement("span");bP.id="smPc";bP.textContent="PC …";bC.after(bT,bP);}
+function thrTick(){if(!bT||document.hidden)return;const n=navigator.hardwareConcurrency||4,al=Math.max(1,typeof CORES!=="undefined"?CORES:n),W=[...CPU.live].map(w=>w._b).filter(Boolean).sort((a,b)=>a.n-b.n);
+  const slots=Math.max(al,W.length),vals=[["page",mainBusy(1000),true]];for(let k=0;k<slots;k++){const B=W[k];vals.push([`worker ${k+1}`,B?wBusy(B):0,false,!B]);}
+  const bx=bT.querySelector(".bx");if(bx.children.length!==vals.length){bx.innerHTML=vals.map(v=>`<span class="b${v[2]?" pg":""}"><i></i></span>`).join("");}
+  let tot=0;vals.forEach((v,k)=>{const el=bx.children[k];el.querySelector("i").style.height=(100*v[1]).toFixed(0)+"%";el.classList.toggle("off",!!v[3]);el.title=`${v[0]}: ${(100*v[1]).toFixed(0)} % busy (last second)${v[3]?" · not started (no heavy work now)":""}`;tot+=v[1];});
+  bT.querySelector(".smTxt").textContent=`${tot.toFixed(1)} core${Math.abs(tot-1)<0.05?"":"s"} busy`;
+  bT.title=`How busy each thread of this app was in the last second: first bar (yellow) = the page itself (drawing, profiles, FFT…), then one bar per core the app may use (cores box: ${al}) — a worker only exists while heavy work runs (e.g. computing CIF reflections).\nWindows moves threads between cores, so a bar is a thread, not a fixed core. Other programs and other tabs are not included.`;}
+setInterval(thrTick,500);thrTick();
+/* ---- the PC as a whole (rough): a tiny fixed calculation every 5 s in its own thread — if it takes longer than its best time, other programs leave no free core ---- */
+if(W0&&bP){try{const src=`onmessage=()=>{const t0=performance.now();let x=0;for(let i=0;i<3e6;i++)x+=Math.sqrt(i*1.0001);postMessage([performance.now()-t0,x]);};`;const pw=new W0(URL.createObjectURL(new Blob([src],{type:"text/javascript"})));
+  let best=Infinity,hist=[];pw.onmessage=e=>{const t=e.data[0];if(t<best)best=t;hist.push(t/best);if(hist.length>3)hist.shift();const r=hist.reduce((a,b)=>a+b,0)/hist.length;
+    bP.textContent=r<1.25?"PC: free":r<1.8?`PC: busy ×${r.toFixed(1)}`:`PC: full ×${r.toFixed(1)}`;bP.classList.toggle("busy",r>=1.25&&r<1.8);bP.classList.toggle("full",r>=1.8);
+    bP.title=`Whole PC, rough: a fixed small calculation took ${t.toFixed(1)} ms (best ${best.toFixed(1)} ms) → ×${r.toFixed(2)}.\nfree = a core was free for it · busy / full = it had to wait: all cores are taken (by this app, other programs or other tabs). It cannot say how busy each core is — the browser does not let a page see that.`;};
+  const go=()=>{if(!document.hidden)try{pw.postMessage(0);}catch(e){}};setTimeout(go,1500);setInterval(go,5000);}catch(e){bP.textContent="PC: ?";}}
+tick();setInterval(tick,1000);
+/* the RAM bar also refreshes right after the 3-s memory read-out */
+}
+</script>
+<script>
+/* ===== pixel size (real-space image → FFT): locked by default, 🔒 / 🔓 next to it; a new image locks it again. An empty box (no pixel size in the file) stays open for typing ===== */
+{const p=$("rsPix");if(p&&!$("rsPixLk")){const b=document.createElement("button");b.id="rsPixLk";b.style.cssText="padding:0 6px;line-height:1.3";p.after(b);let LK=true;
+  const ui=()=>{const empty=!(parseFloat(p.value)>0),on=LK&&!empty;p.readOnly=on;p.style.opacity=on?".75":"";p.style.cursor=on?"not-allowed":"";b.textContent=on?"🔒":"🔓";
+    b.title=on?"Pixel size locked (from the file) — click to unlock and change it":empty?"No pixel size in the file: type it (it locks once you open the next image)":"Unlocked — click to lock the pixel size";b.disabled=empty;};
+  b.addEventListener("click",()=>{LK=!LK;ui();if(!LK){p.focus();p.select();}});
+  p.addEventListener("keydown",e=>{if(p.readOnly&&!["Tab","Escape"].includes(e.key)){e.preventDefault();try{cpToast("Pixel size is locked — click 🔒 to change it",true);}catch(err){}}},true);
+  if(typeof setReal==="function"){const _s=setReal;setReal=function(){const r=_s.apply(this,arguments);LK=true;try{ui();}catch(e){}return r;};}
+  p.addEventListener("input",ui);p.addEventListener("change",ui);ui();setInterval(ui,1000);}}
+</script>
+<script>
+/* ===== real-space image: the scale-bar choice sits beneath the image, at the start of its info text (not in the top bar) ===== */
+{const mv=()=>{const P=$("rsPanel"),pix=$("rsPix");if(!P||!pix)return;const bar=pix.closest(".chartbar")||pix.closest(".row2").parentElement,sb=bar&&bar.querySelector(":scope > .sbCtl")||P.querySelector(".sbCtl[data-rsmv]");
+  const info=[...P.children].find(c=>c.classList&&c.classList.contains("keys"));if(!sb||!info)return;if(sb.parentNode!==info){sb.dataset.rsmv="1";sb.style.cssText+=";display:inline-flex;margin-right:12px;vertical-align:middle;color:var(--ink)";info.prepend(sb);}};
+  mv();setInterval(mv,1500);}
+</script>
+<script>
+/* ===== top right: the “RAM ≈ …” read-out is not shown (the RAM bar below shows the memory; its tooltip has the cache use); “size” sits on the theme line ===== */
+{const mt=$("memTag");if(mt){mt.style.display="none";}
+ const z=$("uiZoom")&&$("uiZoom").closest("label"),tb=document.querySelector(".themeBox");if(z&&tb&&z.parentNode!==tb){z.style.marginLeft="0";z.style.marginRight="10px";tb.prepend(z);}
+ /* cache use in the RAM bar's tooltip */
+ const add=()=>{const r=$("smRam");if(!r)return;const f=typeof FFTC!=="undefined"?FFTC.b||0:0,m=typeof MEDC!=="undefined"?MEDC.b||0:0,M=x=>Math.round(x/1e6);
+   const line=`\nCaches: FFT ${M(f)} / ${M(window.FFTC_MAX||0)} MB · smoothed pattern ${M(m)} / ${M(window.MEDC_MAX||0)} MB (oldest dropped first)`;const t=(r.title||"").split("\nCaches:")[0];if(r.title!==t+line)r.title=t+line;};
+ setInterval(add,1000);}
+</script>
+<script>
+/* ===== “fit to my FFT” on the overlap (Electron diffraction of this orientation): ticked by default ===== */
+{const bar=$("edOvBar");if(bar&&!$("edFit")){const l=document.createElement("label");l.title="Scale the overlap view so your FFT / pattern fills the frame (when it reaches less far than the 1/d range of the simulated spots). Untick = the view follows the 1/d range";
+  l.innerHTML='<input id="edFit" type="checkbox"> fit to my FFT';bar.appendChild(l);let v=true;try{const s=localStorage.getItem("ed-fit");if(s!=null)v=s==="1";}catch(e){}$("edFit").checked=v;
+  $("edFit").addEventListener("change",()=>{try{localStorage.setItem("ed-fit",$("edFit").checked?"1":"0");}catch(e){}ED.z=1;ED.px=0;ED.py=0;try{edDraw();}catch(e){}});}}
+</script>
+<script>
+/* ===== the overlap showing only your pattern (no CIF highlighted) gets the scale bar too (nm⁻¹, bottom left — as with a CIF) ===== */
+if(typeof edPaint==="function"){const _p=edPaint;edPaint=function(){const r=_p.apply(this,arguments);try{const G=ED.geo,cv=$("edCv");if(G&&G.mode==="pattern"&&cv&&typeof SB!=="undefined"&&SB.fft&&SB.fft.on&&typeof sbDraw==="function"){
+  const g=cv.getContext("2d"),dpr=G.dpr||1,per=10/G.sc,L=sbLen("fft",per,cv.width),lp=L/per;if(lp>4&&lp<cv.width*0.9){const H=cv.height,fs=12*dpr*ovK(),pb=ovP("sbB",12*dpr,H-16*dpr,dpr),pt=ovP("sbT",12*dpr,H-20*dpr,dpr),tx=sbFmt(L)+" nm⁻¹";g.save();g.fillStyle="#fff";g.fillRect(pb[0],pb[1],lp,3*dpr*ovK());OVHIT.sbB=[pb[0]-3*dpr,pb[1]-5*dpr,pb[0]+lp+3*dpr,pb[1]+8*dpr];g.font=`600 ${fs}px "IBM Plex Mono",monospace`;g.textAlign="left";g.textBaseline="bottom";g.fillText(tx,pt[0],pt[1]);OVHIT.sbT=[pt[0]-2*dpr,pt[1]-fs*1.2,pt[0]+g.measureText(tx).width+2*dpr,pt[1]+2*dpr];g.restore();}}}catch(e){}return r;};try{edDraw();}catch(e){}}
+</script>
+<script>
+/* ===== a box that is ticked when the page opens (Chrome brings back ticks after a reload) also opens what it shows — 3D structure, simulated pattern ===== */
+{const kick=()=>{for(const id of ["v3on","edOn"]){const c=$(id);if(c&&c.checked){try{c.dispatchEvent(new Event("change",{bubbles:true}));}catch(e){}}}};
+  window.addEventListener("load",()=>setTimeout(kick,300));window.addEventListener("pageshow",e=>{if(e.persisted)setTimeout(kick,100);});setTimeout(kick,1200);}
+</script>
+<script>
+/* ===== 📂 Browse folder: the browser's plain folder window (it always hands the folder over). The folder's notes file (… _notes.txt) is read from it too.
+   Writing the notes into the folder needs folder access: ticking “auto-save” asks for it once (choose the same folder) ===== */
+{const bp=$("brPick"),bd=$("brDir");if(bp&&bd){
+  /* Chrome's folder picker (remembers the folder; notes can be written into it); closed without a folder → the next click (within 2 min) opens the plain window */
+  bp.addEventListener("click",async e=>{e.preventDefault();e.stopImmediatePropagation();const say=(t,bad)=>{try{setStatus(t,!!bad);}catch(err){}};
+    if(!FSA||!FSA_PICK||plainNext("brPick")){bd.click();return;}
+    let d=null;try{say("Opening the folder window…");d=await pickWithMemory("saed-imgdir",o=>window.showDirectoryPicker(o),{mode:"read"});}catch(err){pickFailed("brPick",err);return;}
+    try{say(`Reading “${d.name}”…`);const out=[];await brWalk(d,[],out);BR.handle=d;brLoad(out,d.name);say(`“${d.name}”: ${out.length} image${out.length!==1?"s":""} listed`);}
+    catch(err){PLAIN_NEXT.brPick=Date.now()+120000;say(`Could not read “${d&&d.name||""}” (${err&&err.message||err}) — OneDrive files must be on this PC (“Always keep on this device”), or click Browse folder again for the plain window`,true);}},true);
+  const sb=document.getElementById("brSimple");if(sb)sb.remove();
+  bp.title="Choose a folder: every image in it and its sub-folders is listed with time, temperature and pressure; its notes file is read (and written with auto-save). If Chrome's window closes without the folder, click again: the plain folder window opens";
+  /* the notes file of the chosen folder, from the files the window hands over */
+  bd.addEventListener("change",()=>{const fs=[...bd.files];const root=(fs[0]&&fs[0].webkitRelativePath||"").split("/")[0]||"folder";const want=`${root.replace(/[\\/:*?"<>|]+/g,"_")}_notes.txt`.toLowerCase();
+    BR.plainNotes=fs.find(f=>{const p=(f.webkitRelativePath||f.name).split("/");return p.length===2&&p[1].toLowerCase()===want;})||null;},true);
+  if(typeof notesFromFolder==="function"){const _n=notesFromFolder;notesFromFolder=async function(gen){if(BR.handle)return _n.apply(this,arguments);const f=BR.plainNotes;if(!f)return;
+    try{const got=notesParse(await f.text());if(gen!==BR.gen)return;const n=notesApply(got);brRender();notesMsg(`notes read from ${f.name}${n?" for "+n+" image"+(n!==1?"s":""):""} · to save changes into the folder, tick auto-save (asks for the folder once) or use 💾 Save notes`);}catch(e){}};}
+  /* auto-save ticked without folder access: ask for it (choose the same folder) */
+  const au=$("brNotesAuto");if(au&&typeof showDirectoryPicker==="function"&&FSA_PICK)au.addEventListener("change",async e=>{if(!au.checked||BR.handle||!BR.dir)return;e.stopImmediatePropagation();try{localStorage.setItem("saed-notes-auto","1");}catch(err){}
+    try{const d=await showDirectoryPicker({id:"saed-notesdir",mode:"readwrite"});if(d.name!==BR.dir){notesMsg(`That was “${d.name}”, not “${BR.dir}” — tick auto-save again and choose “${BR.dir}”`);au.checked=false;return;}
+      BR.handle=d;if(await notesPerm(true)){notesWrite();notesMsg(`auto-save on: notes are written into “${d.name}”`);}}
+    catch(err){au.checked=false;notesMsg(err&&err.name==="AbortError"?"auto-save needs the folder: tick it again and choose the image folder — or use 💾 Save notes":`folder access failed (${err&&err.message||err}) — use 💾 Save notes`);}},true);}}
+</script>
+<script>
+/* ===== buttons: Chrome's picker (remembers each button's place); if it closes without a choice, the next click on that button opens the plain window ===== */
+if(typeof vidChoose==="function"&&$("vidDir"))vidChoose=async function(){if(!FSA||!FSA_PICK||plainNext("vid")){$("vidDir").click();return;}
+  let base=null,last=null;try{base=await PICK_DB.get("vid-base");last=await PICK_DB.get("vid-last");}catch(e){}
+  /* the remembered videos folder, only if Chrome still allows it without asking (asking would use up the click) */
+  if(base){let ok=false;try{ok=(await base.queryPermission({mode:"read"}))==="granted";}catch(e){}if(ok){const L=await vidFindIn(base,1);if(L.length){$("vidModal").hidden=false;vidBaseList(base,L);return;}}}
+  let d=null;try{d=await vidPickDir(base||last);}catch(e){pickFailed("vid",e);return;}if(!d){pickFailed("vid",{name:"AbortError"});return;}
+  try{await vidTakeDir(d);}catch(e){pickFailed("vid",e);}};
+/* ↻ refresh CIFs: folders remembered earlier are refreshed as before; with none remembered, pick the CIF folder (plain window) */
+if(typeof cifRefresh==="function"){const _r=cifRefresh;cifRefresh=async function(){let R=[];try{R=await cifRecentGet();}catch(e){}
+  if(!R||!R.length){const st=$("cifStatus");if(st)st.textContent="Pick the CIF folder: new CIFs are added, already loaded ones are kept (use Add folder… once so it is remembered)";$("cifDir").click();return;}return _r.apply(this,arguments);};}
+/* IS notes: 📄 after Chrome's picker closed without a file → the plain window reads a notes file; 💾 save downloads the notes when no notes file is connected */
+{const nb=$("isnFile"),sv=$("isnSaveNow");if(nb&&sv&&typeof ISN!=="undefined"){
+  const inp=document.createElement("input");inp.type="file";inp.accept=".txt";inp.hidden=true;nb.after(inp);
+  const st=t=>{$("isnStat").textContent=t;};
+  nb.addEventListener("click",e=>{if(!TM.data||(ISN.h&&!ISN.ok))return;if(FSA_PICK&&typeof window.showSaveFilePicker==="function"&&!plainNext("isn"))return;e.stopImmediatePropagation();ISN.clicked=true;inp.click();},true);
+  inp.addEventListener("change",async()=>{const f=inp.files[0];inp.value="";if(!f)return;try{const txt=await f.text();if(txt.trim())isnApply(isnParse(txt));ISN.plain=f.name;st(`notes read from ${f.name} · 💾 save downloads the updated file (auto-save needs Chrome's picker)`);}catch(err){st("could not read the notes file: "+err.message);}try{isnBlink();}catch(err){}});
+  sv.addEventListener("click",e=>{if(ISN.h&&ISN.ok)return;e.stopImmediatePropagation();if(!TM.data){st("open the radial-profile .dm4 first");return;}const n=ISN.plain||isnName();saveFile(n,new Blob([isnText()],{type:"text/plain"}));st(`downloaded ${n} (check Downloads)`);},true);
+  if(typeof isnBlink==="function"){const _b=isnBlink;isnBlink=function(){_b.apply(this,arguments);if(TM.data&&!(ISN.h&&ISN.ok))sv.hidden=false;};}}}
+</script>
+<script>
+/* ===== overlap: ✥ move labels (top-left label, top-right legend, scale-bar number and bar — each on its own), size of the overlap and its 1/d range ===== */
+function lzLegBox(g,W,dpr,top,o,od){if(typeof LZ==="undefined")return null;const L=LZ.filter(z=>z.on);if(!L.length||($("lzLegOn")&&!$("lzLegOn").checked))return null;g.save();g.font=`600 ${10*dpr}px "IBM Plex Mono",monospace`;
+  const w=Math.max(...L.map(z=>g.measureText(`[${z.u.join(" ")}] ${z.leg}`).width));g.restore();const dx=(o&&o.dx||0)*(od||dpr),dy=(o&&o.dy||0)*(od||dpr);return [W-w-28*dpr+dx,top-2*dpr+dy,W-6*dpr+dx,top+15*dpr*L.length+dy];}
+{const ov=$("edOv"),row=ov&&(ov.closest(".edGrp")||$("edOvBar")),cv=$("edCv");if(row&&cv&&!$("ovMove")){
+  const box=document.createElement("span");box.className="row2";box.style.cssText="gap:6px;flex-wrap:wrap;border-left:2px solid var(--line);padding-left:8px";
+  box.innerHTML=`<label title="Size of the labels on the overlap: top-left label, zone legend, hkl numbers, scale-bar number and bar">label size <input id="ovLabK" type="range" min="50" max="300" step="5" style="width:6rem"><span class="keys" id="ovLabKv"></span></label>
+    <label title="Size of the overlap picture itself (it stays square)">picture size <input id="ovSize" type="number" min="200" max="2000" step="10" style="width:4.6rem"> px</label>
+    <label title="1/d range shown: from the centre to the edge of the overlap. Type a value to zoom to it (the wheel changes it too)">range ± <input id="ovRange" type="number" min="0.1" max="100" step="0.1" style="width:4.4rem"> nm⁻¹</label>
+    <button id="ovMove" style="padding:1px 8px" title="Drag the labels and the scale bar on the overlap: top-left label, zone legend, scale-bar number and scale bar each move on their own. Click again to stop">✥ move labels</button>
+    <button id="ovMoveR" style="padding:1px 8px" title="Labels and scale bar back to their places">↺</button>`;
+  row.appendChild(box);const w=$("edWrap");
+  $("ovLabK").value=OVK;$("ovLabKv").textContent=OVK+" %";$("ovLabK").addEventListener("input",()=>{OVK=+$("ovLabK").value;$("ovLabKv").textContent=OVK+" %";try{localStorage.setItem("ov-labk",OVK);}catch(e){}try{edDraw();}catch(e){}});
+  for(const id of ["ovSize","ovRange"])$(id).addEventListener("keydown",e=>e.stopPropagation());
+  const fill=()=>{if(document.activeElement!==$("ovSize"))$("ovSize").value=w?Math.round(w.offsetWidth):"";const G=ED.geo;if(document.activeElement!==$("ovRange")&&G&&G.sc>0)$("ovRange").value=((cv.width/2)/G.sc*10).toPrecision(3);};setInterval(()=>{try{fill();}catch(e){}},700);
+  $("ovSize").addEventListener("change",()=>{const v=Math.round(+$("ovSize").value);if(!(v>=200)||!w)return;const m=w.parentElement?w.parentElement.clientWidth:v;const s=Math.min(v,m||v);w.style.width=s+"px";w.style.height=s+"px";setTimeout(()=>{try{edDraw();}catch(e){}},30);});
+  $("ovRange").addEventListener("change",()=>{const v=+$("ovRange").value,G=ED.geo;if(!(v>0)||!G||!(G.sc>0))return;const now=(cv.width/2)/G.sc*10;ED.z=(ED.z||1)*now/v;ED.px=0;ED.py=0;try{edDraw();}catch(e){}});
+  /* move mode */
+  let mv=false,drag=null;const sv=()=>{try{localStorage.setItem("ov-pos",JSON.stringify(OVP));}catch(e){}};
+  const setMv=on=>{mv=on;$("ovMove").classList.toggle("primary",on);$("ovMove").textContent=on?"✥ moving… (click to stop)":"✥ move labels";cv.style.cursor=on?"move":"";};
+  $("ovMove").addEventListener("click",()=>setMv(!mv));$("ovMoveR").addEventListener("click",()=>{for(const k of ["tl","tr","sbB","sbT"])delete OVP[k];sv();try{edDraw();}catch(e){}});
+  const at=e=>{const r=cv.getBoundingClientRect(),k=cv.width/r.width;return [(e.clientX-r.left)*k,(e.clientY-r.top)*k,k];};
+  cv.addEventListener("pointerdown",e=>{if(!mv)return;const [x,y,k]=at(e);let hit=null;for(const key of ["sbT","sbB","tl","tr"]){const b=OVHIT[key];if(b&&x>=b[0]&&x<=b[2]&&y>=b[1]&&y<=b[3]){hit=key;break;}}
+    e.stopImmediatePropagation();e.preventDefault();if(!hit)return;const o=OVP[hit]||(OVP[hit]={dx:0,dy:0});drag={key:hit,x:e.clientX,y:e.clientY,dx:o.dx,dy:o.dy};try{cv.setPointerCapture(e.pointerId);}catch(err){}},true);
+  cv.addEventListener("pointermove",e=>{if(!mv)return;e.stopImmediatePropagation();if(!drag){const [x,y]=at(e);let on=false;for(const key of ["sbT","sbB","tl","tr"]){const b=OVHIT[key];if(b&&x>=b[0]&&x<=b[2]&&y>=b[1]&&y<=b[3])on=true;}cv.style.cursor=on?"grab":"move";return;}
+    const o=OVP[drag.key];o.dx=drag.dx+(e.clientX-drag.x);o.dy=drag.dy+(e.clientY-drag.y);cv.style.cursor="grabbing";try{edDraw();}catch(err){}},true);
+  const up=e=>{if(!mv)return;e.stopImmediatePropagation();if(drag){drag=null;sv();}};cv.addEventListener("pointerup",up,true);cv.addEventListener("pointercancel",up,true);
+  for(const t of ["click","dblclick","mousedown","mouseup","mousemove","contextmenu"])cv.addEventListener(t,e=>{if(mv){e.stopImmediatePropagation();if(t!=="mousemove")e.preventDefault();}},true);
+  cv.addEventListener("wheel",e=>{if(mv)e.stopImmediatePropagation();},{capture:true});}}
+</script>
+<script>
+/* overlap saved at the pattern's own sampling: one FFT pixel = one saved pixel over the range shown (2048 px for a whole 2048 FFT);
+   a zoomed-in range is enlarged by a whole number so it is at least ~1000 px (no blur from odd scale factors) */
+function edExpN(){try{const G=ED.geo,cv=$("edCv"),scp=+(($("scale")&&$("scale").value)||0);if(!G||!(G.sc>0)||!cv||!(scp>0)||!S.img)return 2000;
+  const half=(cv.width/2)/G.sc*10,n=Math.round(2*half/scp);if(!(n>16))return 2000;const m=Math.max(1,Math.ceil(1000/n));return Math.min(8192,n*m);}catch(e){return 2000;}}
+</script>
+<script>
+/* ===== locked zones and CIF settings grouped by phase (same reduced formula, as “group by phase” in Phases from CIF): a header band per phase, click it to fold ===== */
+const PCAT_SUB=k=>String(k).replace(/[0-9.]/g,c=>c==="."?".":"₀₁₂₃₄₅₆₇₈₉"[+c]);
+const pcatKey=ph=>{try{return ph?phKey(ph):"custom spots";}catch(e){return "?";}};
+const pcatOrd=k=>{if(k==="custom spots")return 1e9;const i=S.phases.findIndex(p=>pcatKey(p)===k);return i<0?1e8:i;};
+let PCAT_FOLD=new Set();try{PCAT_FOLD=new Set(JSON.parse(localStorage.getItem("pcat-fold")||"[]"));}catch(e){}
+const pcatFoldSave=()=>{try{localStorage.setItem("pcat-fold",JSON.stringify([...PCAT_FOLD]));}catch(e){}};
+{const st=document.createElement("style");st.textContent=".pcatH{background:var(--accent);color:#fff;font:600 12px var(--f-body);padding:2px 8px;border-radius:5px;cursor:pointer;user-select:none;display:flex;gap:8px;align-items:center}.pcatH .keys{color:rgba(255,255,255,.82)!important}tr.pcatH{display:table-row}tr.pcatH td{background:var(--accent)!important;color:#fff!important;padding:3px 8px!important;text-align:left!important}";document.head.appendChild(st);}
+/* locked zones: the rows stay in their place in the list (other parts of the app find a row by its position); they are only shown in phase order (CSS order), with the headers added at the end */
+{const _u=lzUI;lzUI=function(){const r=_u.apply(this,arguments);try{const rw=$("lzRows");if(!rw)return r;for(const h of [...rw.querySelectorAll(":scope > .pcatH")])h.remove();
+  const kids=[...rw.children];if(!LZ.length)return r;const cats=new Map();LZ.forEach((z,i)=>{if(!z.ph&&!z.custom)z.ph=S.phases.find(p=>(p.legend||"").trim()===z.leg)||null;const k=z.custom?"custom spots":pcatKey(z.ph||null);if(!cats.has(k))cats.set(k,[]);cats.get(k).push(i);});
+  const order=[...cats.keys()].sort((a,b)=>pcatOrd(a)-pcatOrd(b)||a.localeCompare(b));let o=0;
+  for(const k of order){const I=cats.get(k),fk="lz|"+k,fold=PCAT_FOLD.has(fk);const h=document.createElement("div");h.className="pcatH";h.style.order=String(o++);
+    h.innerHTML=`<span>${fold?"▸":"▾"}</span><b></b><span class="keys">${I.length} zone${I.length>1?"s":""}</span>`;h.querySelector("b").textContent=k==="custom spots"?k:PCAT_SUB(k);h.title="Click: fold / unfold this phase";
+    h.addEventListener("click",()=>{fold?PCAT_FOLD.delete(fk):PCAT_FOLD.add(fk);pcatFoldSave();lzUI();});rw.appendChild(h);
+    for(const i of I){const d=kids[i];if(!d)continue;d.style.order=String(o++);d.style.display=fold?"none":"";}}}catch(e){console.error(e);}return r;};}
+try{lzUI();}catch(e){}
+/* CIF settings: the starred CIFs sorted by phase, a header row per phase */
+if(typeof cfsUI==="function"){const _c=cfsUI;cfsUI=function(){const r=_c.apply(this,arguments);try{const b=$("cfsBox"),tb=b&&b.querySelector("tbody");if(!tb)return r;
+  const rows=[...tb.querySelectorAll(":scope > tr[data-id]")];if(!rows.length)return r;const ph=tr=>S.phases.find(p=>String(p.id)===tr.dataset.id);
+  const sig=rows.map(tr=>tr.dataset.id).join(",")+"|"+[...PCAT_FOLD].join(",");if(tb.dataset.pcat===sig&&tb.querySelector("tr.pcatH"))return r;
+  for(const h of [...tb.querySelectorAll("tr.pcatH")])h.remove();const cats=new Map();for(const tr of rows){const k=pcatKey(ph(tr));if(!cats.has(k))cats.set(k,[]);cats.get(k).push(tr);}
+  const order=[...cats.keys()].sort((a,c)=>pcatOrd(a)-pcatOrd(c)||a.localeCompare(c)),nc=(b.querySelector("thead tr")||{children:[1]}).children.length;
+  for(const k of order){const L=cats.get(k),fk="cfs|"+k,fold=PCAT_FOLD.has(fk),h=document.createElement("tr");h.className="pcatH";h.title="Click: fold / unfold this phase";
+    h.innerHTML=`<td colspan="${nc}"><span>${fold?"▸":"▾"}</span> <b></b> <span class="keys">${L.length} CIF${L.length>1?"s":""}</span></td>`;h.querySelector("b").textContent=PCAT_SUB(k);
+    h.addEventListener("click",()=>{fold?PCAT_FOLD.delete(fk):PCAT_FOLD.add(fk);pcatFoldSave();tb.dataset.pcat="";cfsUI();});tb.appendChild(h);for(const tr of L){tr.style.display=fold?"none":"";tb.appendChild(tr);}}
+  tb.dataset.pcat=[...tb.querySelectorAll(":scope > tr[data-id]")].map(tr=>tr.dataset.id).join(",")+"|"+[...PCAT_FOLD].join(",");}catch(e){console.error(e);}return r;};
+  try{cfsUI(true);}catch(e){}}
 </script>
 
 </body></html>
